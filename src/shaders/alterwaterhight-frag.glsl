@@ -16,14 +16,14 @@ layout (location = 1) out vec4 writevel;
 in vec2 fs_Pos;
 
 
-float timestep = 0.00005;
+float timestep = 0.0001;
 
 void main(){
 
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float texwidth = u_SimRes;
   float div = 1.f/texwidth;
-  float g = 0.4;
+  float g = 1.4;
   float pipelen = u_PipeLen;
 
   vec4 topflux = texture(readflux,curuv+vec2(0.f,div));

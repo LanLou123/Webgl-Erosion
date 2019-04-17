@@ -14,6 +14,6 @@ out vec4 out_Col; // This is the final output color that you will see on your
 
 void main()
 {
-    float yval = texture(hightmap,fs_Uv).x/40.f;
+    float yval = texture(hightmap,fs_Uv).x/30.f;
     out_Col = vec4(vec3(yval),1.f);
 }

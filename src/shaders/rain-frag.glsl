@@ -12,7 +12,7 @@ layout (location = 0) out vec4 writeterrain;
 in vec2 fs_Pos;
 
 
-float timestep = 0.00005;
+float timestep = 0.0001;
 
 
 void main() {
@@ -21,5 +21,5 @@ void main() {
       vec4 cur = texture(terrain,curuv);
 
 
-      writeterrain = vec4(cur.x,cur.y+0.05f,cur.z,cur.w);
+      writeterrain = vec4(cur.x,cur.y+0.8f,cur.z,cur.w);
 }

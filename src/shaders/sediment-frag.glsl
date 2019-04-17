@@ -21,7 +21,7 @@ layout (location = 1) out vec4 writesedi;
 in vec2 fs_Pos;
 
 
-float timestep = 0.00005;
+float timestep = 0.0001;
 
 
 void main() {
@@ -29,7 +29,7 @@ void main() {
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float texwidth = u_SimRes;
   float div = 1.f/texwidth;
-  float g = 0.1;
+  float g = 1.4;
   float pipelen = u_PipeLen;
   float Kc = u_Kc;
   float Ks = u_Ks;

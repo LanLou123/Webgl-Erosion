@@ -18,8 +18,8 @@ const controls = {
   tesselations: 5,
     pipelen: div,
     Kc : 0.01,
-    Ks : 0.004,
-    Kd : 0.004,
+    Ks : 0.002,
+    Kd : 0.001,
 
   'Load Scene': loadScene, // A function pointer, essentially
 };
@@ -601,7 +601,7 @@ function main() {
     stats.begin();
 
     if(t%1==0){
-        for(let i = 0;i<10;i++) {
+        for(let i = 0;i<8;i++) {
             SimulationStep(cnt, flow, waterhight, sediment, sediadvect,rains, renderer, gl, camera);
             cnt++;
             console.log(cnt);
