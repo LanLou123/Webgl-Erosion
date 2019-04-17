@@ -16,10 +16,9 @@ float timestep = 0.0001;
 
 
 void main() {
-
+      float Ke = 0.4;
       vec2 curuv = 0.5f*fs_Pos+0.5f;
       vec4 cur = texture(terrain,curuv);
-
-
-      writeterrain = vec4(cur.x,cur.y+.004f,cur.z,cur.w);
+      float eva = (1.f-timestep*Ke*100.f);
+      writeterrain = vec4(cur.x,cur.y*0.8,cur.z,cur.w);
 }

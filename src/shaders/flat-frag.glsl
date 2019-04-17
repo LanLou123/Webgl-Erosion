@@ -13,6 +13,6 @@ void main() {
 vec2 uv = 0.5*fs_Pos+0.5;
 
   vec4 col = (texture(hightmap,0.5f*fs_Pos+.5f));
-  vec4 fcol =  vec4(vec3(col.xyz/2.f),1.f);
+  vec4 fcol =  vec4(vec3(col.xyz/5.f),1.f);
   out_Col = fcol;
 }

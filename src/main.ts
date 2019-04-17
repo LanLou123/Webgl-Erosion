@@ -11,13 +11,13 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 
-let simresolution = 1000;
+let simresolution = 300;
 let div = 1/simresolution;
 
 const controls = {
   tesselations: 5,
-    pipelen: div,
-    Kc : 0.01,
+    pipelen: div/20,
+    Kc : 0.05,
     Ks : 0.002,
     Kd : 0.001,
 
@@ -85,7 +85,12 @@ function Render2Texture(renderer:OpenGLRenderer, gl:WebGL2RenderingContext,camer
 function SimulatePerStep(renderer:OpenGLRenderer,
                          gl:WebGL2RenderingContext,
                          camera:Camera,
-                         shader:ShaderProgram,waterhight:ShaderProgram,sedi:ShaderProgram,advect:ShaderProgram,rains:ShaderProgram) {
+                         shader:ShaderProgram,
+                         waterhight:ShaderProgram,
+                         sedi:ShaderProgram,
+                         advect:ShaderProgram,
+                         rains:ShaderProgram,
+                         eva:ShaderProgram) {
 
 
     //////////////////////////////////////////////////////////////////
@@ -374,6 +379,60 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     write_sediment_tex = tmp;
 
     //----------swap sediment map---------
+
+    //////////////////////////////////////////////////////////////////
+    // water level evaporation at end of each iteration
+    // 5---use terrain map to derive new terrain map :
+    // terrain map -----> terrain map
+    //////////////////////////////////////////////////////////////////
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
+        simres,simres);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
+
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        console.log( "frame buffer status:" + status.toString());
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D,null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER,null);
+
+    gl.viewport(0,0,simres,simres);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+
+    renderer.clear();
+    eva.use();
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
+    let readterrainUnife = gl.getUniformLocation(eva.prog,"terrain");
+    gl.uniform1i(readterrainUnife,0);
+
+    renderer.render(camera,eva,[square]);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+
+    //////////////////////////////////////////////////////////////////
+    // water level evaporation at end of each iteration
+    // 5---use terrain map to derive new terrain map :
+    // terrain map -----> terrain map
+    //////////////////////////////////////////////////////////////////
+
+    //---------------swap terrain mao----------------------------
+
+    tmp = read_terrain_tex;
+    read_terrain_tex = write_terrain_tex;
+    write_terrain_tex = tmp;
+
+    //---------------swap terrain mao----------------------------
+
 }
 
 
@@ -471,13 +530,18 @@ function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
 
 
 function SimulationStep(curstep:number,
-                        flow:ShaderProgram, waterhight : ShaderProgram, sediment : ShaderProgram, advect:ShaderProgram,rains:ShaderProgram,
+                        flow:ShaderProgram,
+                        waterhight : ShaderProgram,
+                        sediment : ShaderProgram,
+                        advect:ShaderProgram,
+                        rains:ShaderProgram,
+                        evapo:ShaderProgram,
                         renderer:OpenGLRenderer, 
                         gl:WebGL2RenderingContext,camera:Camera){
     if(curstep>num_simsteps) return true;
     else{
         SimulatePerStep(renderer,
-            gl,camera,flow,waterhight,sediment,advect,rains);
+            gl,camera,flow,waterhight,sediment,advect,rains,evapo);
     }
     return false;
 }
@@ -519,7 +583,7 @@ function main() {
 
   // Initial call to load scene
   loadScene();
-  num_simsteps = 17000;
+  num_simsteps = 4000;
 
   const camera = new Camera(vec3.fromValues(0, 50, -60), vec3.fromValues(0, 0, 0));
 
@@ -569,7 +633,14 @@ function main() {
         new Shader(gl.FRAGMENT_SHADER, require('./shaders/rain-frag.glsl')),
     ]);
 
-  Render2Texture(renderer,gl,camera,noiseterrain,read_terrain_tex);
+
+    const evaporation = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/eva-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/eva-frag.glsl')),
+    ]);
+
+
+    Render2Texture(renderer,gl,camera,noiseterrain,read_terrain_tex);
 
 
   let cnt = 0;
@@ -601,8 +672,8 @@ function main() {
     stats.begin();
 
     if(t%1==0){
-        for(let i = 0;i<8;i++) {
-            SimulationStep(cnt, flow, waterhight, sediment, sediadvect,rains, renderer, gl, camera);
+        for(let i = 0;i<10;i++) {
+            SimulationStep(cnt, flow, waterhight, sediment, sediadvect,rains,evaporation, renderer, gl, camera);
             cnt++;
             console.log(cnt);
         }

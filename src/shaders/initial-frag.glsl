@@ -51,7 +51,7 @@ float fbm (in vec2 st) {
 
 void main() {
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
-  float terrain_hight = 25.f*fbm(2.5f*uv);
+  float terrain_hight = 25.f*fbm(2.5f*uv+vec2(10.f,1.f));
   float rainfall = 2.f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);

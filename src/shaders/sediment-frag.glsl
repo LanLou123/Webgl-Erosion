@@ -50,7 +50,7 @@ void main() {
   vec3 nor = cross((rightpos-curpos).xyz,(tpos-curpos).xyz);
 
   nor = normalize(nor);
-  float velo = length(texture(vel,curuv).xy)/4.f;
+  float velo = length(texture(vel,curuv).xy)/8.f;
   float slope =max(0.01f,sqrt(1.f-pow(abs(dot(vec3(0.f,1.f,0.f),nor)),2.f)));
   float sedicap = Kc*slope*velo;
 
