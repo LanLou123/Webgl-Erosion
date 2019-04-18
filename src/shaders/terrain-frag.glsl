@@ -24,9 +24,10 @@ void main()
 
     vec3 nor = texture(normap,fs_Uv).xyz;
 
-    float lamb = clamp(dot(nor,sundir),0.f,1.f);
+    float lamb = clamp(dot(nor,sundir)+0.3,0.f,1.f);
     float lamb2 = clamp(dot(nor,sundir2),0.f,1.f);
 
     float yval = texture(hightmap,fs_Uv).x/30.f;
-    out_Col = vec4(vec3(yval),1.f);
+    float wval = texture(hightmap,fs_Uv).y;
+    out_Col = vec4(lamb*(vec3(1)+wval*vec3(0.f,0.6f,0.8f)),1.f);
 }

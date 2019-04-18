@@ -59,7 +59,7 @@ float timestep = u_timestep;
 
   nor = normalize(nor);
   float velo = length(texture(vel,curuv).xy)/1.f;
-  float slope = max(0.001f,1.f-abs(nor.y));
+  float slope = max(0.0f,1.f-abs(nor.y));
   float sedicap = Kc*slope*velo;
 
   float cursedi = cursediment.x;

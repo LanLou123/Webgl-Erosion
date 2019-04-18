@@ -12,19 +12,19 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 
 const simresolution = 1000;
-let erosioninterations = 14000;
+let erosioninterations = 12000;
 let speed = 10;
 const div = 1/simresolution;
 
 
 const controls = {
   tesselations: 5,
-    pipelen: div/45,
+    pipelen: div/80,
     Kc : 0.01,
-    Ks : 0.0002,
+    Ks : 0.0003,//larger will induce axis aligning problem, really annoying
     Kd : 0.0001,
     timestep : 0.0001,
-    pipeAra : div*div/10,
+    pipeAra : div*div/5,
 
   'Load Scene': loadScene, // A function pointer, essentially
 };
@@ -732,7 +732,7 @@ function main() {
 
     flat.use();
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D,read_vel_tex);
+    gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
     let postUniform = gl.getUniformLocation(flat.prog,"hightmap");
     gl.uniform1i(postUniform,0);
     renderer.render(camera, flat, [
