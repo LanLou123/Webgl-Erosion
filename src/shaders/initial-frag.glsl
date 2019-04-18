@@ -6,7 +6,7 @@ in vec2 fs_Pos;
 
 layout (location = 0) out vec4 initial;
 
-#define OCTAVES 8
+#define OCTAVES 9
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -51,7 +51,7 @@ float fbm (in vec2 st) {
 
 void main() {
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
-  float terrain_hight = 28.f*pow(fbm(3.1f*uv+vec2(145.f,27.f)),1.f);
+  float terrain_hight = 35.f*pow(fbm(3.1f*uv+vec2(267.f,27.f)),1.f);
   float rainfall = .8f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);

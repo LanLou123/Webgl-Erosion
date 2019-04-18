@@ -21,10 +21,10 @@ const controls = {
   tesselations: 5,
     pipelen: div/100,
     Kc : 0.01,
-    Ks : 0.0003,//larger will induce axis aligning problem, really annoying
-    Kd : 0.0001,
+    Ks : 0.00002,//larger will induce axis aligning problem, really annoying
+    Kd : 0.00004,
     timestep : 0.0001,
-    pipeAra : div*div/5,
+    pipeAra : div*div/1,
 
   'Load Scene': loadScene, // A function pointer, essentially
 };
