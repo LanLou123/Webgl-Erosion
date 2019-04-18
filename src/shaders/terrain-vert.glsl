@@ -23,10 +23,13 @@ out vec2 fs_Uv;
 
 void main()
 {
-  fs_Pos = vs_Pos.xyz;
+
   fs_Uv = vs_Uv;
   float yval = 1.f*texture(hightmap,vs_Uv).x;
   vec4 modelposition = vec4(vs_Pos.x, yval, vs_Pos.z, 1.0);
+  fs_Pos = vec3(vs_Pos.x,yval,vs_Pos.z);
+
+
   modelposition = u_Model * modelposition;
   gl_Position = u_ViewProj * modelposition;
 }

@@ -11,15 +11,20 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 
-let simresolution = 300;
-let div = 1/simresolution;
+const simresolution = 1000;
+let erosioninterations = 14000;
+let speed = 10;
+const div = 1/simresolution;
+
 
 const controls = {
   tesselations: 5,
-    pipelen: div/20,
-    Kc : 0.05,
-    Ks : 0.002,
-    Kd : 0.001,
+    pipelen: div/45,
+    Kc : 0.01,
+    Ks : 0.0002,
+    Kd : 0.0001,
+    timestep : 0.0001,
+    pipeAra : div*div/10,
 
   'Load Scene': loadScene, // A function pointer, essentially
 };
@@ -41,6 +46,7 @@ let write_vel_tex : WebGLTexture;
 let read_sediment_tex : WebGLTexture;
 let write_sediment_tex : WebGLTexture;
 let render_buffer : WebGLRenderbuffer;
+let terrain_nor : WebGLTexture;
 let num_simsteps : number;
 
 function loadScene() {
@@ -264,7 +270,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
 
     //////////////////////////////////////////////////////////////////
     //3---use velocity map, sediment map and hight map to derive sediment map and new hight map :
-    // hight map + velocity map + sediment map -----> sediment map + hight map
+    // hight map + velocity map + sediment map -----> sediment map + hight map + terrain normal map
     //////////////////////////////////////////////////////////////////
 
     gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
@@ -274,9 +280,10 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,write_sediment_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,terrain_nor,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
-    gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1]);
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1,gl.COLOR_ATTACHMENT2]);
 
     status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
@@ -516,6 +523,15 @@ function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+    terrain_nor = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,terrain_nor);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
+        gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
     //specify our render buffer here
     render_buffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
@@ -560,9 +576,11 @@ function main() {
   const gui = new DAT.GUI();
 
   gui.add(controls,"pipelen",div/20,div*4).step(div/20);
-  gui.add(controls,'Kc',0.01,1.0).step(0.001);
-  gui.add(controls,'Ks',0.01,1.0).step(0.001);
-  gui.add(controls,'Kd',0.01,1.0).step(0.001);
+  gui.add(controls,'Kc',0.0,.1).step(0.0001);
+  gui.add(controls,'Ks',0.0,.1).step(0.0001);
+  gui.add(controls,'Kd',0.0,.1).step(0.0001);
+  gui.add(controls,'timestep',0.0000001,.001).step(0.0000001);
+  gui.add(controls,'pipeAra',0.01*div*div,2*div*div).step(0.01*div*div);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -583,7 +601,7 @@ function main() {
 
   // Initial call to load scene
   loadScene();
-  num_simsteps = 4000;
+  num_simsteps = erosioninterations;
 
   const camera = new Camera(vec3.fromValues(0, 50, -60), vec3.fromValues(0, 0, 0));
 
@@ -652,19 +670,27 @@ function main() {
 
     flow.setPipeLen(controls.pipelen);
     flow.setSimres(simresolution);
+    flow.setTimestep(controls.timestep);
+    flow.setPipeArea(controls.pipeAra);
+
     waterhight.setPipeLen(controls.pipelen);
     waterhight.setSimres(simresolution);
+    waterhight.setTimestep(controls.timestep)
     sediment.setSimres(simresolution);
     sediment.setPipeLen(controls.pipelen);
     sediment.setKc(controls.Kc);
     sediment.setKs(controls.Ks);
     sediment.setKd(controls.Kd);
+    sediment.setTimestep(controls.timestep)
 
     sediadvect.setSimres(simresolution);
     sediadvect.setPipeLen(controls.pipelen);
     sediadvect.setKc(controls.Kc);
     sediadvect.setKs(controls.Ks);
     sediadvect.setKd(controls.Kd);
+    sediadvect.setTimestep(controls.timestep);
+
+
 
 
     t++;
@@ -672,7 +698,7 @@ function main() {
     stats.begin();
 
     if(t%1==0){
-        for(let i = 0;i<10;i++) {
+        for(let i = 0;i<speed;i++) {
             SimulationStep(cnt, flow, waterhight, sediment, sediadvect,rains,evaporation, renderer, gl, camera);
             cnt++;
             console.log(cnt);
@@ -693,6 +719,12 @@ function main() {
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
     let PingUniform = gl.getUniformLocation(lambert.prog,"hightmap");
     gl.uniform1i(PingUniform,0);
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D,terrain_nor);
+    let norUniform = gl.getUniformLocation(lambert.prog,"normap");
+    gl.uniform1i(norUniform,1);
+
     renderer.render(camera, lambert, [
       plane,
     ]);

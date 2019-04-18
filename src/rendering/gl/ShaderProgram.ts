@@ -37,6 +37,8 @@ class ShaderProgram {
   unifKs : WebGLUniformLocation;
   unifKc : WebGLUniformLocation;
   unifKd : WebGLUniformLocation;
+  unifTimestep : WebGLUniformLocation;
+  unifPipeArea : WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -64,6 +66,8 @@ class ShaderProgram {
     this.unifKs = gl.getUniformLocation(this.prog, "u_Ks");
     this.unifKc = gl.getUniformLocation(this.prog, "u_Kc");
     this.unifKd = gl.getUniformLocation(this.prog, "u_Kd");
+    this.unifTimestep = gl.getUniformLocation(this.prog, "u_timestep");
+    this.unifPipeArea = gl.getUniformLocation(this.prog,"u_PipeArea");
   }
 
   use() {
@@ -120,6 +124,20 @@ class ShaderProgram {
       if(this.unifKc!==-1){
           gl.uniform1f(this.unifKc,k);
       }
+  }
+
+  setTimestep(t:number){
+    this.use();
+    if(this.unifTimestep!==-1){
+      gl.uniform1f(this.unifTimestep,t);
+    }
+  }
+
+  setPipeArea(a:number){
+    this.use();
+    if(this.unifPipeArea!==-1){
+      gl.uniform1f(this.unifPipeArea,a);
+    }
   }
 
   setKd(k :number){

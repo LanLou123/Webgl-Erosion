@@ -6,6 +6,8 @@ uniform sampler2D flux;
 
 uniform float u_SimRes;
 uniform float u_PipeLen;
+uniform float u_timestep;
+uniform float u_PipeArea;
 
 layout (location = 0) out vec4 writeflux;
 
@@ -16,15 +18,15 @@ layout (location = 0) out vec4 writeflux;
 in vec2 fs_Pos;
 
 
-float timestep = 0.0001;
+
 float A = 20.f;
 
 void main() {
-
+    float timestep = u_timestep;
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float texwidth = u_SimRes;
   float div = 1.f/texwidth;
-  float g = 0.5;
+  float g = .5;
   float pipelen = u_PipeLen;
 
 
@@ -42,10 +44,10 @@ void main() {
   float Hleftout = (cur.y+cur.x)-(left.y+left.x);
 
   //out flow flux
-  float ftopout = max(0.f,curflux.x+(timestep*g*div*div*Htopout)/pipelen);
-  float frightout = max(0.f,curflux.y+(timestep*g*div*div*Hrightout)/pipelen);
-  float fbottomout = max(0.f,curflux.z+(timestep*g*div*div*Hbottomout)/pipelen);
-  float fleftout = max(0.f,curflux.w+(timestep*g*div*div*Hleftout)/pipelen);
+  float ftopout = max(0.f,curflux.x+(timestep*g*u_PipeArea*Htopout)/pipelen);
+  float frightout = max(0.f,curflux.y+(timestep*g*u_PipeArea*Hrightout)/pipelen);
+  float fbottomout = max(0.f,curflux.z+(timestep*g*u_PipeArea*Hbottomout)/pipelen);
+  float fleftout = max(0.f,curflux.w+(timestep*g*u_PipeArea*Hleftout)/pipelen);
 
 
   float k = min(1.f,(cur.y*div*div)/(timestep*(ftopout+frightout+fbottomout+fleftout)));
