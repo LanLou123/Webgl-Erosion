@@ -8,4 +8,6 @@
 ## current progress : simple erosion
 - ![](n.JPG)
 
+- ![](ex.JPG)
+
 - ![](td.JPG)
