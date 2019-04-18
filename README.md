@@ -40,7 +40,7 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
       - Sediment transportation : 
       semi-lagrangian method (back track in short) is applied to this step, the formula is  !()[img/back.JPG], bilinear interpolation need to be applied to achieve better results
       
--  **Simulation structre** entire simulation is achieved using a series of ping pong texture pairs each mapping to a spedific stage in the simulation process ，following are the texture pairs I used :
+-  **Simulation structure** entire simulation is achieved using a series of ping pong texture pairs each mapping to a spedific stage in the simulation process ，following are the texture pairs I used :
    - ![](img/fs.JPG) 
    - ```read_terrain_tex``` and ```write_terrain_tex``` : including terrain water information, corresponding to d and b in above graph : 
      -  **R** chanel : terrain height
