@@ -8,7 +8,9 @@
 
 
 ## current progress : simple erosion
-- ![](n.JPG)
+
+
+- ![**river bed like feature showing up**](r.JPG)
 
 - ![](ex.JPG)
 
