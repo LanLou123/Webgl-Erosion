@@ -4,10 +4,7 @@
     <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/rain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/rain-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/dist/" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -54,14 +51,14 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="glsl" value="8879" />
-          <entry key="ts" value="7047" />
+          <entry key="glsl" value="8899" />
+          <entry key="ts" value="7054" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="8879" />
-          <entry key="TypeScript" value="7047" />
+          <entry key="PLAIN_TEXT" value="8899" />
+          <entry key="TypeScript" value="7054" />
         </counts>
       </usages-collector>
     </session>
@@ -80,8 +77,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shaders/sediment-frag.glsl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="51" column="24" selection-start-line="51" selection-start-column="24" selection-end-line="51" selection-end-column="24" />
+            <state relative-caret-position="266">
+              <caret line="48" lean-forward="true" selection-start-line="48" selection-end-line="48" />
             </state>
           </provider>
         </entry>
@@ -125,8 +122,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shaders/terrain-vert.glsl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="532">
-              <caret line="28" column="59" selection-start-line="28" selection-start-column="59" selection-end-line="28" selection-end-column="59" />
+            <state relative-caret-position="570">
+              <caret line="30" column="34" selection-start-line="30" selection-start-column="34" selection-end-line="30" selection-end-column="34" />
             </state>
           </provider>
         </entry>
@@ -206,7 +203,6 @@
         <option value="$PROJECT_DIR$/src/shaders/sediadvect-vert.glsl" />
         <option value="$PROJECT_DIR$/src/shaders/rain-vert.glsl" />
         <option value="$PROJECT_DIR$/src/shaders/eva-vert.glsl" />
-        <option value="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" />
         <option value="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" />
         <option value="$PROJECT_DIR$/src/shaders/alterwaterhight-frag.glsl" />
         <option value="$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl" />
@@ -217,6 +213,7 @@
         <option value="$PROJECT_DIR$/src/shaders/rain-frag.glsl" />
         <option value="$PROJECT_DIR$/src/shaders/initial-frag.glsl" />
         <option value="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" />
+        <option value="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" />
         <option value="$PROJECT_DIR$/src/main.ts" />
       </list>
     </option>
@@ -346,16 +343,15 @@
       <updated>1554852255720</updated>
       <workItem from="1554852257624" duration="1245000" />
       <workItem from="1555099059464" duration="599000" />
-      <workItem from="1555255889122" duration="111934000" />
+      <workItem from="1555255889122" duration="112488000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="113778000" />
+    <option name="totallyTimeSpent" value="114332000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1096" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13119073" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -554,13 +550,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shaders/terrain-vert.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="532">
-          <caret line="28" column="59" selection-start-line="28" selection-start-column="59" selection-end-line="28" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shaders/terrain-frag.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="361">
@@ -568,17 +557,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shaders/sediment-frag.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="51" column="24" selection-start-line="51" selection-start-column="24" selection-end-line="51" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shaders/flat-frag.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="266">
           <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shaders/sediment-frag.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="266">
+          <caret line="48" lean-forward="true" selection-start-line="48" selection-end-line="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shaders/terrain-vert.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="30" column="34" selection-start-line="30" selection-start-column="34" selection-end-line="30" selection-end-column="34" />
         </state>
       </provider>
     </entry>
