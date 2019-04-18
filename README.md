@@ -33,12 +33,12 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
       as for the velocity, the paper also gives:![](img/veleq.JPG)
       
       - Erosion and Deposition : 
-      first thing in this step is to aquire the sediment capacity for current water volume, which is simply  !()[img/cap.JPG], which is multiplication of terrain slope, capacity constant ```Kc``` and length of the current velocity
+      first thing in this step is to aquire the sediment capacity for current water volume, which is simply  ![](img/cap.JPG), which is multiplication of terrain slope, capacity constant ```Kc``` and length of the current velocity
       second thing is to compare the current sediment with the capacity, if sediment > capacity, deposite some amount to current cell (Kd)
       else erode some from the current cell (Ks)
       
       - Sediment transportation : 
-      semi-lagrangian method (back track in short) is applied to this step, the formula is  !()[img/back.JPG], bilinear interpolation need to be applied to achieve better results
+      semi-lagrangian method (back track in short) is applied to this step, the formula is  ![](img/back.JPG), bilinear interpolation need to be applied to achieve better results
       
 -  **Simulation structure** entire simulation is achieved using a series of ping pong texture pairs each mapping to a spedific stage in the simulation process ，following are the texture pairs I used :
    - ![](img/fs.JPG) 
