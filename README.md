@@ -13,11 +13,12 @@
 - ![](td.JPG)
 
 
-### Implementation:
+
 
 #### I mainly used fast hydralic Erosion simulation as my main reference for first half of the project (erosion)
 
--  **Theory** according to the paper, some steps need to be followed sequencially
+-  **Main theory** : following are some steps need to be followed sequentially according to the paper.
+
    - ***Increament water level*** : New water appears on the terrain due to two major effects: rainfall and river sources. For both types, we need tospecify the location, the radius and the water intensity (the amount of water arriving during ∆t). For river sources, the
 location of the sources is fixed, for rain fall, all pixel have to be increment with water, the addition is simply : 
 ```d1(x,y) = dt(x,y) + deltaTime*rt(x,y)``` where rt(x,y) is the water arriving x,y per deltaTime.
