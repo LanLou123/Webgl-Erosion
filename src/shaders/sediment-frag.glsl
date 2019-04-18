@@ -48,8 +48,15 @@ float timestep = u_timestep;
   vec4 cursediment = texture(sedi,curuv);
 
 
-  vec3 dx = vec3(div*1.f,right.x-left.x,0.f);
-  vec3 dy = vec3(0.f,top.x-bottom.x,div*1.f);
+
+  float nordis = div*1.f;
+  vec4 nort = texture(read,curuv+vec2(0.f,nordis));
+  vec4 norr = texture(read,curuv+vec2(nordis,0.f));
+  vec4 norb = texture(read,curuv+vec2(0.f,-nordis));
+  vec4 norl = texture(read,curuv+vec2(-nordis,0.f));
+
+  vec3 dx = vec3(nordis*1.f,norr.x-norl.x,0.f);
+  vec3 dy = vec3(0.f,nort.x-norb.x,nordis*1.f);
 
 
 

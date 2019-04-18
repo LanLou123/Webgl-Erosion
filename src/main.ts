@@ -19,7 +19,7 @@ const div = 1/simresolution;
 
 const controls = {
   tesselations: 5,
-    pipelen: div/80,
+    pipelen: div/300,
     Kc : 0.01,
     Ks : 0.0003,//larger will induce axis aligning problem, really annoying
     Kd : 0.0001,

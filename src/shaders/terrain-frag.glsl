@@ -17,7 +17,7 @@ void main()
 {
 
 
-    vec3 sundir = vec3(1.f,4.f,1.f);
+    vec3 sundir = vec3(1.f,8.f,-1.f);
     vec3 sundir2 = vec3(-1.f,4.f,-1.f);
     sundir2 = normalize(sundir2);
     sundir = normalize(sundir);
