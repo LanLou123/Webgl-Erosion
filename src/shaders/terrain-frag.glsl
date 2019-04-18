@@ -29,5 +29,6 @@ void main()
 
     float yval = texture(hightmap,fs_Uv).x/30.f;
     float wval = texture(hightmap,fs_Uv).y;
-    out_Col = vec4(lamb*(vec3(1)+wval*vec3(0.f,0.6f,0.8f)),1.f);
+    vec3 cc = mix(vec3(0.3,1.0,0.1),vec3(0.7,0.7,0.0),wval/(wval+yval));
+    out_Col = vec4(lamb*(vec3(cc*0.8)+wval*vec3(0.f,0.3f,0.6f)),1.f);
 }

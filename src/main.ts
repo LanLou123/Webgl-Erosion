@@ -12,20 +12,21 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 
 const simresolution = 1000;
-let erosioninterations = 12000;
+let erosioninterations = 34000;
 let speed = 10;
 const div = 1/simresolution;
 
 
 const controls = {
   tesselations: 5,
-    pipelen: div/100,
-    Kc : 0.01,
-    Ks : 0.00002,//larger will induce axis aligning problem, really annoying
-    Kd : 0.00004,
-    timestep : 0.0001,
-    pipeAra : div*div/1,
-
+    pipelen: div/80,
+    Kc : 0.001,
+    Ks : 0.003,//larger will induce axis aligning problem, really annoying
+    Kd : 0.004,
+    timestep : 0.0005,
+    pipeAra : div*div/5,
+    evadegree : 0.001,
+    raindegree : 0.0001,
   'Load Scene': loadScene, // A function pointer, essentially
 };
 
@@ -133,6 +134,9 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
     let readUnifr = gl.getUniformLocation(rains.prog,"read");
     gl.uniform1i(readUnifr,0);
+
+    let raind = gl.getUniformLocation(rains.prog,'raindeg');
+    gl.uniform1f(raind,controls.raindegree);
 
     renderer.render(camera,rains,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -422,6 +426,9 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
     let readterrainUnife = gl.getUniformLocation(eva.prog,"terrain");
     gl.uniform1i(readterrainUnife,0);
+
+    let erapodegree = gl.getUniformLocation(eva.prog,'evapod');
+    gl.uniform1f(erapodegree,controls.evadegree);
 
     renderer.render(camera,eva,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -732,7 +739,7 @@ function main() {
 
     flat.use();
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
+    gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
     let postUniform = gl.getUniformLocation(flat.prog,"hightmap");
     gl.uniform1i(postUniform,0);
     renderer.render(camera, flat, [

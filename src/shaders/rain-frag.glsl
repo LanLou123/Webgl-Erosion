@@ -2,6 +2,7 @@
 precision highp float;
 
 uniform sampler2D terrain;
+uniform float raindeg;
 
 layout (location = 0) out vec4 writeterrain;
 
@@ -20,7 +21,7 @@ void main() {
       vec2 curuv = 0.5f*fs_Pos+0.5f;
       vec4 cur = texture(terrain,curuv);
 
-      float pi = 0.003f;
+      float pi = raindeg;
       float md = mod((curuv.x*800.f),3.f);
       //if(curuv.x<0.4||curuv.x>0.6||curuv.y<0.4||curuv.y>0.6) pi = 0.f;
 

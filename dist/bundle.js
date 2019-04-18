@@ -5994,17 +5994,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const simresolution = 1000;
-let erosioninterations = 12000;
+let erosioninterations = 34000;
 let speed = 10;
 const div = 1 / simresolution;
 const controls = {
     tesselations: 5,
-    pipelen: div / 100,
-    Kc: 0.01,
-    Ks: 0.00002,
-    Kd: 0.00004,
-    timestep: 0.0001,
-    pipeAra: div * div / 1,
+    pipelen: div / 80,
+    Kc: 0.001,
+    Ks: 0.003,
+    Kd: 0.004,
+    timestep: 0.0005,
+    pipeAra: div * div / 5,
+    evadegree: 0.001,
+    raindegree: 0.0001,
     'Load Scene': loadScene,
 };
 //geometries
@@ -6078,6 +6080,8 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
     let readUnifr = gl.getUniformLocation(rains.prog, "read");
     gl.uniform1i(readUnifr, 0);
+    let raind = gl.getUniformLocation(rains.prog, 'raindeg');
+    gl.uniform1f(raind, controls.raindegree);
     renderer.render(camera, rains, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //////////////////////////////////////////////////////////////////
@@ -6283,6 +6287,8 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
     let readterrainUnife = gl.getUniformLocation(eva.prog, "terrain");
     gl.uniform1i(readterrainUnife, 0);
+    let erapodegree = gl.getUniformLocation(eva.prog, 'evapod');
+    gl.uniform1f(erapodegree, controls.evadegree);
     renderer.render(camera, eva, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //////////////////////////////////////////////////////////////////
@@ -6504,7 +6510,7 @@ function main() {
         ]);
         flat.use();
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
+        gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
         let postUniform = gl.getUniformLocation(flat.prog, "hightmap");
         gl.uniform1i(postUniform, 0);
         renderer.render(camera, flat, [
@@ -16949,7 +16955,7 @@ module.exports = "#version 300 es\n\n\nuniform mat4 u_Model;\nuniform mat4 u_Mod
 /* 70 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\nprecision highp float;\n\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\n\nin vec3 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_Col;\nuniform sampler2D hightmap;\nuniform sampler2D normap;\nin float fs_Sine;\nin vec2 fs_Uv;\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nvoid main()\n{\n\n\n    vec3 sundir = vec3(1.f,8.f,-1.f);\n    vec3 sundir2 = vec3(-1.f,4.f,-1.f);\n    sundir2 = normalize(sundir2);\n    sundir = normalize(sundir);\n\n    vec3 nor = texture(normap,fs_Uv).xyz;\n\n    float lamb = clamp(dot(nor,sundir)+0.3,0.f,1.f);\n    float lamb2 = clamp(dot(nor,sundir2),0.f,1.f);\n\n    float yval = texture(hightmap,fs_Uv).x/30.f;\n    float wval = texture(hightmap,fs_Uv).y;\n    out_Col = vec4(lamb*(vec3(1)+wval*vec3(0.f,0.6f,0.8f)),1.f);\n}\n"
+module.exports = "#version 300 es\nprecision highp float;\n\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\n\nin vec3 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_Col;\nuniform sampler2D hightmap;\nuniform sampler2D normap;\nin float fs_Sine;\nin vec2 fs_Uv;\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nvoid main()\n{\n\n\n    vec3 sundir = vec3(1.f,8.f,-1.f);\n    vec3 sundir2 = vec3(-1.f,4.f,-1.f);\n    sundir2 = normalize(sundir2);\n    sundir = normalize(sundir);\n\n    vec3 nor = texture(normap,fs_Uv).xyz;\n\n    float lamb = clamp(dot(nor,sundir)+0.3,0.f,1.f);\n    float lamb2 = clamp(dot(nor,sundir2),0.f,1.f);\n\n    float yval = texture(hightmap,fs_Uv).x/30.f;\n    float wval = texture(hightmap,fs_Uv).y;\n    vec3 cc = mix(vec3(0.3,1.0,0.1),vec3(0.7,0.7,0.0),wval/(wval+yval));\n    out_Col = vec4(lamb*(vec3(cc*0.8)+wval*vec3(0.f,0.3f,0.6f)),1.f);\n}\n"
 
 /***/ }),
 /* 71 */
@@ -16961,7 +16967,7 @@ module.exports = "#version 300 es\nprecision highp float;\n\n// The vertex shade
 /* 72 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\nprecision highp float;\n\nuniform sampler2D hightmap;\n\n\n// The fragment shader used to render the background of the scene\n// Modify this to make your background more interesting\n\nin vec2 fs_Pos;\nout vec4 out_Col;\n\nvoid main() {\nvec2 uv = 0.5*fs_Pos+0.5;\n\n  vec4 col = (texture(hightmap,0.5f*fs_Pos+.5f));\n  vec4 fcol =  vec4(vec3(col.y),1.f);\n  out_Col = fcol;\n}\n"
+module.exports = "#version 300 es\nprecision highp float;\n\nuniform sampler2D hightmap;\n\n\n// The fragment shader used to render the background of the scene\n// Modify this to make your background more interesting\n\nin vec2 fs_Pos;\nout vec4 out_Col;\n\nvoid main() {\nvec2 uv = 0.5*fs_Pos+0.5;\n\n  vec4 col = (texture(hightmap,0.5f*fs_Pos+.5f));\n  vec4 fcol =  vec4(vec3(col.x*10.f),1.f);\n  out_Col = fcol;\n}\n"
 
 /***/ }),
 /* 73 */
@@ -16973,7 +16979,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex
 /* 74 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\nin vec2 fs_Pos;\r\n\r\nlayout (location = 0) out vec4 initial;\r\n\r\n#define OCTAVES 9\r\n\r\nfloat random (in vec2 st) {\r\n    return fract(sin(dot(st.xy,\r\n                         vec2(12.9898,78.233)))*\r\n        43758.5453123);\r\n}\r\n\r\n\r\nfloat noise (in vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    // Four corners in 2D of a tile\r\n    float a = random(i);\r\n    float b = random(i + vec2(1.0, 0.0));\r\n    float c = random(i + vec2(0.0, 1.0));\r\n    float d = random(i + vec2(1.0, 1.0));\r\n\r\n    vec2 u = f * f * (3.0 - 2.0 * f);\r\n\r\n    return mix(a, b, u.x) +\r\n            (c - a)* u.y * (1.0 - u.x) +\r\n            (d - b) * u.x * u.y;\r\n}\r\n\r\n\r\nfloat fbm (in vec2 st) {\r\n    // Initial values\r\n    float value = 0.0;\r\n    float amplitude = .5;\r\n    float frequency = 0.;\r\n    //\r\n    // Loop of octaves\r\n    for (int i = 0; i < OCTAVES; i++) {\r\n        value += amplitude * noise(st);\r\n        st *= 2.;\r\n        amplitude *= .5;\r\n    }\r\n    return value;\r\n}\r\n\r\n\r\nvoid main() {\r\n  vec2 uv = 0.5f*fs_Pos+vec2(0.5f);\r\n  float terrain_hight = 35.f*pow(fbm(3.1f*uv+vec2(267.f,27.f)),1.f);\r\n  float rainfall = .8f;\r\n  //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;\r\n  initial = vec4(terrain_hight,rainfall,0.f,1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\nin vec2 fs_Pos;\r\n\r\nlayout (location = 0) out vec4 initial;\r\n\r\n#define OCTAVES 2\r\n\r\nfloat random (in vec2 st) {\r\n    return fract(sin(dot(st.xy,\r\n                         vec2(12.9898,78.233)))*\r\n        43758.5453123);\r\n}\r\n\r\n\r\nfloat noise (in vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    // Four corners in 2D of a tile\r\n    float a = random(i);\r\n    float b = random(i + vec2(1.0, 0.0));\r\n    float c = random(i + vec2(0.0, 1.0));\r\n    float d = random(i + vec2(1.0, 1.0));\r\n\r\n    vec2 u = f * f * (3.0 - 2.0 * f);\r\n\r\n    return mix(a, b, u.x) +\r\n            (c - a)* u.y * (1.0 - u.x) +\r\n            (d - b) * u.x * u.y;\r\n}\r\n\r\n\r\nfloat fbm (in vec2 st) {\r\n    // Initial values\r\n    float value = 0.0;\r\n    float amplitude = .5;\r\n    float frequency = 0.;\r\n    //\r\n    // Loop of octaves\r\n    for (int i = 0; i < OCTAVES; i++) {\r\n        value += amplitude * noise(st);\r\n        st *= 2.;\r\n        amplitude *= .5;\r\n    }\r\n    return value;\r\n}\r\n\r\n\r\nvoid main() {\r\n  vec2 uv = 0.5f*fs_Pos+vec2(0.5f);\r\n  float terrain_hight = 40.f*pow(fbm(1.f*uv+vec2(23.f,24.f)),1.f);\r\n  float rainfall = .0f;\r\n  //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;\r\n  initial = vec4(terrain_hight,rainfall,0.f,1.f);\r\n}\r\n"
 
 /***/ }),
 /* 75 */
@@ -17009,7 +17015,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex
 /* 80 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D read;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D vel;\r\nuniform sampler2D sedi;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_Ks;\r\nuniform float u_Kc;\r\nuniform float u_Kd;\r\nuniform float u_timestep;\r\n\r\nlayout (location = 0) out vec4 writeterrain;\r\nlayout (location = 1) out vec4 writesedi;\r\nlayout (location = 2) out vec4 terrainnormal;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n\r\n\r\nvoid main() {\r\nfloat timestep = u_timestep;\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float texwidth = u_SimRes;\r\n  float div = 1.f/texwidth;\r\n  float g = 1.4;\r\n  float pipelen = u_PipeLen;\r\n  float Kc = u_Kc;\r\n  float Ks = u_Ks;\r\n  float Kd = u_Kd;\r\n  float maxerosion = .3f;\r\n\r\n\r\n  vec4 top = texture(read,curuv+vec2(0.f,div));\r\n  vec4 right = texture(read,curuv+vec2(div,0.f));\r\n  vec4 bottom = texture(read,curuv+vec2(0.f,-div));\r\n  vec4 left = texture(read,curuv+vec2(-div,0.f));\r\n\r\n  vec4 cur = texture(read,curuv);\r\n  vec4 cursediment = texture(sedi,curuv);\r\n\r\n\r\n\r\n  float nordis = div*1.f;\r\n  vec4 nort = texture(read,curuv+vec2(0.f,nordis));\r\n  vec4 norr = texture(read,curuv+vec2(nordis,0.f));\r\n  vec4 norb = texture(read,curuv+vec2(0.f,-nordis));\r\n  vec4 norl = texture(read,curuv+vec2(-nordis,0.f));\r\n\r\n  vec3 dx = vec3(nordis*1.f,norr.x-norl.x,0.f);\r\n  vec3 dy = vec3(0.f,nort.x-norb.x,nordis*1.f);\r\n\r\n\r\n\r\n  vec3 nor = cross(dx,dy);\r\n\r\n  float lmax = clamp((1.f-max(0.f,maxerosion - cur.y/maxerosion)),0.f,1.f);\r\n\r\n  nor = normalize(nor);\r\n  float velo = length(texture(vel,curuv).xy)/1.f;\r\n  float slope = max(0.0f,1.f-abs(nor.y));\r\n  float sedicap = Kc*slope*velo;\r\n\r\n  float cursedi = cursediment.x;\r\n  float hight = cur.x;\r\n  float outsedi = cursediment.x;\r\n\r\n  if(sedicap>cursedi){\r\n    hight = hight - (sedicap-cursedi)*Ks;\r\n    outsedi = outsedi + (sedicap-cursedi)*Ks;\r\n  }else if(sedicap<cursedi){\r\n    hight = hight + (cursedi-sedicap)*Kd;\r\n    outsedi = outsedi - (cursedi-sedicap)*Kd;\r\n  }\r\n\r\n\r\n  terrainnormal = vec4(nor,1.f);\r\n  writesedi = vec4(outsedi,0.f,0.f,1.f);\r\n  writeterrain = vec4(hight,cur.y,cur.z,cur.w);\r\n\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D read;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D vel;\r\nuniform sampler2D sedi;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_Ks;\r\nuniform float u_Kc;\r\nuniform float u_Kd;\r\nuniform float u_timestep;\r\n\r\nlayout (location = 0) out vec4 writeterrain;\r\nlayout (location = 1) out vec4 writesedi;\r\nlayout (location = 2) out vec4 terrainnormal;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n\r\n\r\nvoid main() {\r\nfloat timestep = u_timestep;\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float texwidth = u_SimRes;\r\n  float div = 1.f/texwidth;\r\n  float g = 1.4;\r\n  float pipelen = u_PipeLen;\r\n  float Kc = u_Kc;\r\n  float Ks = u_Ks;\r\n  float Kd = u_Kd;\r\n  float maxerosion = .3f;\r\n\r\n\r\n  vec4 top = texture(read,curuv+vec2(0.f,div));\r\n  vec4 right = texture(read,curuv+vec2(div,0.f));\r\n  vec4 bottom = texture(read,curuv+vec2(0.f,-div));\r\n  vec4 left = texture(read,curuv+vec2(-div,0.f));\r\n\r\n  vec4 cur = texture(read,curuv);\r\n  vec4 cursediment = texture(sedi,curuv);\r\n\r\n\r\n\r\n  float nordis = div*1.3f;\r\n  vec4 nort = texture(read,curuv+vec2(0.f,nordis));\r\n  vec4 norr = texture(read,curuv+vec2(nordis,0.f));\r\n  vec4 norb = texture(read,curuv+vec2(0.f,-nordis));\r\n  vec4 norl = texture(read,curuv+vec2(-nordis,0.f));\r\n\r\n  vec3 dx = vec3(nordis*1.f,norr.x-norl.x,0.f);\r\n  vec3 dy = vec3(0.f,nort.x-norb.x,nordis*1.f);\r\n\r\n\r\n\r\n  vec3 nor = cross(dx,dy);\r\n\r\n  float lmax = clamp((1.f-max(0.f,maxerosion - cur.y/maxerosion)),0.f,1.f);\r\n\r\n  nor = normalize(nor);\r\n  float velo = length(texture(vel,curuv).xy)/1.f;\r\n  float slope = max(0.0001f,1.f-abs(nor.y));\r\n  float sedicap = Kc*slope*velo;\r\n\r\n  float cursedi = cursediment.x;\r\n  float hight = cur.x;\r\n  float outsedi = cursediment.x;\r\n\r\n  if(sedicap>cursedi){\r\n    hight = hight - (sedicap-cursedi)*Ks;\r\n    outsedi = outsedi + (sedicap-cursedi)*Ks;\r\n  }else if(sedicap<cursedi){\r\n    hight = hight + (cursedi-sedicap)*Kd;\r\n    outsedi = outsedi - (cursedi-sedicap)*Kd;\r\n  }\r\n\r\n\r\n  terrainnormal = vec4(nor,1.f);\r\n  writesedi = vec4(outsedi,0.f,0.f,1.f);\r\n  writeterrain = vec4(hight,cur.y,cur.z,cur.w);\r\n\r\n}"
 
 /***/ }),
 /* 81 */
@@ -17021,7 +17027,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex
 /* 82 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D vel;\r\nuniform sampler2D sedi;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_Ks;\r\nuniform float u_Kc;\r\nuniform float u_Kd;\r\nuniform float u_timestep;\r\n\r\n\r\nlayout (location = 0) out vec4 writesedi;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n\r\n\r\nfloat samplebilinear(vec2 uv){\r\n    vec2 cur_loc = u_SimRes*uv;\r\n    vec2 uva = floor(cur_loc);\r\n    vec2 uvb = ceil(cur_loc);\r\n\r\n    vec2 id00 = uva;\r\n    vec2 id10 = vec2(uvb.x,uva.y);\r\n    vec2 id01 = vec2(uva.x,uvb.y);\r\n    vec2 id11 = uvb;\r\n\r\n    vec2 d = cur_loc - uva;\r\n\r\n    float res =  (texture(sedi,id00/u_SimRes).x*(1.f-d.x)*(1.f-d.y)+\r\n    texture(sedi,id10/u_SimRes).x*d.x*(1.f-d.y)+\r\n    texture(sedi,id01/u_SimRes).x*(1.f-d.x)*d.y+\r\n    texture(sedi,id11/u_SimRes).x*d.x*d.y);\r\n\r\n    return res;\r\n}\r\n\r\nvoid main() {\r\nfloat timestep = u_timestep;\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      float texwidth = u_SimRes;\r\n      float div = 1.f/texwidth;\r\n      float g = 1.4;\r\n      float pipelen = u_PipeLen;\r\n      float Kc = u_Kc;\r\n      float Ks = u_Ks;\r\n      float Kd = u_Kd;\r\n\r\n      vec2 curvel = (texture(vel,curuv).xy)*.01f/u_SimRes;\r\n      float cursedi = texture(sedi,curuv).x;\r\n\r\n      vec2 oldloc = vec2(curuv.x-curvel.x*timestep,curuv.y-curvel.y*timestep);\r\n      float oldsedi = samplebilinear(oldloc);\r\n\r\n      writesedi = vec4(oldsedi,0.f,0.f,1.f);\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D vel;\r\nuniform sampler2D sedi;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_Ks;\r\nuniform float u_Kc;\r\nuniform float u_Kd;\r\nuniform float u_timestep;\r\n\r\n\r\nlayout (location = 0) out vec4 writesedi;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n\r\n\r\nfloat samplebilinear(vec2 uv){\r\n    vec2 cur_loc = u_SimRes*uv;\r\n    vec2 uva = floor(cur_loc);\r\n    vec2 uvb = ceil(cur_loc);\r\n\r\n    vec2 id00 = uva;\r\n    vec2 id10 = vec2(uvb.x,uva.y);\r\n    vec2 id01 = vec2(uva.x,uvb.y);\r\n    vec2 id11 = uvb;\r\n\r\n    vec2 d = cur_loc - uva;\r\n\r\n    float res =  (texture(sedi,id00/u_SimRes).x*(1.f-d.x)*(1.f-d.y)+\r\n    texture(sedi,id10/u_SimRes).x*d.x*(1.f-d.y)+\r\n    texture(sedi,id01/u_SimRes).x*(1.f-d.x)*d.y+\r\n    texture(sedi,id11/u_SimRes).x*d.x*d.y);\r\n\r\n    return res;\r\n}\r\n\r\nvoid main() {\r\nfloat timestep = u_timestep;\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      float texwidth = u_SimRes;\r\n      float div = 1.f/texwidth;\r\n      float g = 1.4;\r\n      float pipelen = u_PipeLen;\r\n      float Kc = u_Kc;\r\n      float Ks = u_Ks;\r\n      float Kd = u_Kd;\r\n\r\n      vec2 curvel = (texture(vel,curuv).xy)*0.1f/u_SimRes;\r\n      float cursedi = texture(sedi,curuv).x;\r\n\r\n      vec2 oldloc = vec2(curuv.x-curvel.x*timestep,curuv.y-curvel.y*timestep);\r\n      float oldsedi = samplebilinear(oldloc);\r\n\r\n      writesedi = vec4(oldsedi,0.f,0.f,1.f);\r\n}"
 
 /***/ }),
 /* 83 */
@@ -17033,7 +17039,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex
 /* 84 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D terrain;\r\n\r\nlayout (location = 0) out vec4 writeterrain;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nfloat timestep = 0.0001;\r\n\r\n\r\nvoid main() {\r\n\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 cur = texture(terrain,curuv);\r\n\r\n      float pi = 0.003f;\r\n      float md = mod((curuv.x*800.f),3.f);\r\n      //if(curuv.x<0.4||curuv.x>0.6||curuv.y<0.4||curuv.y>0.6) pi = 0.f;\r\n\r\n      writeterrain = vec4(cur.x,cur.y+pi,cur.z,cur.w);\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D terrain;\r\nuniform float raindeg;\r\n\r\nlayout (location = 0) out vec4 writeterrain;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nfloat timestep = 0.0001;\r\n\r\n\r\nvoid main() {\r\n\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 cur = texture(terrain,curuv);\r\n\r\n      float pi = raindeg;\r\n      float md = mod((curuv.x*800.f),3.f);\r\n      //if(curuv.x<0.4||curuv.x>0.6||curuv.y<0.4||curuv.y>0.6) pi = 0.f;\r\n\r\n      writeterrain = vec4(cur.x,cur.y+pi,cur.z,cur.w);\r\n}"
 
 /***/ }),
 /* 85 */
@@ -17045,7 +17051,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex
 /* 86 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D terrain;\r\n\r\nlayout (location = 0) out vec4 writeterrain;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nfloat timestep = 0.0001;\r\n\r\n\r\nvoid main() {\r\n      float Ke = 0.4;\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 cur = texture(terrain,curuv);\r\n      float eva = (1.f-timestep*Ke*100.f);\r\n      writeterrain = vec4(cur.x,cur.y*0.98,cur.z,cur.w);\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D terrain;\r\nuniform float evapod;\r\n\r\nlayout (location = 0) out vec4 writeterrain;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nfloat timestep = 0.0001;\r\n\r\n\r\nvoid main() {\r\n      float Ke = 0.4;\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 cur = texture(terrain,curuv);\r\n      float eva = 1.f-evapod;\r\n      writeterrain = vec4(cur.x,cur.y*eva,cur.z,cur.w);\r\n}"
 
 /***/ })
 /******/ ]);

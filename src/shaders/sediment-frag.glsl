@@ -49,7 +49,7 @@ float timestep = u_timestep;
 
 
 
-  float nordis = div*1.f;
+  float nordis = div*1.3f;
   vec4 nort = texture(read,curuv+vec2(0.f,nordis));
   vec4 norr = texture(read,curuv+vec2(nordis,0.f));
   vec4 norb = texture(read,curuv+vec2(0.f,-nordis));
@@ -66,7 +66,7 @@ float timestep = u_timestep;
 
   nor = normalize(nor);
   float velo = length(texture(vel,curuv).xy)/1.f;
-  float slope = max(0.0f,1.f-abs(nor.y));
+  float slope = max(0.0001f,1.f-abs(nor.y));
   float sedicap = Kc*slope*velo;
 
   float cursedi = cursediment.x;
