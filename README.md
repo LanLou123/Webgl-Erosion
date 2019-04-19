@@ -1,4 +1,4 @@
-## Terrain erosion simulation combined with polygonal graph in webGL
+﻿## Terrain erosion simulation combined with polygonal graph in webGL
 
 ### Based on
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
@@ -9,10 +9,10 @@
 
 ## current progress : simple erosion
 
+- river bed like feature showing up :
+   - ![**river bed like feature showing up**](r.JPG)
 
-- ![**river bed like feature showing up**](r.JPG)
-
-- ![](ex.JPG)
+- ![](ss.JPG)
 
 - ![](td.JPG)
 
