@@ -17,18 +17,20 @@ void main()
 {
 
 
-    vec3 sundir = vec3(1.f,8.f,-1.f);
+    vec3 sundir = vec3(1.f,2.f,-1.f);
     vec3 sundir2 = vec3(-1.f,4.f,-1.f);
     sundir2 = normalize(sundir2);
     sundir = normalize(sundir);
 
-    vec3 nor = texture(normap,fs_Uv).xyz;
+    vec3 nor = -texture(normap,fs_Uv).xyz;
 
-    float lamb = clamp(dot(nor,sundir)+0.3,0.f,1.f);
+    float lamb = dot(nor,sundir);
     float lamb2 = clamp(dot(nor,sundir2),0.f,1.f);
+
+    //lamb =1.f;
 
     float yval = texture(hightmap,fs_Uv).x/30.f;
     float wval = texture(hightmap,fs_Uv).y;
     vec3 cc = mix(vec3(0.3,1.0,0.1),vec3(0.7,0.7,0.0),wval/(wval+yval));
-    out_Col = vec4(lamb*(vec3(cc*0.8)+wval*vec3(0.f,0.3f,0.6f)),1.f);
+    out_Col = vec4(lamb*(vec3(1)+wval*vec3(0.f,0.1f,0.4f)),1.f);
 }

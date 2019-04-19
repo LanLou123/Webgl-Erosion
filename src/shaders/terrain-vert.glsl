@@ -28,7 +28,7 @@ void main()
   float yval = 1.f*texture(hightmap,vs_Uv).x;
   float wval = 1.f*texture(hightmap,vs_Uv).y;
   vec4 modelposition = vec4(vs_Pos.x, yval, vs_Pos.z, 1.0);
-  fs_Pos = vec3(vs_Pos.x,yval+wval,vs_Pos.z);
+  fs_Pos = vec3(vs_Pos.x,yval,vs_Pos.z);
 
 
   modelposition = u_Model * modelposition;
