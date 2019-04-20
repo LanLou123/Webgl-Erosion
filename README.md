@@ -10,7 +10,7 @@
 ## current progress : simple erosion
 
 - mts with lake & river :
-   - ![](river.JPG)
+   - ![](water.JPG)
 
 - ![](ss.JPG)
 
