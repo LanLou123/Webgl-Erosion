@@ -14,7 +14,9 @@
 
 - ![](ss.JPG)
 
-- ![](td.JPG)
+- different terrain types can be generated using different parameter combinations (parameters are really hard to adjust, might take some time to get several perfect presets...)
+
+   - ![](g.JPG)
 
 
 
