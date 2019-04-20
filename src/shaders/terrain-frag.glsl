@@ -33,7 +33,7 @@ void main()
     float wval = texture(hightmap,fs_Uv).y;
     vec3 cc = mix(vec3(0.3,1.0,0.1),vec3(0.7,0.7,0.0),wval/(wval+yval));
     vec3 fcol = lamb*(vec3(1));
-    float water = .14f;
+    float water = .64f;
     if(wval>water) {
         float river = (wval-water)*3.f;
         fcol = mix(fcol,vec3(0.f,0.8,1.f),river);

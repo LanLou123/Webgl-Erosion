@@ -32,13 +32,13 @@ raindegree : 0.001,
 const controls = {
   tesselations: 5,
     pipelen: div*5,
-    Kc : 0.0011,
+    Kc : 0.001,
     Ks : 0.0001,//larger will induce axis aligning problem, really annoying
-    Kd : 0.0002,
+    Kd : 0.0002,//if ratio of Ks/Kd increase, the mountain will have sharper tips
     timestep : 0.001,
     pipeAra : div*div*10,
-    evadegree : 0.04,
-    raindegree : 0.004,
+    evadegree : 0.02,//better?smaller
+    raindegree : 0.006,
   'Load Scene': loadScene, // A function pointer, essentially
 };
 
@@ -751,7 +751,7 @@ function main() {
 
     flat.use();
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
+    gl.bindTexture(gl.TEXTURE_2D,read_vel_tex);
     let postUniform = gl.getUniformLocation(flat.prog,"hightmap");
     gl.uniform1i(postUniform,0);
     renderer.render(camera, flat, [
