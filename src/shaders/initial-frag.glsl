@@ -113,7 +113,7 @@ void main() {
   vec2 rdp1 = vec2(0.2,0.5);
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
-  float terrain_hight = 60.f*pow(fbm(5.f*uv+vec2(51.f,411.f)),1.f);
+  float terrain_hight = 40.f*pow(fbm(8.f*uv+vec2(511.f,411.f)),1.f);
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);
