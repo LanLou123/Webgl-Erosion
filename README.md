@@ -21,7 +21,7 @@
 
 
 
-#### I mainly used fast hydralic Erosion simulation as my main reference for first half of the project (erosion)
+#### In short, this project is mainly based on ***Shallow water equation*** which is just the depth integration form of the famous viscous fluid equation Navier–Stokes equations, the major algorithm are based on paper [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf) (erosion)
 
 -  **Main theory** : following are some steps need to be followed sequentially according to the paper.
 
