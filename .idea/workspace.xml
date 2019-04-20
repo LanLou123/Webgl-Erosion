@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/dist/" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -58,14 +53,14 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="glsl" value="9940" />
-          <entry key="ts" value="7574" />
+          <entry key="glsl" value="10076" />
+          <entry key="ts" value="7601" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="9940" />
-          <entry key="TypeScript" value="7574" />
+          <entry key="PLAIN_TEXT" value="10076" />
+          <entry key="TypeScript" value="7601" />
         </counts>
       </usages-collector>
     </session>
@@ -75,8 +70,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="209">
-              <caret line="14" column="27" selection-start-line="14" selection-start-column="27" selection-end-line="14" selection-end-column="27" />
+            <state relative-caret-position="228">
+              <caret line="39" column="20" selection-start-line="39" selection-start-column="20" selection-end-line="39" selection-end-column="20" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
@@ -159,8 +154,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shaders/initial-frag.glsl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="482">
-              <caret line="82" column="57" selection-start-line="82" selection-start-column="57" selection-end-line="82" selection-end-column="57" />
+            <state relative-caret-position="273">
+              <caret line="104" column="23" selection-start-line="104" selection-start-column="23" selection-end-line="104" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -189,6 +184,7 @@
       <find>pipeAra</find>
       <find>advect</find>
       <find>nor</find>
+      <find>read_terrain_tex</find>
       <find>OCTAVES</find>
     </findStrings>
     <replaceStrings>
@@ -222,9 +218,9 @@
         <option value="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" />
         <option value="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" />
         <option value="$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl" />
-        <option value="$PROJECT_DIR$/src/main.ts" />
         <option value="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" />
         <option value="$PROJECT_DIR$/src/shaders/initial-frag.glsl" />
+        <option value="$PROJECT_DIR$/src/main.ts" />
       </list>
     </option>
   </component>
@@ -355,12 +351,12 @@
       <workItem from="1555099059464" duration="599000" />
       <workItem from="1555255889122" duration="130503000" />
       <workItem from="1555642531557" duration="8355000" />
-      <workItem from="1555713049489" duration="4449000" />
+      <workItem from="1555713049489" duration="6649000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="145151000" />
+    <option name="totallyTimeSpent" value="147351000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -591,15 +587,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shaders/initial-frag.glsl">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="482">
-          <caret line="82" column="57" selection-start-line="82" selection-start-column="57" selection-end-line="82" selection-end-column="57" />
+        <state relative-caret-position="273">
+          <caret line="104" column="23" selection-start-line="104" selection-start-column="23" selection-end-line="104" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="14" column="27" selection-start-line="14" selection-start-column="27" selection-end-line="14" selection-end-column="27" />
+        <state relative-caret-position="228">
+          <caret line="39" column="20" selection-start-line="39" selection-start-column="20" selection-end-line="39" selection-end-column="20" />
           <folding>
             <element signature="e#0#37#0" expanded="true" />
           </folding>
