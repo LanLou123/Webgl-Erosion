@@ -12,7 +12,7 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 
 const simresolution = 1000;
-let erosioninterations = 12000;
+let erosioninterations = 20000;
 let speed = 10;
 const div = 1/simresolution;
 
@@ -31,13 +31,13 @@ raindegree : 0.001,
 
 const controls = {
   tesselations: 5,
-    pipelen: div*8,
+    pipelen: div*5,
     Kc : 0.0011,
     Ks : 0.0001,//larger will induce axis aligning problem, really annoying
-    Kd : 0.0002,
+    Kd : 0.0001,
     timestep : 0.001,
     pipeAra : div*div*10,
-    evadegree : 0.02,
+    evadegree : 0.01,
     raindegree : 0.001,
   'Load Scene': loadScene, // A function pointer, essentially
 };
