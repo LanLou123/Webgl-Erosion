@@ -55,8 +55,8 @@ float timestep = u_timestep;
   vec4 norb = texture(read,curuv+vec2(0.f,-nordis));
   vec4 norl = texture(read,curuv+vec2(-nordis,0.f));
 
-  vec3 dx = vec3(nordis*2.f,(norr.x-norl.x)/30.f,0.f);
-  vec3 dy = vec3(0.f,(nort.x-norb.x)/30.f,nordis*2.f);
+  vec3 dx = vec3(nordis*2.f,(norr.x-norl.x)/60.f,0.f);
+  vec3 dy = vec3(0.f,(nort.x-norb.x)/60.f,nordis*2.f);
 
   vec3 nor = normalize(cross(dx,dy));
 

@@ -9,8 +9,8 @@
 
 ## current progress : simple erosion
 
-- river bed like feature showing up :
-   - ![**river bed like feature showing up**](r.JPG)
+- mts with lake & river :
+   - ![](river.JPG)
 
 - ![](ss.JPG)
 

@@ -31,13 +31,13 @@ raindegree : 0.001,
 
 const controls = {
   tesselations: 5,
-    pipelen: div*5,
-    Kc : 0.003,
+    pipelen: div*8,
+    Kc : 0.0011,
     Ks : 0.0001,//larger will induce axis aligning problem, really annoying
     Kd : 0.0002,
     timestep : 0.001,
     pipeAra : div*div*10,
-    evadegree : 0.03,
+    evadegree : 0.02,
     raindegree : 0.001,
   'Load Scene': loadScene, // A function pointer, essentially
 };
