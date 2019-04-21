@@ -65,7 +65,7 @@ float noise2(vec2 st) {
 
 //smooth========================================================================
 
-#define OCTAVES 15
+#define OCTAVES 16
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -102,7 +102,7 @@ float fbm (in vec2 st) {
     for (int i = 0; i < OCTAVES; i++) {
         value += amplitude * iqnoise(st,1.f,1.f);
         st *= 2.;
-        amplitude *= .31;
+        amplitude *= .33;
     }
     return value;
 }
@@ -113,7 +113,7 @@ void main() {
   vec2 rdp1 = vec2(0.2,0.5);
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
-  float terrain_hight = 40.f*pow(fbm(6.f*uv+vec2(511.f,41.f)),1.f);
+  float terrain_hight = 40.f*pow(fbm(7.f*uv+vec2(111.f,833.f)),1.f);
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);
