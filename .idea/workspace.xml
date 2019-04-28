@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" afterDir="false" />
-    </list>
+    <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/dist/" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -55,13 +52,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="glsl" value="11817" />
+          <entry key="glsl" value="11819" />
           <entry key="ts" value="8744" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="11817" />
+          <entry key="PLAIN_TEXT" value="11819" />
           <entry key="TypeScript" value="8744" />
         </counts>
       </usages-collector>
@@ -72,8 +69,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/shaders/initial-frag.glsl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="494">
-              <caret line="132" column="41" lean-forward="true" selection-start-line="132" selection-start-column="41" selection-end-line="132" selection-end-column="41" />
+            <state relative-caret-position="792">
+              <caret line="46" column="41" lean-forward="true" selection-start-line="46" selection-start-column="41" selection-end-line="46" selection-end-column="41" />
             </state>
           </provider>
         </entry>
@@ -358,12 +355,12 @@
       <workItem from="1555642531557" duration="8355000" />
       <workItem from="1555713049489" duration="16965000" />
       <workItem from="1555798207731" duration="8318000" />
-      <workItem from="1556455864718" duration="13396000" />
+      <workItem from="1556455864718" duration="14624000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="179381000" />
+    <option name="totallyTimeSpent" value="180609000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -376,7 +373,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1096" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.170706" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -625,8 +621,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shaders/initial-frag.glsl">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="132" column="41" lean-forward="true" selection-start-line="132" selection-start-column="41" selection-end-line="132" selection-end-column="41" />
+        <state relative-caret-position="792">
+          <caret line="46" column="41" lean-forward="true" selection-start-line="46" selection-start-column="41" selection-end-line="46" selection-end-column="41" />
         </state>
       </provider>
     </entry>
