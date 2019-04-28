@@ -43,7 +43,7 @@ const controls = {
     pipelen: div*6,//
     Kc : 0.001,
     Ks : 0.0001,//larger will induce axis aligning problem, really annoying
-    Kd : 0.0002,//if ratio of Ks/Kd increase, the mountain will have sharper tips
+    Kd : 0.0003,//if ratio of Ks/Kd increase, the mountain will have sharper tips
     timestep : 0.001,
     pipeAra : div*div*10,
     evadegree : 0.016,//better?smaller larger(easy evaporate) makes river thinner

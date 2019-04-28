@@ -130,7 +130,7 @@ void main() {
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
   vec2 curpos = 6.f*uv+vec2(112.f,643.f);
-  vec2 cpos = 5.6f*uv+vec2(415.f,287.f);
+  vec2 cpos = 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);
   float terrain_hight = 40.f*pow(fbm(cpos),1.f);
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
