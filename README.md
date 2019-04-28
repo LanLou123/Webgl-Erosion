@@ -7,13 +7,13 @@
 ## [**DEMO**]( https://lanlou123.github.io/Webgl-Erosion/)
 ![](ex.JPG)
 
-## current progress : simple erosion
+## Some other results
 
-- ![](ss.JPG)
+- ![](sss.JPG)
 
-- different terrain types can be generated using different parameter combinations (parameters are really hard to adjust, might take some time to get several perfect presets...)
+- smaller streams running down from cliffs natrually forming larger rivers. 
 
-   - ![](g.JPG)
+- ![](jjj.JPG)
 
 
 
