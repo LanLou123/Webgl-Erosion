@@ -66,7 +66,7 @@ float noise2(vec2 st) {
 
 //smooth========================================================================
 
-#define OCTAVES 20
+#define OCTAVES 40
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -119,6 +119,10 @@ vec4 caculatenor(vec2 pos){
 
 }
 
+float domainwarp(vec2 p){
+    return fbm(p+fbm(p+fbm(p)));
+}
+
 
 void main() {
 
@@ -126,7 +130,8 @@ void main() {
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
   vec2 curpos = 6.f*uv+vec2(112.f,643.f);
-  float terrain_hight = 40.f*pow(fbm(curpos),1.f);
+  vec2 cpos = 5.f*uv+vec2(11.f,112.f);
+  float terrain_hight = 40.f*pow(fbm(cpos),1.f);
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);

@@ -47,16 +47,21 @@ void main()
 
     vec3 finalcol = vec3(0);
 
-    vec3 forestcol = vec3(0.1,0.8,0.2);
-    vec3 mtncolor = vec3(0.8,0.8,0.9);
+    vec3 forestcol = vec3(0.3,1.f,0.f);
+    vec3 mtncolor = vec3(0.99,0.99,0.99);
     vec3 dirtcol = vec3(0.6,0.4,0.2);
+    vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);
 
     if(yval>0.f&&yval<=0.2){
         finalcol = dirtcol;
     }else if(yval>0.2&&yval<=0.6){
         finalcol = mix(dirtcol,forestcol,(yval-0.2)/0.4);
     }else if(yval>0.6){
+        if(yval<1.f)
         finalcol = mix(forestcol,mtncolor,(yval-0.6)/0.4);
+        else{
+            finalcol = mtncolor;
+        }
     }
 
     if(abs(nor.y)<0.7){
@@ -67,7 +72,7 @@ void main()
     float water = 0.1f;
     if(wval>water) {
         float river = (wval-water)*8.f;
-        fcol = mix(fcol,lamb*vec3(0.f,0.5,1.f),river);
+        fcol = mix(fcol,lamb*vec3(0.f,0.5,0.7f),river);
     }
     out_Col = vec4(fcol,1.f);
 }
