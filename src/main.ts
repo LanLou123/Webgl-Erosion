@@ -5,17 +5,20 @@ import Square from './geometry/Square';
 import Plane from './geometry/Plane';
 import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
-import {setGL} from './globals';
+import {gl, setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 
 const simresolution = 1000;
-let erosioninterations = 18000;
+let erosioninterations = 15000;
 let speed = 10;
 const div = 1/simresolution;
 let start = false;
+let SimFramecnt = 0;
+let ReloadBaseTerrain = false;
+let PauseGeneration = true;
 
 //large scale 1 :
 /*
@@ -37,14 +40,15 @@ const controls = {
     Kd : 0.0001,//if ratio of Ks/Kd increase, the mountain will have sharper tips
     timestep : 0.001,
     pipeAra : div*div*10,
-    evadegree : 0.02,//better?smaller larger(easy evaporate) makes river thinner
-    raindegree : 0.001,
+    evadegree : 0.06,//better?smaller larger(easy evaporate) makes river thinner
+    raindegree : 0.006,//cahnge the tip of mtns
   'Load Scene': loadScene, // A function pointer, essentially
-    'Start Simulation' :StartGeneration,
+    'StartGeneration' :StartGeneration,
+    'Reset' : Reset,
 };
 
 function StartGeneration(){
-    start = true;
+    PauseGeneration = false;
 }
 //geometries
 let square: Square;
@@ -71,6 +75,12 @@ function loadScene() {
   plane = new Plane(vec3.fromValues(0,0,0), vec2.fromValues(100,100), 22);
   plane.create();
 
+}
+
+function Reset(){
+    SimFramecnt = 0;
+    ReloadBaseTerrain = true;
+    PauseGeneration = true;
 }
 
 function Render2Texture(renderer:OpenGLRenderer, gl:WebGL2RenderingContext,camera:Camera,shader:ShaderProgram,cur_texture:WebGLTexture){
@@ -576,12 +586,30 @@ function SimulationStep(curstep:number,
                         evapo:ShaderProgram,
                         renderer:OpenGLRenderer, 
                         gl:WebGL2RenderingContext,camera:Camera){
-    if(curstep>num_simsteps) return true;
+    if(curstep>num_simsteps||PauseGeneration) return true;
     else{
         SimulatePerStep(renderer,
             gl,camera,flow,waterhight,sediment,advect,rains,evapo);
     }
     return false;
+}
+
+function  ClearTextures(gl:WebGL2RenderingContext) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,read_terrain_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,write_sediment_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,read_sediment_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT4,gl.TEXTURE_2D,write_vel_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT5,gl.TEXTURE_2D,read_flux_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT6,gl.TEXTURE_2D,write_vel_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT7,gl.TEXTURE_2D,read_vel_tex,0);
+
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1]);
+    gl.clearColor(0,0,0,0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 }
 
 
@@ -596,7 +624,7 @@ function main() {
 
   // Add controls to the gui
   const gui = new DAT.GUI();
-  //gui.add(controls,'Start Simulation');
+  gui.add(controls,'StartGeneration');
   /*
   gui.add(controls,"pipelen",div/20,div*4).step(div/20);
   gui.add(controls,'Kc',0.0,.1).step(0.0001);
@@ -605,7 +633,7 @@ function main() {
   gui.add(controls,'timestep',0.0000001,.001).step(0.0000001);
   gui.add(controls,'pipeAra',0.01*div*div,2*div*div).step(0.01*div*div);
   */
-
+  gui.add(controls,'Reset');
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
   const gl = <WebGL2RenderingContext> canvas.getContext('webgl2');
@@ -616,9 +644,9 @@ function main() {
   if(!gl.getExtension('OES_texture_float_linear')){
         console.log("float texture not supported");
     }
-  if(!gl.getExtension('EXT_color_buffer_float')){
-        console.log("cant render to float texture because ur browser is stupid...");
-    }
+  if(!gl.getExtension('EXT_color_buffer_float')) {
+      console.log("cant render to float texture because ur browser is stupid...");
+  }
   // `setGL` is a function imported above which sets the value of `gl` in the `globals.ts` module.
   // Later, we can import `gl` from `globals.ts` to access it
   setGL(gl);
@@ -685,13 +713,38 @@ function main() {
     Render2Texture(renderer,gl,camera,noiseterrain,read_terrain_tex);
 
 
-  let cnt = 0;
-  let t = 0;
-
   // This function will be called every frame
   function tick() {
 
+    if(ReloadBaseTerrain){
+        gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
+            simres,simres);
 
+        gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,read_terrain_tex,0);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+        let status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+            console.log( "frame buffer status:" + status.toString());
+        }
+
+        gl.bindTexture(gl.TEXTURE_2D,null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+        gl.bindRenderbuffer(gl.RENDERBUFFER,null);
+
+        gl.viewport(0,0,simres,simres);
+        gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+        renderer.clear();
+
+        noiseterrain.use();
+
+        renderer.render(camera,noiseterrain,[square]);
+        gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+        ReloadBaseTerrain = false;
+    }
 
     flow.setPipeLen(controls.pipelen);
     flow.setSimres(simresolution);
@@ -717,18 +770,14 @@ function main() {
 
 
 
-
-    t++;
     camera.update();
     stats.begin();
 
-    if(t%1==0){
-        for(let i = 0;i<speed;i++) {
-            SimulationStep(cnt, flow, waterhight, sediment, sediadvect,rains,evaporation, renderer, gl, camera);
-            cnt++;
-            console.log(cnt);
-        }
+    for(let i = 0;i<speed;i++) {
+        SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect,rains,evaporation, renderer, gl, camera);
+        SimFramecnt++;
     }
+
 
 
 

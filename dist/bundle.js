@@ -5994,10 +5994,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const simresolution = 1000;
-let erosioninterations = 18000;
+let erosioninterations = 15000;
 let speed = 10;
 const div = 1 / simresolution;
 let start = false;
+let SimFramecnt = 0;
+let ReloadBaseTerrain = false;
+let PauseGeneration = true;
 //large scale 1 :
 /*
     pipelen: div*5,//controls tip of mountains
@@ -6017,13 +6020,14 @@ const controls = {
     Kd: 0.0001,
     timestep: 0.001,
     pipeAra: div * div * 10,
-    evadegree: 0.02,
-    raindegree: 0.001,
+    evadegree: 0.06,
+    raindegree: 0.006,
     'Load Scene': loadScene,
-    'Start Simulation': StartGeneration,
+    'StartGeneration': StartGeneration,
+    'Reset': Reset,
 };
 function StartGeneration() {
-    start = true;
+    PauseGeneration = false;
 }
 //geometries
 let square;
@@ -6048,6 +6052,11 @@ function loadScene() {
     square.create();
     plane = new __WEBPACK_IMPORTED_MODULE_4__geometry_Plane__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(100, 100), 22);
     plane.create();
+}
+function Reset() {
+    SimFramecnt = 0;
+    ReloadBaseTerrain = true;
+    PauseGeneration = true;
 }
 function Render2Texture(renderer, gl, camera, shader, cur_texture) {
     gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
@@ -6393,12 +6402,28 @@ function setupFramebufferandtextures(gl) {
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 }
 function SimulationStep(curstep, flow, waterhight, sediment, advect, rains, evapo, renderer, gl, camera) {
-    if (curstep > num_simsteps)
+    if (curstep > num_simsteps || PauseGeneration)
         return true;
     else {
         SimulatePerStep(renderer, gl, camera, flow, waterhight, sediment, advect, rains, evapo);
     }
     return false;
+}
+function ClearTextures(gl) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, read_terrain_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, write_sediment_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, read_sediment_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT4, gl.TEXTURE_2D, write_vel_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT5, gl.TEXTURE_2D, read_flux_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT6, gl.TEXTURE_2D, write_vel_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT7, gl.TEXTURE_2D, read_vel_tex, 0);
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 function main() {
     // Initial display for framerate
@@ -6410,7 +6435,7 @@ function main() {
     document.body.appendChild(stats.domElement);
     // Add controls to the gui
     const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
-    //gui.add(controls,'Start Simulation');
+    gui.add(controls, 'StartGeneration');
     /*
     gui.add(controls,"pipelen",div/20,div*4).step(div/20);
     gui.add(controls,'Kc',0.0,.1).step(0.0001);
@@ -6419,6 +6444,7 @@ function main() {
     gui.add(controls,'timestep',0.0000001,.001).step(0.0000001);
     gui.add(controls,'pipeAra',0.01*div*div,2*div*div).step(0.01*div*div);
     */
+    gui.add(controls, 'Reset');
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
     const gl = canvas.getContext('webgl2');
@@ -6479,10 +6505,30 @@ function main() {
         new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(86)),
     ]);
     Render2Texture(renderer, gl, camera, noiseterrain, read_terrain_tex);
-    let cnt = 0;
-    let t = 0;
     // This function will be called every frame
     function tick() {
+        if (ReloadBaseTerrain) {
+            gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
+            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, read_terrain_tex, 0);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
+            gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+            let status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+            if (status !== gl.FRAMEBUFFER_COMPLETE) {
+                console.log("frame buffer status:" + status.toString());
+            }
+            gl.bindTexture(gl.TEXTURE_2D, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+            gl.viewport(0, 0, simres, simres);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+            renderer.clear();
+            noiseterrain.use();
+            renderer.render(camera, noiseterrain, [square]);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            ReloadBaseTerrain = false;
+        }
         flow.setPipeLen(controls.pipelen);
         flow.setSimres(simresolution);
         flow.setTimestep(controls.timestep);
@@ -6502,15 +6548,11 @@ function main() {
         sediadvect.setKs(controls.Ks);
         sediadvect.setKd(controls.Kd);
         sediadvect.setTimestep(controls.timestep);
-        t++;
         camera.update();
         stats.begin();
-        if (t % 1 == 0) {
-            for (let i = 0; i < speed; i++) {
-                SimulationStep(cnt, flow, waterhight, sediment, sediadvect, rains, evaporation, renderer, gl, camera);
-                cnt++;
-                console.log(cnt);
-            }
+        for (let i = 0; i < speed; i++) {
+            SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect, rains, evaporation, renderer, gl, camera);
+            SimFramecnt++;
         }
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         renderer.clear();
@@ -13699,6 +13741,8 @@ class OpenGLRenderer {
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
         prog.setModelMatrix(model);
         prog.setViewProjMatrix(viewProj);
+        prog.setEyeRefUp(camera.controls.eye, camera.controls.center, camera.controls.up);
+        prog.setDimensions(this.canvas.width, this.canvas.height);
         for (let drawable of drawables) {
             prog.draw(drawable);
         }
@@ -16863,6 +16907,10 @@ class ShaderProgram {
         this.unifKd = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Kd");
         this.unifTimestep = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_timestep");
         this.unifPipeArea = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_PipeArea");
+        this.unifEye = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Eye");
+        this.unifRef = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Ref");
+        this.unifUp = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Up");
+        this.unifDimensions = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Dimensions");
     }
     use() {
         if (activeProgram !== this.prog) {
@@ -16888,10 +16936,28 @@ class ShaderProgram {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniformMatrix4fv(this.unifViewProj, false, vp);
         }
     }
+    setDimensions(width, height) {
+        this.use();
+        if (this.unifDimensions !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform2f(this.unifDimensions, width, height);
+        }
+    }
     setPlanePos(pos) {
         this.use();
         if (this.unifPlanePos !== -1) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform2fv(this.unifPlanePos, pos);
+        }
+    }
+    setEyeRefUp(eye, ref, up) {
+        this.use();
+        if (this.unifEye !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform3f(this.unifEye, eye[0], eye[1], eye[2]);
+        }
+        if (this.unifRef !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform3f(this.unifRef, ref[0], ref[1], ref[2]);
+        }
+        if (this.unifUp !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform3f(this.unifUp, up[0], up[1], up[2]);
         }
     }
     setPipeLen(len) {
@@ -16974,7 +17040,7 @@ module.exports = "#version 300 es\n\n\nuniform mat4 u_Model;\nuniform mat4 u_Mod
 /* 70 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\nprecision highp float;\n\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\n\nin vec3 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_Col;\nuniform sampler2D hightmap;\nuniform sampler2D normap;\nin float fs_Sine;\nin vec2 fs_Uv;\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nvoid main()\n{\n\n\n    vec3 sundir = vec3(1.f,2.f,-1.f);\n    vec3 sundir2 = vec3(-1.f,4.f,-1.f);\n    sundir2 = normalize(sundir2);\n    sundir = normalize(sundir);\n\n    vec3 nor = -texture(normap,fs_Uv).xyz;\n\n    float lamb = dot(nor,sundir);\n    float lamb2 = clamp(dot(nor,sundir2),0.f,1.f);\n\n    //lamb =1.f;\n\n    float yval = texture(hightmap,fs_Uv).x/30.f;\n    float wval = texture(hightmap,fs_Uv).y;\n    vec3 cc = mix(vec3(0.3,1.0,0.1),vec3(0.7,0.7,0.0),wval/(wval+yval));\n    vec3 fcol = lamb*(vec3(1));\n    float water = 0.3f;\n    if(wval>water) {\n        float river = (wval-water)*3.f;\n        fcol = mix(fcol,vec3(0.f,0.8,1.f),river);\n    }\n    out_Col = vec4(fcol,1.f);\n}\n"
+module.exports = "#version 300 es\nprecision highp float;\n\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\n\nin vec3 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_Col;\nuniform sampler2D hightmap;\nuniform sampler2D normap;\nin float fs_Sine;\nin vec2 fs_Uv;\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\n\nvec3 calnor(vec2 uv){\n    float eps = 0.001;\n    vec4 cur = texture(hightmap,fs_Uv)/40.f;\n    vec4 r = texture(hightmap,fs_Uv+vec2(eps,0.f))/40.f;\n    vec4 t = texture(hightmap,fs_Uv+vec2(0.f,eps))/40.f;\n\n    vec3 nor = cross(vec3(eps,r.x-cur.x,0.f),vec3(0.f,t.x-cur.x,eps));\n    nor = normalize(nor);\n    return nor;\n}\n\nvoid main()\n{\n\n\n    vec3 sundir = vec3(1.f,2.f,-1.f);\n    vec3 sundir2 = vec3(-1.f,4.f,-1.f);\n    sundir2 = normalize(sundir2);\n    sundir = normalize(sundir);\n\n    vec3 nor = -texture(normap,fs_Uv).xyz;\n    nor = -calnor(fs_Uv);\n\n    float lamb = dot(nor,sundir);\n    float lamb2 = clamp(dot(nor,sundir2),0.f,1.f);\n\n    //lamb =1.f;\n\n    float yval = texture(hightmap,fs_Uv).x/20.f;\n    float wval = texture(hightmap,fs_Uv).y;\n\n    vec3 finalcol = vec3(0);\n\n    vec3 forestcol = vec3(0.1,0.8,0.2);\n    vec3 mtncolor = vec3(0.8,0.8,0.9);\n    vec3 dirtcol = vec3(0.6,0.4,0.2);\n\n    if(yval>0.f&&yval<=0.2){\n        finalcol = dirtcol;\n    }else if(yval>0.2&&yval<=0.6){\n        finalcol = mix(dirtcol,forestcol,(yval-0.2)/0.4);\n    }else if(yval>0.6){\n        finalcol = mix(forestcol,mtncolor,(yval-0.6)/0.4);\n    }\n\n    if(abs(nor.y)<0.7){\n        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);\n    }\n\n    vec3 fcol = lamb*(finalcol);\n    float water = 0.1f;\n    if(wval>water) {\n        float river = (wval-water)*8.f;\n        fcol = mix(fcol,lamb*vec3(0.f,0.5,1.f),river);\n    }\n    out_Col = vec4(fcol,1.f);\n}\n"
 
 /***/ }),
 /* 71 */
@@ -16986,7 +17052,7 @@ module.exports = "#version 300 es\nprecision highp float;\n\n// The vertex shade
 /* 72 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\nprecision highp float;\n\nuniform sampler2D hightmap;\n\n\n// The fragment shader used to render the background of the scene\n// Modify this to make your background more interesting\n\nin vec2 fs_Pos;\nout vec4 out_Col;\n\nvoid main() {\nvec2 uv = 0.5*fs_Pos+0.5;\n\n  vec4 col = (texture(hightmap,0.5f*fs_Pos+.5f));\n  vec4 fcol =  vec4(vec3(col.xyz/500.f),1.f);\n  out_Col = fcol;\n}\n"
+module.exports = "#version 300 es\nprecision highp float;\n\nuniform sampler2D hightmap;\n\n\n// The fragment shader used to render the background of the scene\n// Modify this to make your background more interesting\n\nuniform vec3 u_Eye, u_Ref, u_Up;\nuniform vec2 u_Dimensions;\n\nin vec2 fs_Pos;\nout vec4 out_Col;\n\n\n#define FOV 45.f\nvec3 sky(in vec3 rd){\n    return mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));\n}\n\n\nvoid main() {\n//vec2 uv = 0.5*fs_Pos+0.5;\n\n  //vec4 col = (texture(hightmap,0.5f*fs_Pos+.5f));\n  //vec4 fcol =  vec4(vec3(col.xyz/500.f),1.f);\n  //out_Col = fcol;\n\n   float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;\n    float sy = 1.f-(2.f*gl_FragCoord.y/u_Dimensions.y);\n    float len = length(u_Ref - u_Eye);\n    vec3 forward = normalize(u_Ref - u_Eye);\n    vec3 right = cross(forward,u_Up);\n    vec3 V = u_Up * len * tan(FOV/2.f);\n    vec3 H = right * len * (u_Dimensions.x/u_Dimensions.y) * tan(FOV/2.f);\n    vec3 p = u_Ref + sx * H - sy * V;\n\n    vec3 rd = normalize(p - u_Eye);\n    vec3 ro = u_Eye;\n\n\n\n    out_Col = vec4(sky(rd),1.f);\n}\n"
 
 /***/ }),
 /* 73 */
@@ -16998,7 +17064,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex
 /* 74 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\nin vec2 fs_Pos;\r\n\r\nlayout (location = 0) out vec4 initial;\r\n\r\n//voroni=========================================================================\r\n\r\nvec3 hash3( vec2 p ){\r\n    vec3 q = vec3( dot(p,vec2(127.1,311.7)),\r\n\t\t\t\t   dot(p,vec2(269.5,183.3)),\r\n\t\t\t\t   dot(p,vec2(419.2,371.9)) );\r\n\treturn fract(sin(q)*43758.5453);\r\n}\r\n\r\nfloat iqnoise( in vec2 x, float u, float v ){\r\n    vec2 p = floor(x);\r\n    vec2 f = fract(x);\r\n\r\n\tfloat k = 1.0+63.0*pow(1.0-v,4.0);\r\n\r\n\tfloat va = 0.0;\r\n\tfloat wt = 0.0;\r\n    for( int j=-2; j<=2; j++ )\r\n    for( int i=-2; i<=2; i++ )\r\n    {\r\n        vec2 g = vec2( float(i),float(j) );\r\n\t\tvec3 o = hash3( p + g )*vec3(u,u,1.0);\r\n\t\tvec2 r = g - f + o.xy;\r\n\t\tfloat d = dot(r,r);\r\n\t\tfloat ww = pow( 1.0-smoothstep(0.0,1.414,sqrt(d)), k );\r\n\t\tva += o.z*ww;\r\n\t\twt += ww;\r\n    }\r\n\r\n    return va/wt;\r\n}\r\n//voroni=========================================================================\r\n\r\n\r\n\r\n//smooth========================================================================\r\nvec2 random2(vec2 st){\r\n    st = vec2( dot(st,vec2(127.1,311.7)),\r\n              dot(st,vec2(269.5,183.3)) );\r\n    return -1.0 + 2.0*fract(sin(st)*43758.5453123);\r\n}\r\n\r\n// Value Noise by Inigo Quilez - iq/2013\r\n// https://www.shadertoy.com/view/lsf3WH\r\nfloat noise2(vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    vec2 u = f*f*(3.0-2.0*f);\r\n\r\n    return mix( mix( dot( random2(i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),\r\n                     dot( random2(i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),\r\n                mix( dot( random2(i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),\r\n                     dot( random2(i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);\r\n}\r\n\r\n\r\n//smooth========================================================================\r\n\r\n#define OCTAVES 16\r\n\r\nfloat random (in vec2 st) {\r\n    return fract(sin(dot(st.xy,\r\n                         vec2(12.9898,78.233)))*\r\n        43758.5453123);\r\n}\r\n\r\n\r\nfloat noise (in vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    // Four corners in 2D of a tile\r\n    float a = random(i);\r\n    float b = random(i + vec2(1.0, 0.0));\r\n    float c = random(i + vec2(0.0, 1.0));\r\n    float d = random(i + vec2(1.0, 1.0));\r\n\r\n    vec2 u = f * f * (3.0 - 2.0 * f);\r\n\r\n    return mix(a, b, u.x) +\r\n            (c - a)* u.y * (1.0 - u.x) +\r\n            (d - b) * u.x * u.y;\r\n}\r\n\r\n\r\nfloat fbm (in vec2 st) {\r\n    // Initial values\r\n    float value = 0.0;\r\n    float amplitude = .5;\r\n    float frequency = 0.;\r\n    //\r\n    // Loop of octaves\r\n    for (int i = 0; i < OCTAVES; i++) {\r\n        value += amplitude * iqnoise(st,1.f,1.f);\r\n        st *= 2.;\r\n        amplitude *= .33;\r\n    }\r\n    return value;\r\n}\r\n\r\n\r\nvoid main() {\r\n\r\n  vec2 rdp1 = vec2(0.2,0.5);\r\n  vec2 rdp2 = vec2(0.1,0.8);\r\n  vec2 uv = 0.5f*fs_Pos+vec2(0.5f);\r\n  float terrain_hight = 40.f*pow(fbm(7.f*uv+vec2(111.f,833.f)),1.f);\r\n  float rainfall = .0f;\r\n  //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;\r\n  initial = vec4(terrain_hight,rainfall,0.f,1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\nin vec2 fs_Pos;\r\n\r\nlayout (location = 0) out vec4 initial;\r\nlayout (location = 1) out vec4 terrainnor;\r\n\r\n//voroni=========================================================================\r\n\r\nvec3 hash3( vec2 p ){\r\n    vec3 q = vec3( dot(p,vec2(127.1,311.7)),\r\n\t\t\t\t   dot(p,vec2(269.5,183.3)),\r\n\t\t\t\t   dot(p,vec2(419.2,371.9)) );\r\n\treturn fract(sin(q)*43758.5453);\r\n}\r\n\r\nfloat iqnoise( in vec2 x, float u, float v ){\r\n    vec2 p = floor(x);\r\n    vec2 f = fract(x);\r\n\r\n\tfloat k = 1.0+63.0*pow(1.0-v,4.0);\r\n\r\n\tfloat va = 0.0;\r\n\tfloat wt = 0.0;\r\n    for( int j=-2; j<=2; j++ )\r\n    for( int i=-2; i<=2; i++ )\r\n    {\r\n        vec2 g = vec2( float(i),float(j) );\r\n\t\tvec3 o = hash3( p + g )*vec3(u,u,1.0);\r\n\t\tvec2 r = g - f + o.xy;\r\n\t\tfloat d = dot(r,r);\r\n\t\tfloat ww = pow( 1.0-smoothstep(0.0,1.414,sqrt(d)), k );\r\n\t\tva += o.z*ww;\r\n\t\twt += ww;\r\n    }\r\n\r\n    return va/wt;\r\n}\r\n//voroni=========================================================================\r\n\r\n\r\n\r\n//smooth========================================================================\r\nvec2 random2(vec2 st){\r\n    st = vec2( dot(st,vec2(127.1,311.7)),\r\n              dot(st,vec2(269.5,183.3)) );\r\n    return -1.0 + 2.0*fract(sin(st)*43758.5453123);\r\n}\r\n\r\n// Value Noise by Inigo Quilez - iq/2013\r\n// https://www.shadertoy.com/view/lsf3WH\r\nfloat noise2(vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    vec2 u = f*f*(3.0-2.0*f);\r\n\r\n    return mix( mix( dot( random2(i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),\r\n                     dot( random2(i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),\r\n                mix( dot( random2(i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),\r\n                     dot( random2(i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);\r\n}\r\n\r\n\r\n//smooth========================================================================\r\n\r\n#define OCTAVES 20\r\n\r\nfloat random (in vec2 st) {\r\n    return fract(sin(dot(st.xy,\r\n                         vec2(12.9898,78.233)))*\r\n        43758.5453123);\r\n}\r\n\r\n\r\nfloat noise (in vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    // Four corners in 2D of a tile\r\n    float a = random(i);\r\n    float b = random(i + vec2(1.0, 0.0));\r\n    float c = random(i + vec2(0.0, 1.0));\r\n    float d = random(i + vec2(1.0, 1.0));\r\n\r\n    vec2 u = f * f * (3.0 - 2.0 * f);\r\n\r\n    return mix(a, b, u.x) +\r\n            (c - a)* u.y * (1.0 - u.x) +\r\n            (d - b) * u.x * u.y;\r\n}\r\n\r\n\r\nfloat fbm (in vec2 st) {\r\n    // Initial values\r\n    float value = 0.0;\r\n    float amplitude = .5;\r\n    float frequency = 0.;\r\n    //\r\n    // Loop of octaves\r\n    for (int i = 0; i < OCTAVES; i++) {\r\n        value += amplitude * iqnoise(st,1.f,1.f);\r\n        st *= 2.;\r\n        amplitude *= .33;\r\n    }\r\n    return value;\r\n}\r\n\r\nvec4 caculatenor(vec2 pos){\r\n    float eps = 0.01;\r\n    float rh = fbm(vec2(pos.x+eps,pos.y));\r\n    float th = fbm(vec2(pos.x,pos.y+eps));\r\n    float cur = fbm(pos);\r\n    vec3 n = cross(vec3(eps,rh-cur,0.f),vec3(0.f,th-cur,eps));\r\n    n = normalize(n);\r\n    return vec4(n,1.f);\r\n\r\n}\r\n\r\n\r\nvoid main() {\r\n\r\n  vec2 rdp1 = vec2(0.2,0.5);\r\n  vec2 rdp2 = vec2(0.1,0.8);\r\n  vec2 uv = 0.5f*fs_Pos+vec2(0.5f);\r\n  vec2 curpos = 6.f*uv+vec2(112.f,643.f);\r\n  float terrain_hight = 40.f*pow(fbm(curpos),1.f);\r\n  float rainfall = .0f;\r\n  //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;\r\n  initial = vec4(terrain_hight,rainfall,0.f,1.f);\r\n}\r\n"
 
 /***/ }),
 /* 75 */

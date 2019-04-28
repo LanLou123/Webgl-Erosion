@@ -13,6 +13,18 @@ in vec2 fs_Uv;
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
 
+
+vec3 calnor(vec2 uv){
+    float eps = 0.001;
+    vec4 cur = texture(hightmap,fs_Uv)/40.f;
+    vec4 r = texture(hightmap,fs_Uv+vec2(eps,0.f))/40.f;
+    vec4 t = texture(hightmap,fs_Uv+vec2(0.f,eps))/40.f;
+
+    vec3 nor = cross(vec3(eps,r.x-cur.x,0.f),vec3(0.f,t.x-cur.x,eps));
+    nor = normalize(nor);
+    return nor;
+}
+
 void main()
 {
 
@@ -23,20 +35,39 @@ void main()
     sundir = normalize(sundir);
 
     vec3 nor = -texture(normap,fs_Uv).xyz;
+    nor = -calnor(fs_Uv);
 
     float lamb = dot(nor,sundir);
     float lamb2 = clamp(dot(nor,sundir2),0.f,1.f);
 
     //lamb =1.f;
 
-    float yval = texture(hightmap,fs_Uv).x/30.f;
+    float yval = texture(hightmap,fs_Uv).x/20.f;
     float wval = texture(hightmap,fs_Uv).y;
-    vec3 cc = mix(vec3(0.3,1.0,0.1),vec3(0.7,0.7,0.0),wval/(wval+yval));
-    vec3 fcol = lamb*(vec3(1));
-    float water = 0.3f;
+
+    vec3 finalcol = vec3(0);
+
+    vec3 forestcol = vec3(0.1,0.8,0.2);
+    vec3 mtncolor = vec3(0.8,0.8,0.9);
+    vec3 dirtcol = vec3(0.6,0.4,0.2);
+
+    if(yval>0.f&&yval<=0.2){
+        finalcol = dirtcol;
+    }else if(yval>0.2&&yval<=0.6){
+        finalcol = mix(dirtcol,forestcol,(yval-0.2)/0.4);
+    }else if(yval>0.6){
+        finalcol = mix(forestcol,mtncolor,(yval-0.6)/0.4);
+    }
+
+    if(abs(nor.y)<0.7){
+        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);
+    }
+
+    vec3 fcol = lamb*(finalcol);
+    float water = 0.1f;
     if(wval>water) {
-        float river = (wval-water)*3.f;
-        fcol = mix(fcol,vec3(0.f,0.8,1.f),river);
+        float river = (wval-water)*8.f;
+        fcol = mix(fcol,lamb*vec3(0.f,0.5,1.f),river);
     }
     out_Col = vec4(fcol,1.f);
 }

@@ -5,6 +5,7 @@ precision highp float;
 in vec2 fs_Pos;
 
 layout (location = 0) out vec4 initial;
+layout (location = 1) out vec4 terrainnor;
 
 //voroni=========================================================================
 
@@ -65,7 +66,7 @@ float noise2(vec2 st) {
 
 //smooth========================================================================
 
-#define OCTAVES 16
+#define OCTAVES 20
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -107,13 +108,25 @@ float fbm (in vec2 st) {
     return value;
 }
 
+vec4 caculatenor(vec2 pos){
+    float eps = 0.01;
+    float rh = fbm(vec2(pos.x+eps,pos.y));
+    float th = fbm(vec2(pos.x,pos.y+eps));
+    float cur = fbm(pos);
+    vec3 n = cross(vec3(eps,rh-cur,0.f),vec3(0.f,th-cur,eps));
+    n = normalize(n);
+    return vec4(n,1.f);
+
+}
+
 
 void main() {
 
   vec2 rdp1 = vec2(0.2,0.5);
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
-  float terrain_hight = 40.f*pow(fbm(7.f*uv+vec2(111.f,833.f)),1.f);
+  vec2 curpos = 6.f*uv+vec2(112.f,643.f);
+  float terrain_hight = 40.f*pow(fbm(curpos),1.f);
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);
