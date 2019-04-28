@@ -49,7 +49,7 @@ void main()
 
     vec3 forestcol = vec3(0.3,1.f,0.f);
     vec3 mtncolor = vec3(0.99,0.99,0.99);
-    vec3 dirtcol = vec3(0.99,0.4,0.2);
+    vec3 dirtcol = vec3(0.7,0.4,0.2);
     vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);
 
     if(yval>0.f&&yval<=0.2){
@@ -69,10 +69,10 @@ void main()
     }
 
     vec3 fcol = lamb*(finalcol);
-    float water = 0.1f;
+    float water = 0.05f;
     if(wval>water) {
-        float river = (wval-water)*8.f;
-        fcol = mix(fcol,lamb*vec3(0.f,0.5,0.7f),river);
+        float river = (wval-water)*3.f;
+        fcol = mix(fcol,lamb*vec3(0.f,0.5,0.6f),river);
     }
     out_Col = vec4(fcol,1.f);
 }

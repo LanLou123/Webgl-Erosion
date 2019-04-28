@@ -12,7 +12,7 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 
 const simresolution = 1000;
-let erosioninterations = 16000;
+let erosioninterations = 15000;
 let speed = 10;
 const div = 1/simresolution;
 let start = false;
@@ -22,26 +22,32 @@ let PauseGeneration = true;
 
 //large scale 1 :
 /*
-    pipelen: div*5,//controls tip of mountains
-    Kc : 0.001,
-    Ks : 0.0001,//larger will induce axis aligning problem, really annoying
-    Kd : 0.0002,//if ratio of Ks/Kd increase, the mountain will have sharper tips
-    timestep : 0.001,
-    pipeAra : div*div*10,
-    evadegree : 0.02,//better?smaller
-    raindegree : 0.001,
- */
-
 const controls = {
   tesselations: 5,
     pipelen: div*5,//
     Kc : 0.001,
     Ks : 0.0001,//larger will induce axis aligning problem, really annoying
-    Kd : 0.00006,//if ratio of Ks/Kd increase, the mountain will have sharper tips
+    Kd : 0.00009,//if ratio of Ks/Kd increase, the mountain will have sharper tips
     timestep : 0.001,
     pipeAra : div*div*10,
     evadegree : 0.06,//better?smaller larger(easy evaporate) makes river thinner
     raindegree : 0.006,//cahnge the tip of mtns
+  'Load Scene': loadScene, // A function pointer, essentially
+    'StartGeneration' :StartGeneration,
+    'Reset' : Reset,
+};
+ */
+
+const controls = {
+  tesselations: 5,
+    pipelen: div*6,//
+    Kc : 0.001,
+    Ks : 0.0001,//larger will induce axis aligning problem, really annoying
+    Kd : 0.0002,//if ratio of Ks/Kd increase, the mountain will have sharper tips
+    timestep : 0.001,
+    pipeAra : div*div*10,
+    evadegree : 0.016,//better?smaller larger(easy evaporate) makes river thinner
+    raindegree : 0.0016,//cahnge the tip of mtns
   'Load Scene': loadScene, // A function pointer, essentially
     'StartGeneration' :StartGeneration,
     'Reset' : Reset,

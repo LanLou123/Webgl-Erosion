@@ -103,7 +103,7 @@ float fbm (in vec2 st) {
     for (int i = 0; i < OCTAVES; i++) {
         value += amplitude * iqnoise(st,1.f,1.f);
         st *= 2.;
-        amplitude *= .31;
+        amplitude *= .3;
     }
     return value;
 }
@@ -130,7 +130,7 @@ void main() {
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
   vec2 curpos = 6.f*uv+vec2(112.f,643.f);
-  vec2 cpos = 5.3f*uv+vec2(178.f,27.f);
+  vec2 cpos = 5.6f*uv+vec2(415.f,287.f);
   float terrain_hight = 40.f*pow(fbm(cpos),1.f);
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
