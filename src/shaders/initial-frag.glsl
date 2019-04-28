@@ -123,14 +123,14 @@ float domainwarp(vec2 p){
     return fbm(p+fbm(p+fbm(p)));
 }
 
-
+//nice one 5.3f*uv+vec2(178.f,27.f);
 void main() {
 
   vec2 rdp1 = vec2(0.2,0.5);
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
   vec2 curpos = 6.f*uv+vec2(112.f,643.f);
-  vec2 cpos = 5.6f*uv+vec2(18.5f,223.f);
+  vec2 cpos = 5.3f*uv+vec2(178.f,27.f);
   float terrain_hight = 40.f*pow(fbm(cpos),1.f);
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;

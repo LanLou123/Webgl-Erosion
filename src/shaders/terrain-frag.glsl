@@ -49,7 +49,7 @@ void main()
 
     vec3 forestcol = vec3(0.3,1.f,0.f);
     vec3 mtncolor = vec3(0.99,0.99,0.99);
-    vec3 dirtcol = vec3(0.6,0.4,0.2);
+    vec3 dirtcol = vec3(0.99,0.4,0.2);
     vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);
 
     if(yval>0.f&&yval<=0.2){
