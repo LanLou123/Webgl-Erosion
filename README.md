@@ -1,4 +1,4 @@
-﻿## Terrain erosion simulation combined with polygonal graph in webGL
+﻿## Terrain hydraulic erosion simulation in WebGl
 
 ### Based on
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
@@ -15,10 +15,18 @@
 
 - ![](jjj.JPG)
 
+- Comparison:
 
+- Before : ![](before.JPG)
+- After : ![](after.JPG)
 
+### Base terrain generation:
 
-#### In short, this project is mainly based on ***Shallow water equation*** which is just the depth integration form of the famous viscous fluid equation Navier–Stokes equations, the major algorithm are based on paper [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf) (erosion)
+- I referenced polygonal terrain in this part, the initial terrain was generated using a voroni polygon map, which was then applied with FBM and domain warping, but I didn't actually implement the adjacent graph structure from the article, because the initial idea was to generate river using adjacent graph, however after finishing erosion sim, I realized the river generation is automatically done in erosion process, thus save me from building an expensive datastructure on CPU which would potentially slow the process down (overhead caused by infomation communication between CPU and GPU)
+
+### Erosion
+
+#### In short, erosion sim is mainly based on ***Shallow water equation*** which is just the depth integration form of the famous viscous fluid equation Navier–Stokes equations, the major algorithm are based on paper [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf) (erosion)
 
 -  **Main theory** : following are some steps need to be followed sequentially according to the paper.
 
