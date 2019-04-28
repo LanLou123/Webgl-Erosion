@@ -5,12 +5,9 @@
 - [polygonal terrain for games](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)
 
 ## [**DEMO**]( https://lanlou123.github.io/Webgl-Erosion/)
-
+![](ex.JPG)
 
 ## current progress : simple erosion
-
-- mts with lake & river :
-   - ![](ex.JPG)
 
 - ![](ss.JPG)
 
