@@ -12,6 +12,8 @@ in float fs_Sine;
 in vec2 fs_Uv;
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
+uniform vec3 u_Eye, u_Ref, u_Up;
+uniform vec2 u_Dimensions;
 
 
 vec3 calnor(vec2 uv){
@@ -42,14 +44,15 @@ void main()
 
     //lamb =1.f;
 
-    float yval = texture(hightmap,fs_Uv).x/20.f;
+    float yval = texture(hightmap,fs_Uv).x/17.f;
+    float yvalex = texture(hightmap,fs_Uv).x/40.f;
     float wval = texture(hightmap,fs_Uv).y;
 
     vec3 finalcol = vec3(0);
 
     vec3 forestcol = vec3(0.3,1.f,0.f);
     vec3 mtncolor = vec3(0.99,0.99,0.99);
-    vec3 dirtcol = vec3(0.7,0.4,0.2);
+    vec3 dirtcol = vec3(0.87,0.4,0.2);
     vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);
 
     if(yval>0.f&&yval<=0.2){
@@ -74,5 +77,8 @@ void main()
         float river = (wval-water)*3.f;
         fcol = mix(fcol,lamb*vec3(0.f,0.5,0.6f),river);
     }
+
+    
+
     out_Col = vec4(fcol,1.f);
 }
