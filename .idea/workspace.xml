@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/n.JPG" beforeDir="false" afterPath="$PROJECT_DIR$/n.JPG" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/dist/" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -60,20 +55,20 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="glsl" value="12415" />
-          <entry key="ts" value="9340" />
+          <entry key="ts" value="9436" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="PLAIN_TEXT" value="12415" />
-          <entry key="TypeScript" value="9340" />
+          <entry key="TypeScript" value="9436" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shaders/initial-frag.glsl">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="456">
@@ -122,7 +117,7 @@
         <entry file="file://$PROJECT_DIR$/src/shaders/flow-frag.glsl">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="171">
-              <caret line="9" column="25" lean-forward="true" selection-start-line="9" selection-start-column="25" selection-end-line="9" selection-end-column="25" />
+              <caret line="9" column="25" selection-start-line="9" selection-start-column="25" selection-end-line="9" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -131,16 +126,16 @@
         <entry file="file://$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="475">
-              <caret line="57" column="59" lean-forward="true" selection-start-line="57" selection-start-column="59" selection-end-line="57" selection-end-column="59" />
+              <caret line="57" column="59" selection-start-line="57" selection-start-column="59" selection-end-line="57" selection-end-column="59" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="246">
-              <caret line="754" column="35" selection-start-line="754" selection-start-column="35" selection-end-line="754" selection-end-column="35" />
+            <state relative-caret-position="242">
+              <caret line="737" column="53" selection-start-line="737" selection-start-column="53" selection-end-line="737" selection-end-column="53" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
@@ -230,8 +225,8 @@
         <option value="$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl" />
         <option value="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" />
         <option value="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" />
-        <option value="$PROJECT_DIR$/src/main.ts" />
         <option value="$PROJECT_DIR$/src/shaders/initial-frag.glsl" />
+        <option value="$PROJECT_DIR$/src/main.ts" />
       </list>
     </option>
   </component>
@@ -251,9 +246,9 @@
       <path value="$PROJECT_DIR$/package.json" />
     </packageJsonPaths>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="95" />
-    <option name="y" value="261" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="423" />
+    <option name="y" value="290" />
     <option name="width" value="1495" />
     <option name="height" value="843" />
   </component>
@@ -364,12 +359,12 @@
       <workItem from="1555642531557" duration="8355000" />
       <workItem from="1555713049489" duration="16965000" />
       <workItem from="1555798207731" duration="8318000" />
-      <workItem from="1556455864718" duration="39358000" />
+      <workItem from="1556455864718" duration="40361000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="205343000" />
+    <option name="totallyTimeSpent" value="206346000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -381,16 +376,15 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1096" extended-state="6" />
-    <editor active="true" />
+    <frame x="423" y="290" width="1495" height="843" extended-state="0" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.170706" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22237474" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.1925078" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.26129943" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -566,7 +560,7 @@
     <entry file="file://$PROJECT_DIR$/src/shaders/flow-frag.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="171">
-          <caret line="9" column="25" lean-forward="true" selection-start-line="9" selection-start-column="25" selection-end-line="9" selection-end-column="25" />
+          <caret line="9" column="25" selection-start-line="9" selection-start-column="25" selection-end-line="9" selection-end-column="25" />
         </state>
       </provider>
     </entry>
@@ -580,7 +574,7 @@
     <entry file="file://$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="475">
-          <caret line="57" column="59" lean-forward="true" selection-start-line="57" selection-start-column="59" selection-end-line="57" selection-end-column="59" />
+          <caret line="57" column="59" selection-start-line="57" selection-start-column="59" selection-end-line="57" selection-end-column="59" />
         </state>
       </provider>
     </entry>
@@ -612,16 +606,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="246">
-          <caret line="754" column="35" selection-start-line="754" selection-start-column="35" selection-end-line="754" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shaders/terrain-frag.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="475">
@@ -633,6 +617,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="456">
           <caret line="138" column="56" selection-start-line="138" selection-start-column="56" selection-end-line="138" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="242">
+          <caret line="737" column="53" selection-start-line="737" selection-start-column="53" selection-end-line="737" selection-end-column="53" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

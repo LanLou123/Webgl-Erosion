@@ -54,6 +54,7 @@ const controls = {
     'StartGeneration' :StartGeneration,
     'Reset' : Reset,
     'setTerrainRandom':setTerrainRandom,
+    terrainType : 0,
 };
 
 function StartGeneration(){
@@ -639,7 +640,8 @@ function main() {
   // Add controls to the gui
   const gui = new DAT.GUI();
   gui.add(controls,'StartGeneration');
-  gui.add(controls,'setTerrainRandom');
+  //gui.add(controls,'setTerrainRandom');
+  gui.add(controls,'terrainType',{defaultTerrain : 0, randomrizedTerrain :1});
   /*
   gui.add(controls,"pipelen",div/20,div*4).step(div/20);
   gui.add(controls,'Kc',0.0,.1).step(0.0001);
@@ -733,7 +735,7 @@ function main() {
   function tick() {
       timer++;
       noiseterrain.setTime(timer);
-      noiseterrain.setRndTerrain(TerrainRandom);
+      noiseterrain.setRndTerrain(controls.terrainType);
 
     if(ReloadBaseTerrain){
         gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
