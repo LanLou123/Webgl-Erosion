@@ -3,9 +3,11 @@ precision highp float;
 
 
 in vec2 fs_Pos;
+uniform float u_Time;
+uniform int u_RndTerrain;
 
 layout (location = 0) out vec4 initial;
-layout (location = 1) out vec4 terrainnor;
+layout (location = 1) out vec4 initial2;
 
 //voroni=========================================================================
 
@@ -102,8 +104,8 @@ float fbm (in vec2 st) {
     // Loop of octaves
     for (int i = 0; i < OCTAVES; i++) {
         value += amplitude * iqnoise(st,1.f,1.f);
-        st *= 2.;
-        amplitude *= .3;
+        st *= 2.0;
+        amplitude *= .33;
     }
     return value;
 }
@@ -124,15 +126,21 @@ float domainwarp(vec2 p){
 }
 
 //nice one 5.3f*uv+vec2(178.f,27.f);
+
+// 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);
 void main() {
 
   vec2 rdp1 = vec2(0.2,0.5);
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
   vec2 curpos = 6.f*uv+vec2(112.f,643.f);
-  vec2 cpos = 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);
+  vec2 cpos = 5.f*uv+vec2(121.f,11.f);
+  if(u_RndTerrain==1){
+    cpos = 5.f*uv+vec2(2.f*mod(u_Time,100.f),mod(u_Time,100.f)+20.f);
+  }
   float terrain_hight = 40.f*pow(fbm(cpos),1.f);
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);
+  initial2= vec4(terrain_hight,rainfall,0.f,1.f);
 }

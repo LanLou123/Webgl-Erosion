@@ -32,7 +32,7 @@ void main()
 
 
     vec3 sundir = vec3(1.f,2.f,-1.f);
-    vec3 sundir2 = vec3(-1.f,4.f,-1.f);
+    vec3 sundir2 = vec3(-1.f,2.f,1.f);
     sundir2 = normalize(sundir2);
     sundir = normalize(sundir);
 
@@ -40,7 +40,7 @@ void main()
     nor = -calnor(fs_Uv);
 
     float lamb = dot(nor,sundir);
-    float lamb2 = clamp(dot(nor,sundir2),0.f,1.f);
+    float lamb2 = dot(nor,sundir2);
 
     //lamb =1.f;
 
@@ -72,13 +72,14 @@ void main()
     }
 
     vec3 fcol = lamb*(finalcol);
-    float water = 0.05f;
+    //fcol += vec3(0.2,0.5,0.6)*lamb2*0.4;
+    float water = 0.1f;
     if(wval>water) {
-        float river = (wval-water)*3.f;
-        fcol = mix(fcol,lamb*vec3(0.f,0.5,0.6f),river);
+        float river = clamp((wval-water)*8.f,0.f,1.f);
+        fcol = mix(fcol,lamb*vec3(0.f,0.5,0.8f),river);
     }
 
-    
+
 
     out_Col = vec4(fcol,1.f);
 }

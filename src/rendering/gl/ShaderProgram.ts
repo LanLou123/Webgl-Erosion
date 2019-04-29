@@ -44,6 +44,9 @@ class ShaderProgram {
     unifEye: WebGLUniformLocation;
     unifUp: WebGLUniformLocation;
     unifDimensions: WebGLUniformLocation;
+    unifTime : WebGLUniformLocation;
+
+    unifRndTerrain : WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -78,6 +81,9 @@ class ShaderProgram {
       this.unifRef   = gl.getUniformLocation(this.prog, "u_Ref");
       this.unifUp   = gl.getUniformLocation(this.prog, "u_Up");
       this.unifDimensions = gl.getUniformLocation(this.prog,"u_Dimensions");
+      this.unifTime = gl.getUniformLocation(this.prog,"u_Time");
+
+      this.unifRndTerrain = gl.getUniformLocation(this.prog,"u_RndTerrain");
   }
 
   use() {
@@ -107,11 +113,26 @@ class ShaderProgram {
       gl.uniformMatrix4fv(this.unifViewProj, false, vp);
     }
   }
+
+  setTime(t:number){
+    this.use();
+    if(this.unifTime!==-1){
+      gl.uniform1f(this.unifTime,t);
+    }
+  }
+
     setDimensions(width: number, height: number) {
         this.use();
         if(this.unifDimensions !== -1) {
             gl.uniform2f(this.unifDimensions, width, height);
         }
+    }
+
+    setRndTerrain(r:number){
+    this.use();
+    if(this.unifRndTerrain!==-1){
+      gl.uniform1i(this.unifRndTerrain,r);
+    }
     }
   setPlanePos(pos: vec2) {
     this.use();

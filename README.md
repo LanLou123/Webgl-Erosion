@@ -5,6 +5,9 @@
 - [polygonal terrain for games](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)
 
 ## [**DEMO**]( https://lanlou123.github.io/Webgl-Erosion/)
+
+#### note : click button "start generation" to the right top corner to start erosion sim, the simulation will happen in realtime, take approximately 8-10 seconds on a GTX 1070
+
 ![](ex.JPG)
 
 ## Some other results
@@ -19,6 +22,18 @@
 
 - Before : ![](before.JPG)
 - After : ![](after.JPG)
+
+- Some Randomrized terrain : 
+
+- ![](rnd1.JPG)
+
+- ![](rnd2.JPG)
+
+- ![](rnd3.JPG)
+
+- ![](rnd4.JPG)
+
+- ![](rnd5.JPG)
 
 ### Base terrain generation:
 

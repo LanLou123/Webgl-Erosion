@@ -19,6 +19,7 @@ let start = false;
 let SimFramecnt = 0;
 let ReloadBaseTerrain = false;
 let PauseGeneration = true;
+let TerrainRandom = 0;
 
 //large scale 1 :
 /*
@@ -42,15 +43,17 @@ const controls = {
   tesselations: 5,
     pipelen: div*6,//
     Kc : 0.001,
-    Ks : 0.0001,//larger will induce axis aligning problem, really annoying
-    Kd : 0.0003,//if ratio of Ks/Kd increase, the mountain will have sharper tips
+    Ks : 0.0001,//larger will introduce axis aligning problem, really annoying
+    Kd : 0.0001,//if ratio of Ks/Kd increase, the mountain will have sharper tips
     timestep : 0.001,
-    pipeAra : div*div*10,
-    evadegree : 0.016,//better?smaller larger(easy evaporate) makes river thinner
-    raindegree : 0.0016,//cahnge the tip of mtns
+    pipeAra : div*div*20,
+    evadegree : 0.05,//better?smaller larger(easy evaporate) makes river thinner
+    raindegree : 0.005,//cahnge the tip of mtns
+    mtnsharp : 0.06,
   'Load Scene': loadScene, // A function pointer, essentially
     'StartGeneration' :StartGeneration,
     'Reset' : Reset,
+    'setTerrainRandom':setTerrainRandom,
 };
 
 function StartGeneration(){
@@ -87,6 +90,11 @@ function Reset(){
     SimFramecnt = 0;
     ReloadBaseTerrain = true;
     PauseGeneration = true;
+
+}
+
+function setTerrainRandom() {
+    TerrainRandom = 1;
 }
 
 function Render2Texture(renderer:OpenGLRenderer, gl:WebGL2RenderingContext,camera:Camera,shader:ShaderProgram,cur_texture:WebGLTexture){
@@ -631,6 +639,7 @@ function main() {
   // Add controls to the gui
   const gui = new DAT.GUI();
   gui.add(controls,'StartGeneration');
+  gui.add(controls,'setTerrainRandom');
   /*
   gui.add(controls,"pipelen",div/20,div*4).step(div/20);
   gui.add(controls,'Kc',0.0,.1).step(0.0001);
@@ -718,9 +727,13 @@ function main() {
 
     Render2Texture(renderer,gl,camera,noiseterrain,read_terrain_tex);
 
+    let timer = 0;
 
   // This function will be called every frame
   function tick() {
+      timer++;
+      noiseterrain.setTime(timer);
+      noiseterrain.setRndTerrain(TerrainRandom);
 
     if(ReloadBaseTerrain){
         gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
@@ -729,8 +742,9 @@ function main() {
 
         gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,read_terrain_tex,0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,write_terrain_tex,0);
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
-        gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1]);
 
         let status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
         if (status !== gl.FRAMEBUFFER_COMPLETE) {
