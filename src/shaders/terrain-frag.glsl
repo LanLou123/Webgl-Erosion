@@ -99,7 +99,7 @@ void main()
     }else if(u_TerrainType==2){
        water = 0.06;
         if(wval>water) {
-            float river = clamp((wval-water)*8.f,0.f,1.f);
+            float river = clamp((wval-water)*8.f,0.f,5.f);
             fcol = mix(fcol,lamb*vec3(1.0f,0.1,0.0f),river);
         }
      }

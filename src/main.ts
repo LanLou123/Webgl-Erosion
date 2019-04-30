@@ -766,15 +766,18 @@ function main() {
 
     if(controls.TerrainBiomeType==0){
         controls.evadegree = 0.05;
+        controls.pipelen = div*6;
         controls.raindegree = 0.005;
     }else if(controls.TerrainBiomeType==1){
         controls.Ks = 0.00003;
         controls.evadegree = 0.01;
+        controls.pipelen = div*10;
         controls.raindegree = 0.001;
         erosioninterations = 18000;
     }else if(controls.TerrainBiomeType==2){
         controls.Ks = 0.00003;
         controls.evadegree = 0.01;
+        controls.pipelen = div*10;
         controls.raindegree = 0.001;
         erosioninterations = 12000;
     }
@@ -799,7 +802,7 @@ function main() {
           controls.evadegree = 0.05;
           controls.raindegree = 0.005;
       }else if(controls.TerrainBiomeType==1){
-          controls.Ks = 0.00003;
+          controls.Ks = 0.00008;
           controls.evadegree = 0.01;
           controls.raindegree = 0.001;
           controls.pipelen = div*10;

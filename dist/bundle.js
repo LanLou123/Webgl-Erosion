@@ -6554,17 +6554,20 @@ function main() {
     ]);
     if (controls.TerrainBiomeType == 0) {
         controls.evadegree = 0.05;
+        controls.pipelen = div * 6;
         controls.raindegree = 0.005;
     }
     else if (controls.TerrainBiomeType == 1) {
         controls.Ks = 0.00003;
         controls.evadegree = 0.01;
+        controls.pipelen = div * 10;
         controls.raindegree = 0.001;
         erosioninterations = 18000;
     }
     else if (controls.TerrainBiomeType == 2) {
         controls.Ks = 0.00003;
         controls.evadegree = 0.01;
+        controls.pipelen = div * 10;
         controls.raindegree = 0.001;
         erosioninterations = 12000;
     }
@@ -6585,7 +6588,7 @@ function main() {
             controls.raindegree = 0.005;
         }
         else if (controls.TerrainBiomeType == 1) {
-            controls.Ks = 0.00003;
+            controls.Ks = 0.00008;
             controls.evadegree = 0.01;
             controls.raindegree = 0.001;
             controls.pipelen = div * 10;
@@ -17154,7 +17157,7 @@ module.exports = "#version 300 es\n\n\nuniform mat4 u_Model;\nuniform mat4 u_Mod
 /* 70 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\nprecision highp float;\n\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\n\nin vec3 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_Col;\nuniform sampler2D hightmap;\nuniform sampler2D normap;\nin float fs_Sine;\nin vec2 fs_Uv;\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\nuniform vec3 u_Eye, u_Ref, u_Up;\nuniform vec2 u_Dimensions;\n\nuniform int u_TerrainType;\n\n\nvec3 calnor(vec2 uv){\n    float eps = 0.001;\n    vec4 cur = texture(hightmap,fs_Uv)/40.f;\n    vec4 r = texture(hightmap,fs_Uv+vec2(eps,0.f))/40.f;\n    vec4 t = texture(hightmap,fs_Uv+vec2(0.f,eps))/40.f;\n\n    vec3 nor = cross(vec3(eps,r.x-cur.x,0.f),vec3(0.f,t.x-cur.x,eps));\n    nor = normalize(nor);\n    return nor;\n}\n\nvoid main()\n{\n\n\n    vec3 sundir = vec3(1.f,2.f,-1.f);\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\n    sundir2 = normalize(sundir2);\n    sundir = normalize(sundir);\n\n    vec3 nor = -texture(normap,fs_Uv).xyz;\n    nor = -calnor(fs_Uv);\n\n    float lamb = dot(nor,sundir);\n    float lamb2 = dot(nor,sundir2);\n\n    //lamb =1.f;\n\n    float yval = texture(hightmap,fs_Uv).x/17.f;\n    float yvalex = texture(hightmap,fs_Uv).x/40.f;\n    float wval = texture(hightmap,fs_Uv).y;\n\n    vec3 finalcol = vec3(0);\n\n    vec3 forestcol = vec3(0.3,1.f,0.f);\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\n    vec3 dirtcol = vec3(0.87,0.4,0.2);\n    vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);\n    vec3 sand = vec3(244.f/255.f,164.f/255.f,96.f/255.f);\n    vec3 obsidian = vec3(0.2);\n\n    if(u_TerrainType==0){\n        if(yval>0.f&&yval<=0.2){\n            finalcol = dirtcol;\n        }else if(yval>0.2&&yval<=0.6){\n            finalcol = mix(dirtcol,forestcol,(yval-0.2)/0.4);\n        }else if(yval>0.6){\n            if(yval<1.f)\n            finalcol = mix(forestcol,mtncolor,(yval-0.6)/0.4);\n            else{\n                finalcol = mtncolor;\n            }\n        }\n\n        if(abs(nor.y)<0.7){\n            finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);\n        }\n    }else if(u_TerrainType==1){\n        finalcol =sand;}\n    else if(u_TerrainType==2){\n        finalcol = obsidian;\n    }\n\n\n    vec3 fcol = lamb*(finalcol);\n    //fcol += vec3(0.2,0.5,0.6)*lamb2*0.4;\n    float water = 0.1f;\n    if(u_TerrainType==0){\n        if(wval>water) {\n            float river = clamp((wval-water)*8.f,0.f,1.f);\n            fcol = mix(fcol,lamb*vec3(0.f,0.5,0.8f),river);\n        }\n    }else if(u_TerrainType==1){\n        water = 0.06;\n        if(wval>water) {\n            float river = clamp((wval-water)*8.f,0.f,1.f);\n            fcol = mix(fcol,lamb*vec3(1.0f,0.8,0.6f),river);\n        }\n    }else if(u_TerrainType==2){\n       water = 0.06;\n        if(wval>water) {\n            float river = clamp((wval-water)*8.f,0.f,1.f);\n            fcol = mix(fcol,lamb*vec3(1.0f,0.1,0.0f),river);\n        }\n     }\n\n\n\n    out_Col = vec4(fcol,1.f);\n}\n"
+module.exports = "#version 300 es\nprecision highp float;\n\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\n\nin vec3 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_Col;\nuniform sampler2D hightmap;\nuniform sampler2D normap;\nin float fs_Sine;\nin vec2 fs_Uv;\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\nuniform vec3 u_Eye, u_Ref, u_Up;\nuniform vec2 u_Dimensions;\n\nuniform int u_TerrainType;\n\n\nvec3 calnor(vec2 uv){\n    float eps = 0.001;\n    vec4 cur = texture(hightmap,fs_Uv)/40.f;\n    vec4 r = texture(hightmap,fs_Uv+vec2(eps,0.f))/40.f;\n    vec4 t = texture(hightmap,fs_Uv+vec2(0.f,eps))/40.f;\n\n    vec3 nor = cross(vec3(eps,r.x-cur.x,0.f),vec3(0.f,t.x-cur.x,eps));\n    nor = normalize(nor);\n    return nor;\n}\n\nvoid main()\n{\n\n\n    vec3 sundir = vec3(1.f,2.f,-1.f);\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\n    sundir2 = normalize(sundir2);\n    sundir = normalize(sundir);\n\n    vec3 nor = -texture(normap,fs_Uv).xyz;\n    nor = -calnor(fs_Uv);\n\n    float lamb = dot(nor,sundir);\n    float lamb2 = dot(nor,sundir2);\n\n    //lamb =1.f;\n\n    float yval = texture(hightmap,fs_Uv).x/17.f;\n    float yvalex = texture(hightmap,fs_Uv).x/40.f;\n    float wval = texture(hightmap,fs_Uv).y;\n\n    vec3 finalcol = vec3(0);\n\n    vec3 forestcol = vec3(0.3,1.f,0.f);\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\n    vec3 dirtcol = vec3(0.87,0.4,0.2);\n    vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);\n    vec3 sand = vec3(244.f/255.f,164.f/255.f,96.f/255.f);\n    vec3 obsidian = vec3(0.2);\n\n    if(u_TerrainType==0){\n        if(yval>0.f&&yval<=0.2){\n            finalcol = dirtcol;\n        }else if(yval>0.2&&yval<=0.6){\n            finalcol = mix(dirtcol,forestcol,(yval-0.2)/0.4);\n        }else if(yval>0.6){\n            if(yval<1.f)\n            finalcol = mix(forestcol,mtncolor,(yval-0.6)/0.4);\n            else{\n                finalcol = mtncolor;\n            }\n        }\n\n        if(abs(nor.y)<0.7){\n            finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);\n        }\n    }else if(u_TerrainType==1){\n        finalcol =sand;}\n    else if(u_TerrainType==2){\n        finalcol = obsidian;\n    }\n\n\n    vec3 fcol = lamb*(finalcol);\n    //fcol += vec3(0.2,0.5,0.6)*lamb2*0.4;\n    float water = 0.1f;\n    if(u_TerrainType==0){\n        if(wval>water) {\n            float river = clamp((wval-water)*8.f,0.f,1.f);\n            fcol = mix(fcol,lamb*vec3(0.f,0.5,0.8f),river);\n        }\n    }else if(u_TerrainType==1){\n        water = 0.06;\n        if(wval>water) {\n            float river = clamp((wval-water)*8.f,0.f,1.f);\n            fcol = mix(fcol,lamb*vec3(1.0f,0.8,0.6f),river);\n        }\n    }else if(u_TerrainType==2){\n       water = 0.06;\n        if(wval>water) {\n            float river = clamp((wval-water)*8.f,0.f,5.f);\n            fcol = mix(fcol,lamb*vec3(1.0f,0.1,0.0f),river);\n        }\n     }\n\n\n\n    out_Col = vec4(fcol,1.f);\n}\n"
 
 /***/ }),
 /* 71 */
