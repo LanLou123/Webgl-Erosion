@@ -18,6 +18,12 @@
 
 - ![](jjj.JPG)
 
+- Multiple terrain biome type support:
+
+- Desert:
+
+![](desert.JPG)
+
 - Comparison:
 
 - Before : ![](before.JPG)

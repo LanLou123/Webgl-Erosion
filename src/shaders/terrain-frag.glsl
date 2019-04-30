@@ -15,6 +15,8 @@ out vec4 out_Col; // This is the final output color that you will see on your
 uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
 
+uniform int u_TerrainType;
+
 
 vec3 calnor(vec2 uv){
     float eps = 0.001;
@@ -54,29 +56,42 @@ void main()
     vec3 mtncolor = vec3(0.99,0.99,0.99);
     vec3 dirtcol = vec3(0.87,0.4,0.2);
     vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);
+    vec3 sand = vec3(244.f/255.f,164.f/255.f,96.f/255.f);
 
-    if(yval>0.f&&yval<=0.2){
-        finalcol = dirtcol;
-    }else if(yval>0.2&&yval<=0.6){
-        finalcol = mix(dirtcol,forestcol,(yval-0.2)/0.4);
-    }else if(yval>0.6){
-        if(yval<1.f)
-        finalcol = mix(forestcol,mtncolor,(yval-0.6)/0.4);
-        else{
-            finalcol = mtncolor;
+    if(u_TerrainType==0){
+        if(yval>0.f&&yval<=0.2){
+            finalcol = dirtcol;
+        }else if(yval>0.2&&yval<=0.6){
+            finalcol = mix(dirtcol,forestcol,(yval-0.2)/0.4);
+        }else if(yval>0.6){
+            if(yval<1.f)
+            finalcol = mix(forestcol,mtncolor,(yval-0.6)/0.4);
+            else{
+                finalcol = mtncolor;
+            }
         }
-    }
 
-    if(abs(nor.y)<0.7){
-        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);
-    }
+        if(abs(nor.y)<0.7){
+            finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);
+        }
+    }else if(u_TerrainType==1)
+        finalcol =sand;
+
 
     vec3 fcol = lamb*(finalcol);
     //fcol += vec3(0.2,0.5,0.6)*lamb2*0.4;
     float water = 0.1f;
-    if(wval>water) {
-        float river = clamp((wval-water)*8.f,0.f,1.f);
-        fcol = mix(fcol,lamb*vec3(0.f,0.5,0.8f),river);
+    if(u_TerrainType==0){
+        if(wval>water) {
+            float river = clamp((wval-water)*8.f,0.f,1.f);
+            fcol = mix(fcol,lamb*vec3(0.f,0.5,0.8f),river);
+        }
+    }else if(u_TerrainType==1){
+        water = 0.06;
+        if(wval>water) {
+            float river = clamp((wval-water)*8.f,0.f,1.f);
+            fcol = mix(fcol,lamb*vec3(1.0f,0.8,0.6f),river);
+        }
     }
 
 

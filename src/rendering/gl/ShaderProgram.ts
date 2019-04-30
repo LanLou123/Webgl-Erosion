@@ -47,6 +47,7 @@ class ShaderProgram {
     unifTime : WebGLUniformLocation;
 
     unifRndTerrain : WebGLUniformLocation;
+    unifTerrainType : WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -84,6 +85,7 @@ class ShaderProgram {
       this.unifTime = gl.getUniformLocation(this.prog,"u_Time");
 
       this.unifRndTerrain = gl.getUniformLocation(this.prog,"u_RndTerrain");
+      this.unifTerrainType = gl.getUniformLocation(this.prog,"u_TerrainType");
   }
 
   use() {
@@ -126,6 +128,13 @@ class ShaderProgram {
         if(this.unifDimensions !== -1) {
             gl.uniform2f(this.unifDimensions, width, height);
         }
+    }
+
+    setTerrainType(t:number){
+    this.use();
+    if(this.unifTerrainType!==-1){
+      gl.uniform1i(this.unifTerrainType,t);
+    }
     }
 
     setRndTerrain(r:number){

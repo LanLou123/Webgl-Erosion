@@ -5,6 +5,7 @@ precision highp float;
 in vec2 fs_Pos;
 uniform float u_Time;
 uniform int u_RndTerrain;
+uniform int u_TerrainType;
 
 layout (location = 0) out vec4 initial;
 layout (location = 1) out vec4 initial2;
@@ -133,10 +134,18 @@ void main() {
   vec2 rdp1 = vec2(0.2,0.5);
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
+
+  float th = 5.f;
+  if(u_TerrainType==0){
+    th = 5.f;
+  }else if(u_TerrainType==1){
+    th = 3.f;
+  }
+
   vec2 curpos = 6.f*uv+vec2(112.f,643.f);
-  vec2 cpos = 5.f*uv+vec2(121.f,11.f);
+  vec2 cpos = th*uv+vec2(121.f,11.f);
   if(u_RndTerrain==1){
-    cpos = 5.f*uv+vec2(2.f*mod(u_Time,100.f),mod(u_Time,100.f)+20.f);
+    cpos = th*uv+vec2(2.f*mod(u_Time,100.f),mod(u_Time,100.f)+20.f);
   }
   float terrain_hight = 40.f*pow(fbm(cpos),1.f);
   float rainfall = .0f;

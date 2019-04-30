@@ -21,6 +21,8 @@ let ReloadBaseTerrain = false;
 let PauseGeneration = true;
 let TerrainRandom = 0;
 
+
+
 //large scale 1 :
 /*
 const controls = {
@@ -54,8 +56,41 @@ const controls = {
     'StartGeneration' :StartGeneration,
     'Reset' : Reset,
     'setTerrainRandom':setTerrainRandom,
-    terrainType : 0,
+    TerrainBaseMap : 0,
+    TerrainBiomeType : 0,
 };
+
+const controlsBarrier = {
+    tesselations: 5,
+    pipelen: div*6,//
+    Kc : 0.001,
+    Ks : 0.0001,//larger will introduce axis aligning problem, really annoying
+    Kd : 0.0001,//if ratio of Ks/Kd increase, the mountain will have sharper tips
+    timestep : 0.001,
+    pipeAra : div*div*20,
+    evadegree : 0.05,//better?smaller larger(easy evaporate) makes river thinner
+    raindegree : 0.005,//cahnge the tip of mtns
+    mtnsharp : 0.06,
+    'Load Scene': loadScene, // A function pointer, essentially
+    'StartGeneration' :StartGeneration,
+    'Reset' : Reset,
+    'setTerrainRandom':setTerrainRandom,
+    TerrainBaseMap : 0,
+    TerrainBiomeType : 0,
+};
+
+function syncBarrier(){
+    controls.pipelen = controlsBarrier.pipelen;
+    controls.Kc = controlsBarrier.Kc;
+    controls.Ks = controlsBarrier.Ks;
+    controls.Kd = controlsBarrier.Kd;
+    controls.timestep = controlsBarrier.timestep;
+    controls.pipeAra = controlsBarrier.pipeAra;
+    controls.evadegree = controlsBarrier.evadegree;
+    controls.raindegree = controlsBarrier.raindegree;
+    controls.TerrainBiomeType = controlsBarrier.TerrainBiomeType;
+    controls.TerrainBaseMap = controlsBarrier.TerrainBaseMap;
+}
 
 function StartGeneration(){
     PauseGeneration = false;
@@ -91,7 +126,7 @@ function Reset(){
     SimFramecnt = 0;
     ReloadBaseTerrain = true;
     PauseGeneration = true;
-
+    syncBarrier();
 }
 
 function setTerrainRandom() {
@@ -639,9 +674,12 @@ function main() {
 
   // Add controls to the gui
   const gui = new DAT.GUI();
+  gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
+  gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1});
+  gui.add(controls,'Reset');
   gui.add(controls,'StartGeneration');
   //gui.add(controls,'setTerrainRandom');
-  gui.add(controls,'terrainType',{defaultTerrain : 0, randomrizedTerrain :1});
+
   /*
   gui.add(controls,"pipelen",div/20,div*4).step(div/20);
   gui.add(controls,'Kc',0.0,.1).step(0.0001);
@@ -650,7 +688,7 @@ function main() {
   gui.add(controls,'timestep',0.0000001,.001).step(0.0000001);
   gui.add(controls,'pipeAra',0.01*div*div,2*div*div).step(0.01*div*div);
   */
-  gui.add(controls,'Reset');
+
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
   const gl = <WebGL2RenderingContext> canvas.getContext('webgl2');
@@ -726,16 +764,42 @@ function main() {
         new Shader(gl.FRAGMENT_SHADER, require('./shaders/eva-frag.glsl')),
     ]);
 
-
+    if(controls.TerrainBiomeType==0){
+        controls.evadegree = 0.05;
+        controls.raindegree = 0.005;
+    }else if(controls.TerrainBiomeType==1){
+        controls.Ks = 0.00003;
+        controls.evadegree = 0.01;
+        controls.raindegree = 0.001;
+        erosioninterations = 18000;
+    }
+    noiseterrain.setRndTerrain(controls.TerrainBaseMap);
+    noiseterrain.setTerrainType(controls.TerrainBiomeType);
     Render2Texture(renderer,gl,camera,noiseterrain,read_terrain_tex);
 
     let timer = 0;
 
   // This function will be called every frame
+  let lastTerrainType = controls.TerrainBiomeType;
   function tick() {
       timer++;
+
       noiseterrain.setTime(timer);
-      noiseterrain.setRndTerrain(controls.terrainType);
+      noiseterrain.setRndTerrain(controls.TerrainBaseMap);
+      noiseterrain.setTerrainType(controls.TerrainBiomeType);
+      lambert.setTerrainType(controls.TerrainBiomeType);
+
+
+      if(controls.TerrainBiomeType==0){
+          controls.evadegree = 0.05;
+          controls.raindegree = 0.005;
+      }else if(controls.TerrainBiomeType==1){
+          controls.evadegree = 0.01;
+          controls.raindegree = 0.001;
+          controls.pipelen = div*10;
+          controls.pipeAra = div*div*100;
+          erosioninterations = 15000;
+      }
 
     if(ReloadBaseTerrain){
         gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
