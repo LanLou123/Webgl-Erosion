@@ -1,9 +1,5 @@
+﻿## Terrain hydraulic erosion simulation in WebGl
 
- 
-![](ex.JPG)
-
-## Terrain hydraulic erosion simulation in WebGl
- 
 ### Based on
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
 - [polygonal terrain for games](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)
@@ -12,7 +8,7 @@
 
 #### note : click button "start generation" to the right top corner to start erosion sim, the simulation will happen in realtime, take approximately 8-10 seconds on a GTX 1070
 
-
+![](ex.JPG)
 
 ## Some other results
 
@@ -27,6 +23,10 @@
 - Desert:
 
 ![](desert.JPG)
+
+- Volcanic:
+
+![](vol.JPG)
 
 - Comparison:
 

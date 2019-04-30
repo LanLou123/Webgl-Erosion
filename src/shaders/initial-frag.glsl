@@ -140,6 +140,8 @@ void main() {
     th = 5.f;
   }else if(u_TerrainType==1){
     th = 3.f;
+  }else if(u_TerrainType==2){
+    th = 12.f;
   }
 
   vec2 curpos = 6.f*uv+vec2(112.f,643.f);

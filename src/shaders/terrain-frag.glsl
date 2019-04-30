@@ -57,6 +57,7 @@ void main()
     vec3 dirtcol = vec3(0.87,0.4,0.2);
     vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);
     vec3 sand = vec3(244.f/255.f,164.f/255.f,96.f/255.f);
+    vec3 obsidian = vec3(0.2);
 
     if(u_TerrainType==0){
         if(yval>0.f&&yval<=0.2){
@@ -74,8 +75,11 @@ void main()
         if(abs(nor.y)<0.7){
             finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);
         }
-    }else if(u_TerrainType==1)
-        finalcol =sand;
+    }else if(u_TerrainType==1){
+        finalcol =sand;}
+    else if(u_TerrainType==2){
+        finalcol = obsidian;
+    }
 
 
     vec3 fcol = lamb*(finalcol);
@@ -92,7 +96,13 @@ void main()
             float river = clamp((wval-water)*8.f,0.f,1.f);
             fcol = mix(fcol,lamb*vec3(1.0f,0.8,0.6f),river);
         }
-    }
+    }else if(u_TerrainType==2){
+       water = 0.06;
+        if(wval>water) {
+            float river = clamp((wval-water)*8.f,0.f,1.f);
+            fcol = mix(fcol,lamb*vec3(1.0f,0.1,0.0f),river);
+        }
+     }
 
 
 

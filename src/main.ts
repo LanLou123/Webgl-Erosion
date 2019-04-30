@@ -675,7 +675,7 @@ function main() {
   // Add controls to the gui
   const gui = new DAT.GUI();
   gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
-  gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1});
+  gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1,volcanic:2});
   gui.add(controls,'Reset');
   gui.add(controls,'StartGeneration');
   //gui.add(controls,'setTerrainRandom');
@@ -772,6 +772,11 @@ function main() {
         controls.evadegree = 0.01;
         controls.raindegree = 0.001;
         erosioninterations = 18000;
+    }else if(controls.TerrainBiomeType==2){
+        controls.Ks = 0.00003;
+        controls.evadegree = 0.01;
+        controls.raindegree = 0.001;
+        erosioninterations = 12000;
     }
     noiseterrain.setRndTerrain(controls.TerrainBaseMap);
     noiseterrain.setTerrainType(controls.TerrainBiomeType);
@@ -794,11 +799,18 @@ function main() {
           controls.evadegree = 0.05;
           controls.raindegree = 0.005;
       }else if(controls.TerrainBiomeType==1){
+          controls.Ks = 0.00003;
           controls.evadegree = 0.01;
           controls.raindegree = 0.001;
           controls.pipelen = div*10;
           controls.pipeAra = div*div*100;
           erosioninterations = 15000;
+      }else if(controls.TerrainBiomeType==2){
+          controls.evadegree = 0.01;
+          controls.raindegree = 0.001;
+          controls.pipelen = div*10;
+          controls.pipeAra = div*div*100;
+          erosioninterations = 12000;
       }
 
     if(ReloadBaseTerrain){
