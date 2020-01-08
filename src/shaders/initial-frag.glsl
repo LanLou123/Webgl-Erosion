@@ -69,7 +69,7 @@ float noise2(vec2 st) {
 
 //smooth========================================================================
 
-#define OCTAVES 40
+#define OCTAVES 10
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -104,7 +104,7 @@ float fbm (in vec2 st) {
     //
     // Loop of octaves
     for (int i = 0; i < OCTAVES; i++) {
-        value += amplitude * iqnoise(st,1.f,1.f);
+        value += amplitude * noise(st);//iqnoise(st,1.f,1.f);
         st *= 2.0;
         amplitude *= .33;
     }
@@ -139,7 +139,7 @@ void main() {
   if(u_TerrainType==0){
     th = 5.f;
   }else if(u_TerrainType==1){
-    th = 3.f;
+    th = 2.f;
   }else if(u_TerrainType==2){
     th = 12.f;
   }

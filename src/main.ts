@@ -12,7 +12,7 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 
 const simresolution = 1000;
-let erosioninterations = 15000;
+let erosioninterations = 10000;
 let speed = 10;
 const div = 1/simresolution;
 let start = false;
