@@ -2,7 +2,52 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/after.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/before.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/desert.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/bundle.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bundle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/bundle.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bundle.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/distributionGraphs.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ex.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/extra.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/g.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jjj.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/n.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/r.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rnd1.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rnd2.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rnd3.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rnd4.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rnd5.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/alterwaterhight-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/alterwaterhight-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/alterwaterhight-vert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/eva-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/eva-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/eva-vert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/flat-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/flat-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/flow-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/flow-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/flow-vert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/initial-vert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/rain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/rain-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/rain-vert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/sediadvect-vert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/sediment-vert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ss.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sss.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/startScene.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/td.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vol.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/water.JPG" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,16 +61,24 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="ts.external.directory.path" value="C:\Program Files\JetBrains\WebStorm 2019.3.1\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
+    <property name="ts.external.directory.path" value="D:\my_erosion\Webgl-Erosion\node_modules\typescript\lib" />
+    <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager" selected="npm.build">
     <configuration name="Unnamed" type="js.build_tools.npm">
@@ -57,9 +110,20 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="start" type="js.build_tools.npm" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="start" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="npm.Unnamed" />
       <item itemvalue="npm.build" />
+      <item itemvalue="npm.start" />
     </list>
   </component>
   <component name="ServiceViewManager">
@@ -74,6 +138,7 @@
       </list>
     </option>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -92,6 +157,8 @@
       <workItem from="1555798207731" duration="8318000" />
       <workItem from="1556455864718" duration="46779000" />
       <workItem from="1578525519030" duration="2053000" />
+      <workItem from="1608602188335" duration="11655000" />
+      <workItem from="1608677913703" duration="86851000" />
     </task>
     <servers />
   </component>
@@ -105,28 +172,6 @@
     </todo-panel>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="736" y="357" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1578527573040">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="736" y="357" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1578527573040" />
-    <state width="2539" height="143" key="GridCell.Tab.0.bottom" timestamp="1578527574620">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state width="2539" height="143" key="GridCell.Tab.0.bottom/0.0.2560.1400@0.0.2560.1400" timestamp="1578527574620" />
-    <state width="2539" height="143" key="GridCell.Tab.0.center" timestamp="1578527574620">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state width="2539" height="143" key="GridCell.Tab.0.center/0.0.2560.1400@0.0.2560.1400" timestamp="1578527574620" />
-    <state width="2539" height="143" key="GridCell.Tab.0.left" timestamp="1578527574620">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state width="2539" height="143" key="GridCell.Tab.0.left/0.0.2560.1400@0.0.2560.1400" timestamp="1578527574620" />
-    <state width="2539" height="143" key="GridCell.Tab.0.right" timestamp="1578527574620">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state width="2539" height="143" key="GridCell.Tab.0.right/0.0.2560.1400@0.0.2560.1400" timestamp="1578527574620" />
+    <option name="version" value="3" />
   </component>
 </project>

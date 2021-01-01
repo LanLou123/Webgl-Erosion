@@ -21,9 +21,10 @@ vec3 sky(in vec3 rd){
 
 
 void main() {
-//vec2 uv = 0.5*fs_Pos+0.5;
+  //vec2 uv = 0.5*fs_Pos+0.5;
 
-  //vec4 col = (texture(hightmap,0.5f*fs_Pos+.5f));
+   vec4 col = texture(hightmap,0.5f*fs_Pos+.5f);
+
   //vec4 fcol =  vec4(vec3(col.xyz/500.f),1.f);
   //out_Col = fcol;
 
@@ -40,6 +41,6 @@ void main() {
     vec3 ro = u_Eye;
 
 
-
+   //out_Col = vec4((col.xyz * 100.0), 1.0);
     out_Col = vec4(sky(rd),1.f);
 }

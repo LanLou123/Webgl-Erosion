@@ -4,7 +4,7 @@ precision highp float;
 uniform sampler2D terrain;
 uniform float evapod;
 
-layout (location = 0) out vec4 writeterrain;
+layout (location = 0) out vec4 writeTerrain;
 
 
 // The fragment shader used to render the background of the scene
@@ -21,5 +21,5 @@ void main() {
       vec2 curuv = 0.5f*fs_Pos+0.5f;
       vec4 cur = texture(terrain,curuv);
       float eva = 1.f-evapod;
-      writeterrain = vec4(cur.x,cur.y*eva,cur.z,cur.w);
+      writeTerrain = vec4(cur.x,cur.y*eva,cur.z,cur.w);
 }

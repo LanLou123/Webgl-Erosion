@@ -4,8 +4,6 @@ precision highp float;
 
 in vec2 fs_Pos;
 uniform float u_Time;
-uniform int u_RndTerrain;
-uniform int u_TerrainType;
 
 layout (location = 0) out vec4 initial;
 layout (location = 1) out vec4 initial2;
@@ -69,7 +67,7 @@ float noise2(vec2 st) {
 
 //smooth========================================================================
 
-#define OCTAVES 10
+#define OCTAVES 16
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -126,6 +124,11 @@ float domainwarp(vec2 p){
     return fbm(p+fbm(p+fbm(p)));
 }
 
+float test(vec2 p){
+    return abs(cos(length(p - vec2(5.0))));
+}
+
+
 //nice one 5.3f*uv+vec2(178.f,27.f);
 
 // 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);
@@ -135,21 +138,11 @@ void main() {
   vec2 rdp2 = vec2(0.1,0.8);
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
 
-  float th = 5.f;
-  if(u_TerrainType==0){
-    th = 5.f;
-  }else if(u_TerrainType==1){
-    th = 2.f;
-  }else if(u_TerrainType==2){
-    th = 12.f;
-  }
 
-  vec2 curpos = 6.f*uv+vec2(112.f,643.f);
-  vec2 cpos = th*uv+vec2(121.f,11.f);
-  if(u_RndTerrain==1){
-    cpos = th*uv+vec2(2.f*mod(u_Time,100.f),mod(u_Time,100.f)+20.f);
-  }
-  float terrain_hight = 40.f*pow(fbm(cpos),1.f);
+
+  vec2 cpos = 1.5 * uv;
+  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 52.0,mod(u_Time,100.f)+120.f);
+  float terrain_hight = fbm(cpos*2.0) / 2.00;
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);

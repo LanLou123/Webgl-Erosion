@@ -1,9 +1,9 @@
 #version 300 es
 precision highp float;
 
-uniform sampler2D read;//water and hight map R: hight map, G: water map, B: , A:
-uniform sampler2D vel;
-uniform sampler2D sedi;
+uniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:
+uniform sampler2D readVelocity;
+uniform sampler2D readSediment;
 
 uniform float u_SimRes;
 uniform float u_PipeLen;
@@ -12,78 +12,71 @@ uniform float u_Kc;
 uniform float u_Kd;
 uniform float u_timestep;
 
-layout (location = 0) out vec4 writeterrain;
-layout (location = 1) out vec4 writesedi;
-layout (location = 2) out vec4 terrainnormal;
+layout (location = 0) out vec4 writeTerrain;
+layout (location = 1) out vec4 writeSediment;
+layout (location = 2) out vec4 writeTerrainNormal;
 
 
-// The fragment shader used to render the background of the scene
-// Modify this to make your background more interesting
 
 in vec2 fs_Pos;
 
 
-
-
-
 void main() {
-float timestep = u_timestep;
+
   vec2 curuv = 0.5f*fs_Pos+0.5f;
-  float texwidth = u_SimRes;
-  float div = 1.f/texwidth;
-  float g = 1.4;
-  float pipelen = u_PipeLen;
+  float div = 1.f/u_SimRes;
   float Kc = u_Kc;
   float Ks = u_Ks;
   float Kd = u_Kd;
-  float maxerosion = .3f;
 
 
-  vec4 top = texture(read,curuv+vec2(0.f,div));
-  vec4 right = texture(read,curuv+vec2(div,0.f));
-  vec4 bottom = texture(read,curuv+vec2(0.f,-div));
-  vec4 left = texture(read,curuv+vec2(-div,0.f));
+  vec4 top = texture(readTerrain,curuv+vec2(0.f,div));
+  vec4 right = texture(readTerrain,curuv+vec2(div,0.f));
+  vec4 bottom = texture(readTerrain,curuv+vec2(0.f,-div));
+  vec4 left = texture(readTerrain,curuv+vec2(-div,0.f));
 
-  vec4 cur = texture(read,curuv);
-  vec4 cursediment = texture(sedi,curuv);
+  vec4 curTerrain = texture(readTerrain,curuv);
+  vec4 curSediment = texture(readSediment,curuv);
 
 
-
+  //    t
+  //
+  // l  c--r
+  //    | /
+  //    b
   float nordis = div*1.f;
-  vec4 nort = texture(read,curuv+vec2(0.f,nordis));
-  vec4 norr = texture(read,curuv+vec2(nordis,0.f));
-  vec4 norb = texture(read,curuv+vec2(0.f,-nordis));
-  vec4 norl = texture(read,curuv+vec2(-nordis,0.f));
+  vec4 nort = texture(readTerrain,curuv+vec2(0.f,nordis));
+  vec4 norr = texture(readTerrain,curuv+vec2(nordis,0.f));
+  vec4 norb = texture(readTerrain,curuv+vec2(0.f,-nordis));
+  vec4 norl = texture(readTerrain,curuv+vec2(-nordis,0.f));
 
-  vec3 dx = vec3(nordis*2.f,(norr.x-norl.x)/40.f,0.f);
-  vec3 dy = vec3(0.f,(nort.x-norb.x)/40.f,nordis*2.f);
+  vec3 dx = vec3(nordis*1.f,(norr.x-curTerrain.x),0.f);
+  vec3 dy = vec3(nordis*1.f,(norr.x-norb.x),nordis*1.f);
 
   vec3 nor = normalize(cross(dx,dy));
+  float slopeSin = dot(vec3(0.0, 1.0, 0.0), nor);
 
-  //nor = normalize(dy);
-  //nor = vec3((nort.x-norb.x)*10.f);
 
-  float lmax = clamp((1.f-max(0.f,maxerosion - cur.y/maxerosion)),0.f,1.f);
-
-  float velo = length(texture(vel,curuv).xy)/1.f;
-  float slope = max(0.2f,1.f-abs(nor.y));
+  float velo = length(texture(readVelocity,curuv).xy);
+  float slope = max(0.05f, abs(asin(slopeSin))) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo;
 
-  float cursedi = cursediment.x;
-  float hight = cur.x;
-  float outsedi = cursediment.x;
+  float cursedi = curSediment.x;
+  float hight = curTerrain.x;
+  float outsedi = curSediment.x;
+
 
   if(sedicap>cursedi){
     hight = hight - (sedicap-cursedi)*Ks;
     outsedi = outsedi + (sedicap-cursedi)*Ks;
-  }else if(sedicap<cursedi){
+  }else {
     hight = hight + (cursedi-sedicap)*Kd;
     outsedi = outsedi - (cursedi-sedicap)*Kd;
   }
 
 
-  terrainnormal = vec4(nor,1.f);
-  writesedi = vec4(outsedi,0.f,0.f,1.f);
-  writeterrain = vec4(hight,cur.y,cur.z,cur.w);
+  writeTerrainNormal = vec4(nor,1.f);
+  writeSediment = vec4(outsedi,0.0f,0.0f,1.0f);
+  writeTerrain = vec4(hight,curTerrain.y,curTerrain.z,curTerrain.w);
 
 }

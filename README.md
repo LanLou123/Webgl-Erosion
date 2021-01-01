@@ -2,48 +2,33 @@
 
 ### Based on
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
-- [polygonal terrain for games](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)
+
 
 ## [**DEMO**]( https://lanlou123.github.io/Webgl-Erosion/)
 
-#### note : click button "start generation" to the right top corner to start erosion sim, the simulation will happen in realtime, take approximately 8-10 seconds on a GTX 1070
+#### note : click button "start generation" to the right top corner to start erosion sim, the simulation will happen in realtime
 
-![](ex.JPG)
+![](screenshot/combine.png)
 
-## Some other results
+## Debug view images
 
-- ![](sss.JPG)
+### Sediment map
 
-- smaller streams running down from cliffs natrually forming larger rivers. 
+- ![](screenshot/esediment.PNG)
 
-- ![](jjj.JPG)
+### Velocity map
 
-- Multiple terrain biome type support:
+- ![](screenshot/evel.PNG)
 
-- Desert:
+### Water coverage map
 
-![](desert.JPG)
+- ![](screenshot/ewater.PNG)
 
-- Volcanic:
+### Flux map
 
-![](vol.JPG)
+- ![](screenshot/eflux.PNG)
 
-- Comparison:
 
-- Before : ![](before.JPG)
-- After : ![](after.JPG)
-
-- Some Randomrized terrain : 
-
-- ![](rnd1.JPG)
-
-- ![](rnd2.JPG)
-
-- ![](rnd3.JPG)
-
-- ![](rnd4.JPG)
-
-- ![](rnd5.JPG)
 
 ### Base terrain generation:
 

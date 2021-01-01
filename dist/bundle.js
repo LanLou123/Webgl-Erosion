@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 21);
+/******/ 	return __webpack_require__(__webpack_require__.s = 22);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -119,19 +119,25 @@ function equals(a, b) {
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+
+/***/ }),
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__gl_matrix_common_js__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2_js__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d_js__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3_js__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4_js__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat_js__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_quat2_js__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec2_js__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec3_js__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__gl_matrix_vec4_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2_js__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d_js__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3_js__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4_js__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat_js__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_quat2_js__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec2_js__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec3_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__gl_matrix_vec4_js__ = __webpack_require__(10);
 /* unused harmony reexport glMatrix */
 /* unused harmony reexport mat2 */
 /* unused harmony reexport mat2d */
@@ -156,7 +162,7 @@ function equals(a, b) {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -169,7 +175,7 @@ function setGL(_gl) {
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
 module.exports = invert;
@@ -229,7 +235,7 @@ function invert(out, a) {
 };
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports) {
 
 module.exports = normalize;
@@ -257,7 +263,7 @@ function normalize(out, a) {
 }
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1106,7 +1112,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3002,7 +3008,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3042,9 +3048,9 @@ var sub = subtract;
 /* unused harmony export sqlerp */
 /* unused harmony export setAxes */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_js__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mat3_js__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__vec3_js__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__vec4_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mat3_js__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__vec3_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__vec4_js__ = __webpack_require__(10);
 
 
 
@@ -3708,7 +3714,7 @@ var setAxes = function () {
 }();
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4550,7 +4556,7 @@ var forEach = function () {
 }();
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5211,11 +5217,11 @@ var forEach = function () {
 }();
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__globals__ = __webpack_require__(3);
 
 class Drawable {
     constructor() {
@@ -5287,7 +5293,7 @@ class Drawable {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5295,8 +5301,8 @@ class Drawable {
 
 module.exports = createFilteredVector
 
-var cubicHermite = __webpack_require__(39)
-var bsearch = __webpack_require__(12)
+var cubicHermite = __webpack_require__(40)
+var bsearch = __webpack_require__(13)
 
 function clamp(lo, hi, x) {
   return Math.min(hi, Math.max(lo, x))
@@ -5585,7 +5591,7 @@ function createFilteredVector(initState, initVelocity, initTime) {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5652,7 +5658,7 @@ module.exports = {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 module.exports = cross;
@@ -5676,7 +5682,7 @@ function cross(out, a, b) {
 }
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 module.exports = dot;
@@ -5693,10 +5699,10 @@ function dot(a, b) {
 }
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var identity = __webpack_require__(16);
+var identity = __webpack_require__(17);
 
 module.exports = lookAt;
 
@@ -5788,7 +5794,7 @@ function lookAt(out, eye, center, up) {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 module.exports = identity;
@@ -5820,7 +5826,7 @@ function identity(out) {
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 module.exports = translate;
@@ -5863,7 +5869,7 @@ function translate(out, a, v) {
 };
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 module.exports = create;
@@ -5895,7 +5901,7 @@ function create() {
 };
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports) {
 
 module.exports = scale;
@@ -5931,7 +5937,7 @@ function scale(out, a, v) {
 };
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports) {
 
 module.exports = determinant;
@@ -5966,22 +5972,22 @@ function determinant(a) {
 };
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_stats_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_dat_gui__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Square__ = __webpack_require__(30);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__geometry_Plane__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__rendering_gl_OpenGLRenderer__ = __webpack_require__(32);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Camera__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__globals__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Square__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__geometry_Plane__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__rendering_gl_OpenGLRenderer__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Camera__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__globals__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__ = __webpack_require__(69);
 
 
 
@@ -5994,85 +6000,41 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const simresolution = 1000;
-let erosioninterations = 10000;
-let speed = 10;
+let erosioninterations = 68000;
+let speed = 3;
 const div = 1 / simresolution;
 let start = false;
 let SimFramecnt = 0;
-let ReloadBaseTerrain = false;
+let TerrainGeometryDirty = true;
 let PauseGeneration = true;
-let TerrainRandom = 0;
-//large scale 1 :
-/*
-const controls = {
-  tesselations: 5,
-    pipelen: div*5,//
-    Kc : 0.001,
-    Ks : 0.0001,//larger will induce axis aligning problem, really annoying
-    Kd : 0.00009,//if ratio of Ks/Kd increase, the mountain will have sharper tips
-    timestep : 0.001,
-    pipeAra : div*div*10,
-    evadegree : 0.06,//better?smaller larger(easy evaporate) makes river thinner
-    raindegree : 0.006,//cahnge the tip of mtns
-  'Load Scene': loadScene, // A function pointer, essentially
-    'StartGeneration' :StartGeneration,
-    'Reset' : Reset,
-};
- */
 const controls = {
     tesselations: 5,
-    pipelen: div * 6,
-    Kc: 0.001,
-    Ks: 0.0001,
-    Kd: 0.0001,
+    pipelen: div / 1.0,
+    Kc: 0.01,
+    Ks: 0.0008,
+    Kd: 0.0008,
     timestep: 0.001,
-    pipeAra: div * div * 20,
-    evadegree: 0.05,
-    raindegree: 0.005,
-    mtnsharp: 0.06,
+    pipeAra: div * div * 1.0,
+    evadegree: 0.01,
+    raindegree: 0.6,
+    spawnposx: 0.5,
+    spawnposy: 0.5,
     'Load Scene': loadScene,
     'StartGeneration': StartGeneration,
     'Reset': Reset,
     'setTerrainRandom': setTerrainRandom,
     TerrainBaseMap: 0,
-    TerrainBiomeType: 0,
+    TerrainBiomeType: 1,
+    TerrainDebug: 0,
+    WaterTransparency: 0.3,
 };
-const controlsBarrier = {
-    tesselations: 5,
-    pipelen: div * 6,
-    Kc: 0.001,
-    Ks: 0.0001,
-    Kd: 0.0001,
-    timestep: 0.001,
-    pipeAra: div * div * 20,
-    evadegree: 0.05,
-    raindegree: 0.005,
-    mtnsharp: 0.06,
-    'Load Scene': loadScene,
-    'StartGeneration': StartGeneration,
-    'Reset': Reset,
-    'setTerrainRandom': setTerrainRandom,
-    TerrainBaseMap: 0,
-    TerrainBiomeType: 0,
-};
-function syncBarrier() {
-    controls.pipelen = controlsBarrier.pipelen;
-    controls.Kc = controlsBarrier.Kc;
-    controls.Ks = controlsBarrier.Ks;
-    controls.Kd = controlsBarrier.Kd;
-    controls.timestep = controlsBarrier.timestep;
-    controls.pipeAra = controlsBarrier.pipeAra;
-    controls.evadegree = controlsBarrier.evadegree;
-    controls.raindegree = controlsBarrier.raindegree;
-    controls.TerrainBiomeType = controlsBarrier.TerrainBiomeType;
-    controls.TerrainBaseMap = controlsBarrier.TerrainBaseMap;
-}
 function StartGeneration() {
     PauseGeneration = false;
 }
 //geometries
 let square;
 let plane;
+let waterPlane;
 //simulation variables
 // texture structure : R : terrain hight map, G : water carrying, B : sediment carrying
 let simres = simresolution;
@@ -6091,17 +6053,17 @@ let num_simsteps;
 function loadScene() {
     square = new __WEBPACK_IMPORTED_MODULE_3__geometry_Square__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0));
     square.create();
-    plane = new __WEBPACK_IMPORTED_MODULE_4__geometry_Plane__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(100, 100), 22);
+    plane = new __WEBPACK_IMPORTED_MODULE_4__geometry_Plane__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(1, 1), 22);
     plane.create();
+    waterPlane = new __WEBPACK_IMPORTED_MODULE_4__geometry_Plane__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(1, 1), 22);
+    waterPlane.create();
 }
 function Reset() {
     SimFramecnt = 0;
-    ReloadBaseTerrain = true;
+    TerrainGeometryDirty = true;
     PauseGeneration = true;
-    syncBarrier();
 }
 function setTerrainRandom() {
-    TerrainRandom = 1;
 }
 function Render2Texture(renderer, gl, camera, shader, cur_texture) {
     gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
@@ -6124,7 +6086,7 @@ function Render2Texture(renderer, gl, camera, shader, cur_texture) {
     renderer.render(camera, shader, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
-function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect, rains, eva) {
+function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect, rains, eva, ave) {
     //////////////////////////////////////////////////////////////////
     //rain precipitation
     //0---use hight map to derive hight map : hight map -----> hight map
@@ -6133,6 +6095,8 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, null, 0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
     let status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
@@ -6148,16 +6112,12 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     rains.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readUnifr = gl.getUniformLocation(rains.prog, "read");
+    let readUnifr = gl.getUniformLocation(rains.prog, "readTerrain");
     gl.uniform1i(readUnifr, 0);
     let raind = gl.getUniformLocation(rains.prog, 'raindeg');
     gl.uniform1f(raind, controls.raindegree);
     renderer.render(camera, rains, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    //////////////////////////////////////////////////////////////////
-    //rain precipitation
-    //0---use hight map to derive hight map : hight map -----> hight map
-    //////////////////////////////////////////////////////////////////
     //swap terrain tex-----------------------------------------------
     let tmp = read_terrain_tex;
     read_terrain_tex = write_terrain_tex;
@@ -6170,6 +6130,8 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_flux_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, null, 0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
     status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
@@ -6185,17 +6147,14 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     shader.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readUnif = gl.getUniformLocation(shader.prog, "read");
+    let readUnif = gl.getUniformLocation(shader.prog, "readTerrain");
     gl.uniform1i(readUnif, 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, read_flux_tex);
-    let readfluxUniff = gl.getUniformLocation(shader.prog, "flux");
+    let readfluxUniff = gl.getUniformLocation(shader.prog, "readFlux");
     gl.uniform1i(readfluxUniff, 1);
     renderer.render(camera, shader, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    //////////////////////////////////////////////////////////////////
-    //1---use hight map to derive flux map : hight map -----> flux map
-    //////////////////////////////////////////////////////////////////
     //-----swap flux ping and pong
     tmp = read_flux_tex;
     read_flux_tex = write_flux_tex;
@@ -6210,6 +6169,7 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, write_vel_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, null, 0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
     gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
     status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
@@ -6225,18 +6185,14 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     waterhight.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readterrainUnifw = gl.getUniformLocation(waterhight.prog, "read");
+    let readterrainUnifw = gl.getUniformLocation(waterhight.prog, "readTerrain");
     gl.uniform1i(readterrainUnifw, 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, read_flux_tex);
-    let readfluxUnifw = gl.getUniformLocation(waterhight.prog, "readflux");
+    let readfluxUnifw = gl.getUniformLocation(waterhight.prog, "readFlux");
     gl.uniform1i(readfluxUnifw, 1);
     renderer.render(camera, waterhight, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    //////////////////////////////////////////////////////////////////
-    //2---use flux map and hight map to derive velocity map and new hight map :
-    // hight map + flux map -----> velocity map + hight map
-    //////////////////////////////////////////////////////////////////
     //-----swap terrain ping and pong and velocity ping pong
     tmp = read_terrain_tex;
     read_terrain_tex = write_terrain_tex;
@@ -6270,22 +6226,18 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     sedi.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readterrainUnifs = gl.getUniformLocation(sedi.prog, "read");
+    let readterrainUnifs = gl.getUniformLocation(sedi.prog, "readTerrain");
     gl.uniform1i(readterrainUnifs, 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
-    let readvelUnifs = gl.getUniformLocation(sedi.prog, "vel");
+    let readvelUnifs = gl.getUniformLocation(sedi.prog, "readVelocity");
     gl.uniform1i(readvelUnifs, 1);
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
-    let readsediUnifs = gl.getUniformLocation(sedi.prog, "sedi");
+    let readsediUnifs = gl.getUniformLocation(sedi.prog, "readSediment");
     gl.uniform1i(readsediUnifs, 2);
     renderer.render(camera, sedi, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    //////////////////////////////////////////////////////////////////
-    //3---use velocity map, sediment map and hight map to derive sediment map and new hight map :
-    // hight map + velocity map + sediment map -----> sediment map + hight map
-    //////////////////////////////////////////////////////////////////
     //----------swap terrain and sediment map---------
     tmp = read_sediment_tex;
     read_sediment_tex = write_sediment_tex;
@@ -6303,6 +6255,8 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_sediment_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, null, 0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
     status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
@@ -6324,6 +6278,8 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
     let readsediUnifa = gl.getUniformLocation(advect.prog, "sedi");
     gl.uniform1i(readsediUnifa, 1);
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, null);
     renderer.render(camera, advect, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //----------swap sediment map---------
@@ -6340,6 +6296,8 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, null, 0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
     status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
@@ -6361,11 +6319,41 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     gl.uniform1f(erapodegree, controls.evadegree);
     renderer.render(camera, eva, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    //---------------swap terrain mao----------------------------
+    tmp = read_terrain_tex;
+    read_terrain_tex = write_terrain_tex;
+    write_terrain_tex = tmp;
+    //---------------swap terrain mao----------------------------
     //////////////////////////////////////////////////////////////////
-    // water level evaporation at end of each iteration
-    // 5---use terrain map to derive new terrain map :
-    // terrain map -----> terrain map
+    // final average step : average terrain to avoid extremly sharp ridges or ravines
+    // 6---use terrain map to derive new terrain map :
+    //  terrain map -----> terrain map
     //////////////////////////////////////////////////////////////////
+    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, null, 0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        console.log("frame buffer status:" + status.toString());
+    }
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.viewport(0, 0, simres, simres);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+    renderer.clear();
+    ave.use();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
+    readterrainUnife = gl.getUniformLocation(ave.prog, "readTerrain");
+    gl.uniform1i(readterrainUnife, 0);
+    renderer.render(camera, ave, [square]);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //---------------swap terrain mao----------------------------
     tmp = read_terrain_tex;
     read_terrain_tex = write_terrain_tex;
@@ -6446,29 +6434,13 @@ function setupFramebufferandtextures(gl) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 }
-function SimulationStep(curstep, flow, waterhight, sediment, advect, rains, evapo, renderer, gl, camera) {
+function SimulationStep(curstep, flow, waterhight, sediment, advect, rains, evapo, average, renderer, gl, camera) {
     if (curstep > num_simsteps || PauseGeneration)
         return true;
     else {
-        SimulatePerStep(renderer, gl, camera, flow, waterhight, sediment, advect, rains, evapo);
+        SimulatePerStep(renderer, gl, camera, flow, waterhight, sediment, advect, rains, evapo, average);
     }
     return false;
-}
-function ClearTextures(gl) {
-    gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, read_terrain_tex, 0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, write_sediment_tex, 0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, read_sediment_tex, 0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT4, gl.TEXTURE_2D, write_vel_tex, 0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT5, gl.TEXTURE_2D, read_flux_tex, 0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT6, gl.TEXTURE_2D, write_vel_tex, 0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT7, gl.TEXTURE_2D, read_vel_tex, 0);
-    gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 function main() {
     // Initial display for framerate
@@ -6480,10 +6452,14 @@ function main() {
     document.body.appendChild(stats.domElement);
     // Add controls to the gui
     const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
-    gui.add(controlsBarrier, 'TerrainBaseMap', { defaultTerrain: 0, randomrizedTerrain: 1 });
-    gui.add(controlsBarrier, 'TerrainBiomeType', { mountain: 0, desert: 1, volcanic: 2 });
+    // gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
+    // gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1,volcanic:2});
     gui.add(controls, 'Reset');
     gui.add(controls, 'StartGeneration');
+    gui.add(controls, 'WaterTransparency', 0.0, 1.0);
+    gui.add(controls, 'TerrainDebug', { normal: 0, sediment: 1, velocity: 2, terrain: 3, flux: 4 });
+    // gui.add(controls, 'spawnposx' ,0.0, 1.0);
+    // gui.add(controls, 'spawnposy' ,0.0, 1.0);
     //gui.add(controls,'setTerrainRandom');
     /*
     gui.add(controls,"pipelen",div/20,div*4).step(div/20);
@@ -6511,119 +6487,85 @@ function main() {
     // Initial call to load scene
     loadScene();
     num_simsteps = erosioninterations;
-    const camera = new __WEBPACK_IMPORTED_MODULE_6__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 50, -60), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0));
+    const camera = new __WEBPACK_IMPORTED_MODULE_6__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, -0.6), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0));
     const renderer = new __WEBPACK_IMPORTED_MODULE_5__rendering_gl_OpenGLRenderer__["a" /* default */](canvas);
-    renderer.setClearColor(164.0 / 255.0, 233.0 / 255.0, 1.0, 1);
+    renderer.setClearColor(0.0, 0.0, 0.0, 1);
     gl.enable(gl.DEPTH_TEST);
     setupFramebufferandtextures(gl);
     const lambert = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(69)),
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(70)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(70)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(71)),
     ]);
     const flat = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(71)),
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(72)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(72)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(73)),
     ]);
     const noiseterrain = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(73)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(1)),
         new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(74)),
     ]);
     const flow = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(75)),
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(76)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(1)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(75)),
     ]);
     const waterhight = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(77)),
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(78)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(1)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(76)),
     ]);
     const sediment = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(79)),
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(80)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(1)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(77)),
     ]);
     const sediadvect = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(81)),
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(82)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(1)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(78)),
     ]);
     const rains = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(1)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(79)),
+    ]);
+    const evaporation = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(1)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(80)),
+    ]);
+    const average = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(1)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(81)),
+    ]);
+    const clean = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(1)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(82)),
+    ]);
+    const water = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
         new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(83)),
         new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(84)),
     ]);
-    const evaporation = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(85)),
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(86)),
-    ]);
-    if (controls.TerrainBiomeType == 0) {
-        controls.evadegree = 0.05;
-        controls.pipelen = div * 6;
-        controls.raindegree = 0.005;
-    }
-    else if (controls.TerrainBiomeType == 1) {
-        controls.Ks = 0.00003;
-        controls.evadegree = 0.01;
-        controls.pipelen = div * 10;
-        controls.raindegree = 0.001;
-        erosioninterations = 18000;
-    }
-    else if (controls.TerrainBiomeType == 2) {
-        controls.Ks = 0.00003;
-        controls.evadegree = 0.01;
-        controls.pipelen = div * 10;
-        controls.raindegree = 0.001;
-        erosioninterations = 12000;
-    }
     noiseterrain.setRndTerrain(controls.TerrainBaseMap);
     noiseterrain.setTerrainType(controls.TerrainBiomeType);
-    Render2Texture(renderer, gl, camera, noiseterrain, read_terrain_tex);
     let timer = 0;
-    // This function will be called every frame
-    let lastTerrainType = controls.TerrainBiomeType;
+    function cleanUpTextures() {
+        Render2Texture(renderer, gl, camera, clean, read_terrain_tex);
+        Render2Texture(renderer, gl, camera, clean, read_vel_tex);
+        Render2Texture(renderer, gl, camera, clean, read_flux_tex);
+        Render2Texture(renderer, gl, camera, clean, read_sediment_tex);
+        Render2Texture(renderer, gl, camera, clean, write_terrain_tex);
+        Render2Texture(renderer, gl, camera, clean, write_vel_tex);
+        Render2Texture(renderer, gl, camera, clean, write_flux_tex);
+        Render2Texture(renderer, gl, camera, clean, write_sediment_tex);
+        Render2Texture(renderer, gl, camera, clean, terrain_nor);
+    }
     function tick() {
         timer++;
         noiseterrain.setTime(timer);
-        noiseterrain.setRndTerrain(controls.TerrainBaseMap);
-        noiseterrain.setTerrainType(controls.TerrainBiomeType);
-        lambert.setTerrainType(controls.TerrainBiomeType);
-        if (controls.TerrainBiomeType == 0) {
-            controls.evadegree = 0.05;
-            controls.raindegree = 0.005;
-        }
-        else if (controls.TerrainBiomeType == 1) {
-            controls.Ks = 0.00008;
-            controls.evadegree = 0.01;
-            controls.raindegree = 0.001;
-            controls.pipelen = div * 10;
-            controls.pipeAra = div * div * 100;
-            erosioninterations = 15000;
-        }
-        else if (controls.TerrainBiomeType == 2) {
-            controls.evadegree = 0.01;
-            controls.raindegree = 0.001;
-            controls.pipelen = div * 10;
-            controls.pipeAra = div * div * 100;
-            erosioninterations = 12000;
-        }
-        if (ReloadBaseTerrain) {
-            gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, read_terrain_tex, 0);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, write_terrain_tex, 0);
-            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
-            gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
-            let status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-            if (status !== gl.FRAMEBUFFER_COMPLETE) {
-                console.log("frame buffer status:" + status.toString());
-            }
-            gl.bindTexture(gl.TEXTURE_2D, null);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-            gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-            gl.viewport(0, 0, simres, simres);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
-            renderer.clear();
-            noiseterrain.use();
-            renderer.render(camera, noiseterrain, [square]);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-            ReloadBaseTerrain = false;
+        rains.setSpawnPos(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(controls.spawnposx, controls.spawnposy));
+        rains.setTime(timer);
+        lambert.setTerrainDebug(controls.TerrainDebug);
+        water.setWaterTransparency(controls.WaterTransparency);
+        if (TerrainGeometryDirty) {
+            cleanUpTextures();
+            Render2Texture(renderer, gl, camera, noiseterrain, read_terrain_tex);
+            Render2Texture(renderer, gl, camera, noiseterrain, write_terrain_tex);
+            TerrainGeometryDirty = false;
         }
         flow.setPipeLen(controls.pipelen);
         flow.setSimres(simresolution);
@@ -6644,14 +6586,16 @@ function main() {
         sediadvect.setKs(controls.Ks);
         sediadvect.setKd(controls.Kd);
         sediadvect.setTimestep(controls.timestep);
+        average.setSimres(simresolution);
         camera.update();
         stats.begin();
         for (let i = 0; i < speed; i++) {
-            SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect, rains, evaporation, renderer, gl, camera);
+            SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect, rains, evaporation, average, renderer, gl, camera);
             SimFramecnt++;
         }
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         renderer.clear();
+        // render terrain -----------------------------------------
         lambert.use();
         //plane.setDrawMode(gl.LINE_STRIP);
         gl.activeTexture(gl.TEXTURE0);
@@ -6662,12 +6606,41 @@ function main() {
         gl.bindTexture(gl.TEXTURE_2D, terrain_nor);
         let norUniform = gl.getUniformLocation(lambert.prog, "normap");
         gl.uniform1i(norUniform, 1);
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
+        let sediUniform = gl.getUniformLocation(lambert.prog, "sedimap");
+        gl.uniform1i(sediUniform, 2);
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
+        let velUniform = gl.getUniformLocation(lambert.prog, "velmap");
+        gl.uniform1i(velUniform, 3);
+        gl.activeTexture(gl.TEXTURE4);
+        gl.bindTexture(gl.TEXTURE_2D, read_flux_tex);
+        let fluxUniform = gl.getUniformLocation(lambert.prog, "fluxmap");
+        gl.uniform1i(fluxUniform, 4);
         renderer.render(camera, lambert, [
             plane,
         ]);
+        // render water -----------------------------------------
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        water.use();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
+        PingUniform = gl.getUniformLocation(water.prog, "hightmap");
+        gl.uniform1i(PingUniform, 0);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, terrain_nor);
+        norUniform = gl.getUniformLocation(water.prog, "normap");
+        gl.uniform1i(norUniform, 1);
+        renderer.render(camera, water, [
+            plane,
+        ]);
+        gl.disable(gl.BLEND);
+        // back ground ----------------------------------
         flat.use();
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
+        gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
         let postUniform = gl.getUniformLocation(flat.prog, "hightmap");
         gl.uniform1i(postUniform, 0);
         renderer.render(camera, flat, [
@@ -6692,7 +6665,7 @@ main();
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7159,7 +7132,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7675,7 +7648,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7719,8 +7692,8 @@ var sub = subtract;
 /* unused harmony export exactEquals */
 /* unused harmony export equals */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_js__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__quat_js__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mat4_js__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__quat_js__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mat4_js__ = __webpack_require__(7);
 
 
 
@@ -8567,7 +8540,7 @@ function equals(a, b) {
 }
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9244,21 +9217,21 @@ var forEach = function () {
 }();
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 !function(e,t){ true?module.exports=t():"function"==typeof define&&define.amd?define(t):e.Stats=t()}(this,function(){"use strict";var c=function(){var n=0,l=document.createElement("div");function e(e){return l.appendChild(e.dom),e}function t(e){for(var t=0;t<l.children.length;t++)l.children[t].style.display=t===e?"block":"none";n=e}l.style.cssText="position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000",l.addEventListener("click",function(e){e.preventDefault(),t(++n%l.children.length)},!1);var i=(performance||Date).now(),a=i,o=0,f=e(new c.Panel("FPS","#0ff","#002")),r=e(new c.Panel("MS","#0f0","#020"));if(self.performance&&self.performance.memory)var d=e(new c.Panel("MB","#f08","#201"));return t(0),{REVISION:16,dom:l,addPanel:e,showPanel:t,begin:function(){i=(performance||Date).now()},end:function(){o++;var e=(performance||Date).now();if(r.update(e-i,200),a+1e3<=e&&(f.update(1e3*o/(e-a),100),a=e,o=0,d)){var t=performance.memory;d.update(t.usedJSHeapSize/1048576,t.jsHeapSizeLimit/1048576)}return e},update:function(){i=this.end()},domElement:l,setMode:t}};return c.Panel=function(n,l,i){var a=1/0,o=0,f=Math.round,r=f(window.devicePixelRatio||1),d=80*r,e=48*r,c=3*r,p=2*r,u=3*r,s=15*r,m=74*r,h=30*r,y=document.createElement("canvas");y.width=d,y.height=e,y.style.cssText="width:80px;height:48px";var v=y.getContext("2d");return v.font="bold "+9*r+"px Helvetica,Arial,sans-serif",v.textBaseline="top",v.fillStyle=i,v.fillRect(0,0,d,e),v.fillStyle=l,v.fillText(n,c,p),v.fillRect(u,s,m,h),v.fillStyle=i,v.globalAlpha=.9,v.fillRect(u,s,m,h),{dom:y,update:function(e,t){a=Math.min(a,e),o=Math.max(o,e),v.fillStyle=i,v.globalAlpha=1,v.fillRect(0,0,d,s),v.fillStyle=l,v.fillText(f(e)+" "+n+" ("+f(a)+"-"+f(o)+")",c,p),v.drawImage(y,u+r,s,m-r,h,u,s,m-r,h),v.fillRect(u+m-r,s,r,h),v.fillStyle=i,v.globalAlpha=.9,v.fillRect(u+m-r,s,r,f((1-e/t)*h))}}},c});
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(28)
-module.exports.color = __webpack_require__(29)
+module.exports = __webpack_require__(29)
+module.exports.color = __webpack_require__(30)
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 /**
@@ -12923,7 +12896,7 @@ dat.dom.dom,
 dat.utils.common);
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 /**
@@ -13683,13 +13656,13 @@ dat.color.toString,
 dat.utils.common);
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__globals__ = __webpack_require__(3);
 
 
 
@@ -13727,13 +13700,13 @@ class Square extends __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__["a" /*
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__globals__ = __webpack_require__(3);
 
 
 
@@ -13806,12 +13779,12 @@ class Plane extends __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__["a" /* 
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__globals__ = __webpack_require__(3);
 
 
 // In this file, `gl` is accessible because it is imported above
@@ -13849,12 +13822,12 @@ class OpenGLRenderer {
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(1);
-var CameraControls = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
+var CameraControls = __webpack_require__(35);
 
 class Camera {
     constructor(position, target) {
@@ -13892,7 +13865,7 @@ class Camera {
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13900,12 +13873,12 @@ class Camera {
 
 module.exports = createCamera
 
-var now         = __webpack_require__(35)
-var createView  = __webpack_require__(37)
-var mouseChange = __webpack_require__(60)
-var mouseWheel  = __webpack_require__(62)
-var mouseOffset = __webpack_require__(65)
-var hasPassive  = __webpack_require__(66)
+var now         = __webpack_require__(36)
+var createView  = __webpack_require__(38)
+var mouseChange = __webpack_require__(61)
+var mouseWheel  = __webpack_require__(63)
+var mouseOffset = __webpack_require__(66)
+var hasPassive  = __webpack_require__(67)
 
 function createCamera(element, options) {
   element = element || document.body
@@ -14135,7 +14108,7 @@ function createCamera(element, options) {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {module.exports =
@@ -14146,10 +14119,10 @@ function createCamera(element, options) {
     return +new Date
   }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37)))
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports) {
 
 var g;
@@ -14176,7 +14149,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14184,9 +14157,9 @@ module.exports = g;
 
 module.exports = createViewController
 
-var createTurntable = __webpack_require__(38)
-var createOrbit     = __webpack_require__(41)
-var createMatrix    = __webpack_require__(44)
+var createTurntable = __webpack_require__(39)
+var createOrbit     = __webpack_require__(42)
+var createMatrix    = __webpack_require__(45)
 
 function ViewController(controllers, mode) {
   this._controllerNames = Object.keys(controllers)
@@ -14304,7 +14277,7 @@ function createViewController(options) {
 }
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14312,12 +14285,12 @@ function createViewController(options) {
 
 module.exports = createTurntableController
 
-var filterVector = __webpack_require__(11)
-var invert44     = __webpack_require__(3)
-var rotateM      = __webpack_require__(40)
-var cross        = __webpack_require__(13)
-var normalize3   = __webpack_require__(4)
-var dot3         = __webpack_require__(14)
+var filterVector = __webpack_require__(12)
+var invert44     = __webpack_require__(4)
+var rotateM      = __webpack_require__(41)
+var cross        = __webpack_require__(14)
+var normalize3   = __webpack_require__(5)
+var dot3         = __webpack_require__(15)
 
 function len3(x, y, z) {
   return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2))
@@ -14882,7 +14855,7 @@ function createTurntableController(options) {
 }
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14927,7 +14900,7 @@ module.exports = cubicHermite
 module.exports.derivative = dcubicHermite
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports) {
 
 module.exports = rotate;
@@ -14996,7 +14969,7 @@ function rotate(out, a, rad, axis) {
 };
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15004,11 +14977,11 @@ function rotate(out, a, rad, axis) {
 
 module.exports = createOrbitController
 
-var filterVector  = __webpack_require__(11)
-var lookAt        = __webpack_require__(15)
-var mat4FromQuat  = __webpack_require__(42)
-var invert44      = __webpack_require__(3)
-var quatFromFrame = __webpack_require__(43)
+var filterVector  = __webpack_require__(12)
+var lookAt        = __webpack_require__(16)
+var mat4FromQuat  = __webpack_require__(43)
+var invert44      = __webpack_require__(4)
+var quatFromFrame = __webpack_require__(44)
 
 function len3(x,y,z) {
   return Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2))
@@ -15395,7 +15368,7 @@ function createOrbitController(options) {
 }
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports) {
 
 module.exports = fromQuat;
@@ -15447,7 +15420,7 @@ function fromQuat(out, q) {
 };
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15494,22 +15467,22 @@ function quatFromFrame(
 }
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var bsearch   = __webpack_require__(12)
-var m4interp  = __webpack_require__(45)
-var invert44  = __webpack_require__(3)
-var rotateX   = __webpack_require__(57)
-var rotateY   = __webpack_require__(58)
-var rotateZ   = __webpack_require__(59)
-var lookAt    = __webpack_require__(15)
-var translate = __webpack_require__(17)
-var scale     = __webpack_require__(19)
-var normalize = __webpack_require__(4)
+var bsearch   = __webpack_require__(13)
+var m4interp  = __webpack_require__(46)
+var invert44  = __webpack_require__(4)
+var rotateX   = __webpack_require__(58)
+var rotateY   = __webpack_require__(59)
+var rotateZ   = __webpack_require__(60)
+var lookAt    = __webpack_require__(16)
+var translate = __webpack_require__(18)
+var scale     = __webpack_require__(20)
+var normalize = __webpack_require__(5)
 
 var DEFAULT_CENTER = [0,0,0]
 
@@ -15699,15 +15672,15 @@ function createMatrixCameraController(options) {
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var lerp = __webpack_require__(46)
+var lerp = __webpack_require__(47)
 
-var recompose = __webpack_require__(47)
-var decompose = __webpack_require__(50)
-var determinant = __webpack_require__(20)
-var slerp = __webpack_require__(55)
+var recompose = __webpack_require__(48)
+var decompose = __webpack_require__(51)
+var determinant = __webpack_require__(21)
+var slerp = __webpack_require__(56)
 
 var state0 = state()
 var state1 = state()
@@ -15756,7 +15729,7 @@ function vec4() {
 }
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports) {
 
 module.exports = lerp;
@@ -15781,7 +15754,7 @@ function lerp(out, a, b, t) {
 }
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -15796,12 +15769,12 @@ From: http://www.w3.org/TR/css3-transforms/#recomposing-to-a-3d-matrix
 */
 
 var mat4 = {
-    identity: __webpack_require__(16),
-    translate: __webpack_require__(17),
-    multiply: __webpack_require__(48),
-    create: __webpack_require__(18),
-    scale: __webpack_require__(19),
-    fromRotationTranslation: __webpack_require__(49)
+    identity: __webpack_require__(17),
+    translate: __webpack_require__(18),
+    multiply: __webpack_require__(49),
+    create: __webpack_require__(19),
+    scale: __webpack_require__(20),
+    fromRotationTranslation: __webpack_require__(50)
 }
 
 var rotationMatrix = mat4.create()
@@ -15846,7 +15819,7 @@ module.exports = function recomposeMat4(matrix, translation, scale, skew, perspe
 }
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports) {
 
 module.exports = multiply;
@@ -15893,7 +15866,7 @@ function multiply(out, a, b) {
 };
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports) {
 
 module.exports = fromRotationTranslation;
@@ -15951,7 +15924,7 @@ function fromRotationTranslation(out, q, v) {
 };
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*jshint unused:true*/
@@ -15971,18 +15944,18 @@ https://github.com/ChromiumWebApps/chromium/blob/master/ui/gfx/transform_util.cc
 http://www.w3.org/TR/css3-transforms/#decomposing-a-3d-matrix
 */
 
-var normalize = __webpack_require__(51)
+var normalize = __webpack_require__(52)
 
-var create = __webpack_require__(18)
-var clone = __webpack_require__(52)
-var determinant = __webpack_require__(20)
-var invert = __webpack_require__(3)
-var transpose = __webpack_require__(53)
+var create = __webpack_require__(19)
+var clone = __webpack_require__(53)
+var determinant = __webpack_require__(21)
+var invert = __webpack_require__(4)
+var transpose = __webpack_require__(54)
 var vec3 = {
-    length: __webpack_require__(54),
-    normalize: __webpack_require__(4),
-    dot: __webpack_require__(14),
-    cross: __webpack_require__(13)
+    length: __webpack_require__(55),
+    normalize: __webpack_require__(5),
+    dot: __webpack_require__(15),
+    cross: __webpack_require__(14)
 }
 
 var tmp = create()
@@ -16135,7 +16108,7 @@ function combine(out, a, b, scale1, scale2) {
 }
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports) {
 
 module.exports = function normalize(out, mat) {
@@ -16150,7 +16123,7 @@ module.exports = function normalize(out, mat) {
 }
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports) {
 
 module.exports = clone;
@@ -16183,7 +16156,7 @@ function clone(a) {
 };
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = transpose;
@@ -16237,7 +16210,7 @@ function transpose(out, a) {
 };
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports) {
 
 module.exports = length;
@@ -16256,13 +16229,13 @@ function length(a) {
 }
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(56)
+module.exports = __webpack_require__(57)
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports) {
 
 module.exports = slerp
@@ -16319,7 +16292,7 @@ function slerp (out, a, b, t) {
 
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports) {
 
 module.exports = rotateX;
@@ -16368,7 +16341,7 @@ function rotateX(out, a, rad) {
 };
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports) {
 
 module.exports = rotateY;
@@ -16417,7 +16390,7 @@ function rotateY(out, a, rad) {
 };
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports) {
 
 module.exports = rotateZ;
@@ -16466,7 +16439,7 @@ function rotateZ(out, a, rad) {
 };
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16474,7 +16447,7 @@ function rotateZ(out, a, rad) {
 
 module.exports = mouseListen
 
-var mouse = __webpack_require__(61)
+var mouse = __webpack_require__(62)
 
 function mouseListen (element, callback) {
   if (!callback) {
@@ -16678,7 +16651,7 @@ function mouseListen (element, callback) {
 
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16745,13 +16718,13 @@ exports.y = mouseRelativeY
 
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var toPX = __webpack_require__(63)
+var toPX = __webpack_require__(64)
 
 module.exports = mouseWheelListen
 
@@ -16792,13 +16765,13 @@ function mouseWheelListen(element, callback, noScroll) {
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var parseUnit = __webpack_require__(64)
+var parseUnit = __webpack_require__(65)
 
 module.exports = toPX
 
@@ -16873,7 +16846,7 @@ function toPX(str, element) {
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports) {
 
 module.exports = function parseUnit(str, out) {
@@ -16888,7 +16861,7 @@ module.exports = function parseUnit(str, out) {
 }
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports) {
 
 var rootPosition = { left: 0, top: 0 }
@@ -16919,13 +16892,13 @@ function getBoundingClientOffset (element) {
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var isBrowser = __webpack_require__(67)
+var isBrowser = __webpack_require__(68)
 
 function detect() {
 	var supported = false
@@ -16950,18 +16923,18 @@ module.exports = isBrowser && detect()
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports) {
 
 module.exports = true;
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__globals__ = __webpack_require__(3);
 
 
 var activeProgram = null;
@@ -16996,6 +16969,7 @@ class ShaderProgram {
         this.unifModelInvTr = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_ModelInvTr");
         this.unifViewProj = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_ViewProj");
         this.unifPlanePos = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_PlanePos");
+        this.unifSpanwPos = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_SpawnPos");
         this.unifSimRes = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_SimRes");
         this.unifPipeLen = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_PipeLen");
         this.unifKs = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Ks");
@@ -17008,8 +16982,10 @@ class ShaderProgram {
         this.unifUp = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Up");
         this.unifDimensions = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Dimensions");
         this.unifTime = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Time");
+        this.unifWaterTransparency = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_WaterTransparency");
         this.unifRndTerrain = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_RndTerrain");
         this.unifTerrainType = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_TerrainType");
+        this.unifTerrainDebug = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_TerrainDebug");
     }
     use() {
         if (activeProgram !== this.prog) {
@@ -17041,6 +17017,12 @@ class ShaderProgram {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1f(this.unifTime, t);
         }
     }
+    setWaterTransparency(t) {
+        this.use();
+        if (this.unifWaterTransparency !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1f(this.unifWaterTransparency, t);
+        }
+    }
     setDimensions(width, height) {
         this.use();
         if (this.unifDimensions !== -1) {
@@ -17051,6 +17033,18 @@ class ShaderProgram {
         this.use();
         if (this.unifTerrainType !== -1) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifTerrainType, t);
+        }
+    }
+    setTerrainDebug(t) {
+        this.use();
+        if (this.unifTerrainDebug !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifTerrainDebug, t);
+        }
+    }
+    setSpawnPos(pos) {
+        this.use();
+        if (this.unifSpanwPos !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform2fv(this.unifSpanwPos, pos);
         }
     }
     setRndTerrain(r) {
@@ -17148,112 +17142,94 @@ class ShaderProgram {
 
 
 /***/ }),
-/* 69 */
-/***/ (function(module, exports) {
-
-module.exports = "#version 300 es\r\n\r\n\r\nuniform mat4 u_Model;\r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj;\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nuniform sampler2D hightmap;\r\n\r\nin vec4 vs_Pos;\r\nin vec4 vs_Nor;\r\nin vec4 vs_Col;\r\nin vec2 vs_Uv;\r\n\r\nout vec3 fs_Pos;\r\nout vec4 fs_Nor;\r\nout vec4 fs_Col;\r\n\r\nout vec2 fs_Uv;\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n  fs_Uv = vs_Uv;\r\n  float yval = 1.f*texture(hightmap,vs_Uv).x;\r\n  float wval = 1.f*texture(hightmap,vs_Uv).y;\r\n  vec4 modelposition = vec4(vs_Pos.x, yval, vs_Pos.z, 1.0);\r\n  fs_Pos = vec3(vs_Pos.x,yval,vs_Pos.z);\r\n\r\n\r\n  modelposition = u_Model * modelposition;\r\n  gl_Position = u_ViewProj * modelposition;\r\n}\r\n"
-
-/***/ }),
 /* 70 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\n\r\nuniform int u_TerrainType;\r\n\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 0.001;\r\n    vec4 cur = texture(hightmap,fs_Uv)/40.f;\r\n    vec4 r = texture(hightmap,fs_Uv+vec2(eps,0.f))/40.f;\r\n    vec4 t = texture(hightmap,fs_Uv+vec2(0.f,eps))/40.f;\r\n\r\n    vec3 nor = cross(vec3(eps,r.x-cur.x,0.f),vec3(0.f,t.x-cur.x,eps));\r\n    nor = normalize(nor);\r\n    return nor;\r\n}\r\n\r\nvoid main()\r\n{\r\n\r\n\r\n    vec3 sundir = vec3(1.f,2.f,-1.f);\r\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\r\n    sundir2 = normalize(sundir2);\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 nor = -texture(normap,fs_Uv).xyz;\r\n    nor = -calnor(fs_Uv);\r\n\r\n    float lamb = dot(nor,sundir);\r\n    float lamb2 = dot(nor,sundir2);\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x/17.f;\r\n    float yvalex = texture(hightmap,fs_Uv).x/40.f;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n    vec3 forestcol = vec3(0.3,1.f,0.f);\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.87,0.4,0.2);\r\n    vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);\r\n    vec3 sand = vec3(244.f/255.f,164.f/255.f,96.f/255.f);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n    if(u_TerrainType==0){\r\n        if(yval>0.f&&yval<=0.2){\r\n            finalcol = dirtcol;\r\n        }else if(yval>0.2&&yval<=0.6){\r\n            finalcol = mix(dirtcol,forestcol,(yval-0.2)/0.4);\r\n        }else if(yval>0.6){\r\n            if(yval<1.f)\r\n            finalcol = mix(forestcol,mtncolor,(yval-0.6)/0.4);\r\n            else{\r\n                finalcol = mtncolor;\r\n            }\r\n        }\r\n\r\n        if(abs(nor.y)<0.7){\r\n            finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);\r\n        }\r\n    }else if(u_TerrainType==1){\r\n        finalcol =sand;}\r\n    else if(u_TerrainType==2){\r\n        finalcol = obsidian;\r\n    }\r\n\r\n\r\n    vec3 fcol = lamb*(finalcol);\r\n    //fcol += vec3(0.2,0.5,0.6)*lamb2*0.4;\r\n    float water = 0.1f;\r\n    if(u_TerrainType==0){\r\n        if(wval>water) {\r\n            float river = clamp((wval-water)*8.f,0.f,1.f);\r\n            fcol = mix(fcol,lamb*vec3(0.f,0.5,0.8f),river);\r\n        }\r\n    }else if(u_TerrainType==1){\r\n        water = 0.06;\r\n        if(wval>water) {\r\n            float river = clamp((wval-water)*8.f,0.f,1.f);\r\n            fcol = mix(fcol,lamb*vec3(1.0f,0.8,0.6f),river);\r\n        }\r\n    }else if(u_TerrainType==2){\r\n       water = 0.06;\r\n        if(wval>water) {\r\n            float river = clamp((wval-water)*8.f,0.f,5.f);\r\n            fcol = mix(fcol,lamb*vec3(1.0f,0.1,0.0f),river);\r\n        }\r\n     }\r\n\r\n\r\n\r\n    out_Col = vec4(fcol,1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\n\r\n\r\nuniform mat4 u_Model;\r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj;\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nuniform sampler2D hightmap;\r\n\r\nin vec4 vs_Pos;\r\nin vec4 vs_Nor;\r\nin vec4 vs_Col;\r\nin vec2 vs_Uv;\r\n\r\nout vec3 fs_Pos;\r\nout vec4 fs_Nor;\r\nout vec4 fs_Col;\r\n\r\nout vec2 fs_Uv;\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n  fs_Uv = vs_Uv;\r\n  float yval = 1.f*texture(hightmap,vs_Uv).x;\r\n  float wval = 1.f*texture(hightmap,vs_Uv).y;\r\n  vec4 modelposition = vec4(vs_Pos.x, yval , vs_Pos.z, 1.0);\r\n  fs_Pos = modelposition.xyz;\r\n\r\n\r\n  modelposition = u_Model * modelposition;\r\n  gl_Position = u_ViewProj * modelposition;\r\n}\r\n"
 
 /***/ }),
 /* 71 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\n\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nuniform sampler2D sedimap;\r\nuniform sampler2D velmap;\r\nuniform sampler2D fluxmap;\r\n\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\n\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 0.001;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n\r\n    vec3 n1 = normalize(vec3(-eps, cur.x - r.x, 0.f));\r\n    vec3 n2 = normalize(vec3(-eps, t.x - r.x, eps));\r\n\r\n    vec3 nor = -cross(n1,n2);\r\n    nor = normalize(nor);\r\n    return nor;\r\n}\r\n\r\nvoid main()\r\n{\r\n\r\n\r\n    vec3 sundir = vec3(1.f,2.f,-1.f);\r\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\r\n    sundir2 = normalize(sundir2);\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 nor1 = -texture(normap,fs_Uv).xyz;\r\n    vec3 nor = -calnor(fs_Uv);\r\n\r\n    float lamb = dot(nor,sundir);\r\n    float lamb2 = dot(nor,sundir2);\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    float sval = texture(sedimap, fs_Uv).x;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n    vec3 forestcol = vec3(0.3,1.f,0.2f);\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.87,0.6,0.2);\r\n    vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);\r\n    vec3 sand = vec3(244.f/255.f,164.f/255.f,96.f/255.f);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n\r\n    if(yval<=0.3){\r\n        finalcol = dirtcol;\r\n    }else if(yval>0.3&&yval<=0.8){\r\n        finalcol = mix(dirtcol,forestcol,(yval-0.3)/0.5);\r\n    }else if(yval>0.8){\r\n        if(yval<1.2f)\r\n        finalcol = mix(forestcol,mtncolor,(yval-0.8)/0.4);\r\n        else{\r\n            finalcol = mtncolor;\r\n        }\r\n    }\r\n\r\n\r\n    if(abs(nor.y)<0.7){\r\n        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);\r\n    }\r\n\r\n    finalcol = mix(finalcol, sand, clamp(sval*100.0, 0.0, 1.0) );\r\n\r\n\r\n    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));\r\n\r\n\r\n    vec3 normal = lamb*(finalcol);\r\n    vec3 fcol = normal;\r\n    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4\r\n    if(u_TerrainDebug == 0){\r\n        fcol = normal;\r\n    }else if(u_TerrainDebug == 1){\r\n        fcol = texture(sedimap,fs_Uv).xyz * 100.0;\r\n    }else if(u_TerrainDebug == 2){\r\n        fcol = texture(velmap,fs_Uv).xyz;\r\n        //fcol = nor1;\r\n        fcol.xy = fcol.xy / 2.0 + vec2(0.5);\r\n    }else if(u_TerrainDebug == 3){\r\n        fcol = texture(hightmap,fs_Uv).xyz;\r\n        fcol.y *= 5.0;\r\n    }else if(u_TerrainDebug == 4){\r\n        fcol = texture(fluxmap,fs_Uv).xyz * 800000.0;\r\n    }\r\n\r\n\r\n    out_Col = vec4(vec3(fcol)*1.0,1.f);\r\n}\r\n"
 
 /***/ }),
 /* 72 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D hightmap;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\n\r\nin vec2 fs_Pos;\r\nout vec4 out_Col;\r\n\r\n\r\n#define FOV 45.f\r\nvec3 sky(in vec3 rd){\r\n    return mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));\r\n}\r\n\r\n\r\nvoid main() {\r\n//vec2 uv = 0.5*fs_Pos+0.5;\r\n\r\n  //vec4 col = (texture(hightmap,0.5f*fs_Pos+.5f));\r\n  //vec4 fcol =  vec4(vec3(col.xyz/500.f),1.f);\r\n  //out_Col = fcol;\r\n\r\n   float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;\r\n    float sy = 1.f-(2.f*gl_FragCoord.y/u_Dimensions.y);\r\n    float len = length(u_Ref - u_Eye);\r\n    vec3 forward = normalize(u_Ref - u_Eye);\r\n    vec3 right = cross(forward,u_Up);\r\n    vec3 V = u_Up * len * tan(FOV/2.f);\r\n    vec3 H = right * len * (u_Dimensions.x/u_Dimensions.y) * tan(FOV/2.f);\r\n    vec3 p = u_Ref + sx * H - sy * V;\r\n\r\n    vec3 rd = normalize(p - u_Eye);\r\n    vec3 ro = u_Eye;\r\n\r\n\r\n\r\n    out_Col = vec4(sky(rd),1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
 
 /***/ }),
 /* 73 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D hightmap;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\n\r\nin vec2 fs_Pos;\r\nout vec4 out_Col;\r\n\r\n\r\n#define FOV 45.f\r\nvec3 sky(in vec3 rd){\r\n    return mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));\r\n}\r\n\r\n\r\nvoid main() {\r\n  //vec2 uv = 0.5*fs_Pos+0.5;\r\n\r\n   vec4 col = texture(hightmap,0.5f*fs_Pos+.5f);\r\n\r\n  //vec4 fcol =  vec4(vec3(col.xyz/500.f),1.f);\r\n  //out_Col = fcol;\r\n\r\n   float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;\r\n    float sy = 1.f-(2.f*gl_FragCoord.y/u_Dimensions.y);\r\n    float len = length(u_Ref - u_Eye);\r\n    vec3 forward = normalize(u_Ref - u_Eye);\r\n    vec3 right = cross(forward,u_Up);\r\n    vec3 V = u_Up * len * tan(FOV/2.f);\r\n    vec3 H = right * len * (u_Dimensions.x/u_Dimensions.y) * tan(FOV/2.f);\r\n    vec3 p = u_Ref + sx * H - sy * V;\r\n\r\n    vec3 rd = normalize(p - u_Eye);\r\n    vec3 ro = u_Eye;\r\n\r\n\r\n   //out_Col = vec4((col.xyz * 100.0), 1.0);\r\n    out_Col = vec4(sky(rd),1.f);\r\n}\r\n"
 
 /***/ }),
 /* 74 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\nin vec2 fs_Pos;\r\nuniform float u_Time;\r\nuniform int u_RndTerrain;\r\nuniform int u_TerrainType;\r\n\r\nlayout (location = 0) out vec4 initial;\r\nlayout (location = 1) out vec4 initial2;\r\n\r\n//voroni=========================================================================\r\n\r\nvec3 hash3( vec2 p ){\r\n    vec3 q = vec3( dot(p,vec2(127.1,311.7)),\r\n\t\t\t\t   dot(p,vec2(269.5,183.3)),\r\n\t\t\t\t   dot(p,vec2(419.2,371.9)) );\r\n\treturn fract(sin(q)*43758.5453);\r\n}\r\n\r\nfloat iqnoise( in vec2 x, float u, float v ){\r\n    vec2 p = floor(x);\r\n    vec2 f = fract(x);\r\n\r\n\tfloat k = 1.0+63.0*pow(1.0-v,4.0);\r\n\r\n\tfloat va = 0.0;\r\n\tfloat wt = 0.0;\r\n    for( int j=-2; j<=2; j++ )\r\n    for( int i=-2; i<=2; i++ )\r\n    {\r\n        vec2 g = vec2( float(i),float(j) );\r\n\t\tvec3 o = hash3( p + g )*vec3(u,u,1.0);\r\n\t\tvec2 r = g - f + o.xy;\r\n\t\tfloat d = dot(r,r);\r\n\t\tfloat ww = pow( 1.0-smoothstep(0.0,1.414,sqrt(d)), k );\r\n\t\tva += o.z*ww;\r\n\t\twt += ww;\r\n    }\r\n\r\n    return va/wt;\r\n}\r\n//voroni=========================================================================\r\n\r\n\r\n\r\n//smooth========================================================================\r\nvec2 random2(vec2 st){\r\n    st = vec2( dot(st,vec2(127.1,311.7)),\r\n              dot(st,vec2(269.5,183.3)) );\r\n    return -1.0 + 2.0*fract(sin(st)*43758.5453123);\r\n}\r\n\r\n// Value Noise by Inigo Quilez - iq/2013\r\n// https://www.shadertoy.com/view/lsf3WH\r\nfloat noise2(vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    vec2 u = f*f*(3.0-2.0*f);\r\n\r\n    return mix( mix( dot( random2(i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),\r\n                     dot( random2(i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),\r\n                mix( dot( random2(i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),\r\n                     dot( random2(i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);\r\n}\r\n\r\n\r\n//smooth========================================================================\r\n\r\n#define OCTAVES 10\r\n\r\nfloat random (in vec2 st) {\r\n    return fract(sin(dot(st.xy,\r\n                         vec2(12.9898,78.233)))*\r\n        43758.5453123);\r\n}\r\n\r\n\r\nfloat noise (in vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    // Four corners in 2D of a tile\r\n    float a = random(i);\r\n    float b = random(i + vec2(1.0, 0.0));\r\n    float c = random(i + vec2(0.0, 1.0));\r\n    float d = random(i + vec2(1.0, 1.0));\r\n\r\n    vec2 u = f * f * (3.0 - 2.0 * f);\r\n\r\n    return mix(a, b, u.x) +\r\n            (c - a)* u.y * (1.0 - u.x) +\r\n            (d - b) * u.x * u.y;\r\n}\r\n\r\n\r\nfloat fbm (in vec2 st) {\r\n    // Initial values\r\n    float value = 0.0;\r\n    float amplitude = .5;\r\n    float frequency = 0.;\r\n    //\r\n    // Loop of octaves\r\n    for (int i = 0; i < OCTAVES; i++) {\r\n        value += amplitude * noise(st);//iqnoise(st,1.f,1.f);\r\n        st *= 2.0;\r\n        amplitude *= .33;\r\n    }\r\n    return value;\r\n}\r\n\r\nvec4 caculatenor(vec2 pos){\r\n    float eps = 0.01;\r\n    float rh = fbm(vec2(pos.x+eps,pos.y));\r\n    float th = fbm(vec2(pos.x,pos.y+eps));\r\n    float cur = fbm(pos);\r\n    vec3 n = cross(vec3(eps,rh-cur,0.f),vec3(0.f,th-cur,eps));\r\n    n = normalize(n);\r\n    return vec4(n,1.f);\r\n\r\n}\r\n\r\nfloat domainwarp(vec2 p){\r\n    return fbm(p+fbm(p+fbm(p)));\r\n}\r\n\r\n//nice one 5.3f*uv+vec2(178.f,27.f);\r\n\r\n// 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);\r\nvoid main() {\r\n\r\n  vec2 rdp1 = vec2(0.2,0.5);\r\n  vec2 rdp2 = vec2(0.1,0.8);\r\n  vec2 uv = 0.5f*fs_Pos+vec2(0.5f);\r\n\r\n  float th = 5.f;\r\n  if(u_TerrainType==0){\r\n    th = 5.f;\r\n  }else if(u_TerrainType==1){\r\n    th = 2.f;\r\n  }else if(u_TerrainType==2){\r\n    th = 12.f;\r\n  }\r\n\r\n  vec2 curpos = 6.f*uv+vec2(112.f,643.f);\r\n  vec2 cpos = th*uv+vec2(121.f,11.f);\r\n  if(u_RndTerrain==1){\r\n    cpos = th*uv+vec2(2.f*mod(u_Time,100.f),mod(u_Time,100.f)+20.f);\r\n  }\r\n  float terrain_hight = 40.f*pow(fbm(cpos),1.f);\r\n  float rainfall = .0f;\r\n  //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;\r\n  initial = vec4(terrain_hight,rainfall,0.f,1.f);\r\n  initial2= vec4(terrain_hight,rainfall,0.f,1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\nin vec2 fs_Pos;\r\nuniform float u_Time;\r\n\r\nlayout (location = 0) out vec4 initial;\r\nlayout (location = 1) out vec4 initial2;\r\n\r\n//voroni=========================================================================\r\n\r\nvec3 hash3( vec2 p ){\r\n    vec3 q = vec3( dot(p,vec2(127.1,311.7)),\r\n\t\t\t\t   dot(p,vec2(269.5,183.3)),\r\n\t\t\t\t   dot(p,vec2(419.2,371.9)) );\r\n\treturn fract(sin(q)*43758.5453);\r\n}\r\n\r\nfloat iqnoise( in vec2 x, float u, float v ){\r\n    vec2 p = floor(x);\r\n    vec2 f = fract(x);\r\n\r\n\tfloat k = 1.0+63.0*pow(1.0-v,4.0);\r\n\r\n\tfloat va = 0.0;\r\n\tfloat wt = 0.0;\r\n    for( int j=-2; j<=2; j++ )\r\n    for( int i=-2; i<=2; i++ )\r\n    {\r\n        vec2 g = vec2( float(i),float(j) );\r\n\t\tvec3 o = hash3( p + g )*vec3(u,u,1.0);\r\n\t\tvec2 r = g - f + o.xy;\r\n\t\tfloat d = dot(r,r);\r\n\t\tfloat ww = pow( 1.0-smoothstep(0.0,1.414,sqrt(d)), k );\r\n\t\tva += o.z*ww;\r\n\t\twt += ww;\r\n    }\r\n\r\n    return va/wt;\r\n}\r\n//voroni=========================================================================\r\n\r\n\r\n\r\n//smooth========================================================================\r\nvec2 random2(vec2 st){\r\n    st = vec2( dot(st,vec2(127.1,311.7)),\r\n              dot(st,vec2(269.5,183.3)) );\r\n    return -1.0 + 2.0*fract(sin(st)*43758.5453123);\r\n}\r\n\r\n// Value Noise by Inigo Quilez - iq/2013\r\n// https://www.shadertoy.com/view/lsf3WH\r\nfloat noise2(vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    vec2 u = f*f*(3.0-2.0*f);\r\n\r\n    return mix( mix( dot( random2(i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),\r\n                     dot( random2(i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),\r\n                mix( dot( random2(i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),\r\n                     dot( random2(i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);\r\n}\r\n\r\n\r\n//smooth========================================================================\r\n\r\n#define OCTAVES 16\r\n\r\nfloat random (in vec2 st) {\r\n    return fract(sin(dot(st.xy,\r\n                         vec2(12.9898,78.233)))*\r\n        43758.5453123);\r\n}\r\n\r\n\r\nfloat noise (in vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    // Four corners in 2D of a tile\r\n    float a = random(i);\r\n    float b = random(i + vec2(1.0, 0.0));\r\n    float c = random(i + vec2(0.0, 1.0));\r\n    float d = random(i + vec2(1.0, 1.0));\r\n\r\n    vec2 u = f * f * (3.0 - 2.0 * f);\r\n\r\n    return mix(a, b, u.x) +\r\n            (c - a)* u.y * (1.0 - u.x) +\r\n            (d - b) * u.x * u.y;\r\n}\r\n\r\n\r\nfloat fbm (in vec2 st) {\r\n    // Initial values\r\n    float value = 0.0;\r\n    float amplitude = .5;\r\n    float frequency = 0.;\r\n    //\r\n    // Loop of octaves\r\n    for (int i = 0; i < OCTAVES; i++) {\r\n        value += amplitude * noise(st);//iqnoise(st,1.f,1.f);\r\n        st *= 2.0;\r\n        amplitude *= .33;\r\n    }\r\n    return value;\r\n}\r\n\r\nvec4 caculatenor(vec2 pos){\r\n    float eps = 0.01;\r\n    float rh = fbm(vec2(pos.x+eps,pos.y));\r\n    float th = fbm(vec2(pos.x,pos.y+eps));\r\n    float cur = fbm(pos);\r\n    vec3 n = cross(vec3(eps,rh-cur,0.f),vec3(0.f,th-cur,eps));\r\n    n = normalize(n);\r\n    return vec4(n,1.f);\r\n\r\n}\r\n\r\nfloat domainwarp(vec2 p){\r\n    return fbm(p+fbm(p+fbm(p)));\r\n}\r\n\r\nfloat test(vec2 p){\r\n    return abs(cos(length(p - vec2(5.0))));\r\n}\r\n\r\n\r\n//nice one 5.3f*uv+vec2(178.f,27.f);\r\n\r\n// 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);\r\nvoid main() {\r\n\r\n  vec2 rdp1 = vec2(0.2,0.5);\r\n  vec2 rdp2 = vec2(0.1,0.8);\r\n  vec2 uv = 0.5f*fs_Pos+vec2(0.5f);\r\n\r\n\r\n\r\n  vec2 cpos = 1.5 * uv;\r\n  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 52.0,mod(u_Time,100.f)+120.f);\r\n  float terrain_hight = fbm(cpos*2.0) / 2.00;\r\n  float rainfall = .0f;\r\n  //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;\r\n  initial = vec4(terrain_hight,rainfall,0.f,1.f);\r\n  initial2= vec4(terrain_hight,rainfall,0.f,1.f);\r\n}\r\n"
 
 /***/ }),
 /* 75 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D readFlux;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_timestep;\r\nuniform float u_PipeArea;\r\n\r\nlayout (location = 0) out vec4 writeFlux;\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n//\r\n//      x\r\n//  w   c   y\r\n//      z\r\n//\r\n\r\n\r\nvoid main() {\r\n\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float div = 1.f/u_SimRes;\r\n  float g = .5;\r\n  float pipelen = u_PipeLen;\r\n\r\n\r\n  vec4 top = texture(readTerrain,curuv+vec2(0.f,div));\r\n  vec4 right = texture(readTerrain,curuv+vec2(div,0.f));\r\n  vec4 bottom = texture(readTerrain,curuv+vec2(0.f,-div));\r\n  vec4 left = texture(readTerrain,curuv+vec2(-div,0.f));\r\n\r\n  vec4 curTerrain = texture(readTerrain,curuv);\r\n  vec4 curFlux = texture(readFlux,curuv);\r\n\r\n  float Htopout = (curTerrain.y+curTerrain.x)-(top.y+top.x);\r\n  float Hrightout = (curTerrain.y+curTerrain.x)-(right.y+right.x);\r\n  float Hbottomout = (curTerrain.y+curTerrain.x)-(bottom.x+bottom.y);\r\n  float Hleftout = (curTerrain.y+curTerrain.x)-(left.y+left.x);\r\n\r\n  Htopout = max(0.0, Htopout);\r\n  Hbottomout = max(0.0, Hbottomout);\r\n  Hrightout = max(0.0, Hrightout);\r\n  Hleftout = max(0.0, Hleftout);\r\n\r\n  //out flow readFlux\r\n  float ftopout = max(0.f,curFlux.x+(u_timestep*g*u_PipeArea*Htopout)/pipelen);\r\n  float frightout = max(0.f,curFlux.y+(u_timestep*g*u_PipeArea*Hrightout)/pipelen);\r\n  float fbottomout = max(0.f,curFlux.z+(u_timestep*g*u_PipeArea*Hbottomout)/pipelen);\r\n  float fleftout = max(0.f,curFlux.w+(u_timestep*g*u_PipeArea*Hleftout)/pipelen);\r\n\r\n\r\n  float k = min(1.f,(curTerrain.y*u_PipeLen*u_PipeLen)/(u_timestep*(ftopout+frightout+fbottomout+fleftout)));\r\n\r\n  //rescale outflow readFlux so that outflow don't exceed current water volume\r\n  ftopout *= k;\r\n  frightout *= k;\r\n  fbottomout *= k;\r\n  fleftout *= k;\r\n\r\n  //boundary conditions\r\n  if(curuv.x==0.f) fleftout = 0.f;\r\n  if(curuv.x==1.f) frightout = 0.f;\r\n  if(curuv.y==0.f) ftopout = 0.f;\r\n  if(curuv.y==1.f) fbottomout = 0.f;\r\n\r\n\r\n  writeFlux = vec4(ftopout,frightout,fbottomout,fleftout);\r\n\r\n}\r\n"
 
 /***/ }),
 /* 76 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D read;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D flux;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_timestep;\r\nuniform float u_PipeArea;\r\n\r\nlayout (location = 0) out vec4 writeflux;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\nfloat A = 20.f;\r\n\r\nvoid main() {\r\n    float timestep = u_timestep;\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float texwidth = u_SimRes;\r\n  float div = 1.f/texwidth;\r\n  float g = .5;\r\n  float pipelen = u_PipeLen;\r\n\r\n\r\n  vec4 top = texture(read,curuv+vec2(0.f,div));\r\n  vec4 right = texture(read,curuv+vec2(div,0.f));\r\n  vec4 bottom = texture(read,curuv+vec2(0.f,-div));\r\n  vec4 left = texture(read,curuv+vec2(-div,0.f));\r\n\r\n  vec4 cur = texture(read,curuv);\r\n  vec4 curflux = texture(flux,curuv);\r\n\r\n  float Htopout = (cur.y+cur.x)-(top.y+top.x);\r\n  float Hrightout = (cur.y+cur.x)-(right.y+right.x);\r\n  float Hbottomout = (cur.y+cur.x)-(bottom.x+bottom.y);\r\n  float Hleftout = (cur.y+cur.x)-(left.y+left.x);\r\n\r\n  //out flow flux\r\n  float ftopout = max(0.f,curflux.x+(timestep*g*u_PipeArea*Htopout)/pipelen);\r\n  float frightout = max(0.f,curflux.y+(timestep*g*u_PipeArea*Hrightout)/pipelen);\r\n  float fbottomout = max(0.f,curflux.z+(timestep*g*u_PipeArea*Hbottomout)/pipelen);\r\n  float fleftout = max(0.f,curflux.w+(timestep*g*u_PipeArea*Hleftout)/pipelen);\r\n\r\n\r\n  float k = min(1.f,(cur.y*div*div)/(timestep*(ftopout+frightout+fbottomout+fleftout)));\r\n\r\n  //rescale outflow flux so that outflow don't exceed current water volume\r\n  ftopout *= k;\r\n  frightout *= k;\r\n  fbottomout *= k;\r\n  fleftout *= k;\r\n\r\n  //boundary conditions\r\n  if(curuv.x==0.f) fleftout = 0.f;\r\n  if(curuv.x==1.f) frightout = 0.f;\r\n  if(curuv.y==0.f) ftopout = 0.f;\r\n  if(curuv.y==1.f) fbottomout = 0.f;\r\n\r\n\r\n  writeflux = vec4(ftopout,frightout,fbottomout,fleftout);\r\n\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D readFlux;//flux map R: top, G: right, B: bottom, A: left\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_timestep;\r\n\r\nlayout (location = 0) out vec4 writeTerrain;\r\nlayout (location = 1) out vec4 writeVel;\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nvoid main(){\r\n\r\n\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float div = 1.f/u_SimRes;\r\n  float pipelen = u_PipeLen;\r\n\r\n  vec4 topflux = texture(readFlux,curuv+vec2(0.f,div));\r\n  vec4 rightflux = texture(readFlux,curuv+vec2(div,0.f));\r\n  vec4 bottomflux = texture(readFlux,curuv+vec2(0.f,-div));\r\n  vec4 leftflux = texture(readFlux,curuv+vec2(-div,0.f));\r\n\r\n  vec4 curflux = texture(readFlux,curuv);\r\n  vec4 cur = texture(readTerrain,curuv);\r\n\r\n   //out flow flux\r\n  float ftopout = curflux.x;\r\n  float frightout = curflux.y;\r\n  float fbottomout = curflux.z;\r\n  float fleftout = curflux.w;\r\n\r\n  vec4 outputflux = curflux;\r\n  vec4 inputflux = vec4(topflux.z,rightflux.w,bottomflux.x,leftflux.y);\r\n\r\n  float fout = ftopout+frightout+fbottomout+fleftout;\r\n  float fin = topflux.z+rightflux.w+bottomflux.x+leftflux.y;\r\n\r\n  float deltavol = u_timestep*(fin-fout)/(u_PipeLen*u_PipeLen);\r\n  float d1 = cur.y;\r\n  float d2 = d1 + deltavol;\r\n  float da = (d1 + d2)/2.0f;\r\n\r\n  vec2 veloci = vec2(inputflux.w-outputflux.w+outputflux.y-inputflux.y,inputflux.z-outputflux.z+outputflux.x-inputflux.x)/2.0;\r\n  veloci = veloci/(da * u_PipeLen);\r\n\r\n\r\n  writeVel = vec4(veloci,0.f,1.f);\r\n  writeTerrain = vec4(cur.x,cur.y+deltavol,cur.z,cur.w);\r\n\r\n}"
 
 /***/ }),
 /* 77 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D readVelocity;\r\nuniform sampler2D readSediment;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_Ks;\r\nuniform float u_Kc;\r\nuniform float u_Kd;\r\nuniform float u_timestep;\r\n\r\nlayout (location = 0) out vec4 writeTerrain;\r\nlayout (location = 1) out vec4 writeSediment;\r\nlayout (location = 2) out vec4 writeTerrainNormal;\r\n\r\n\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nvoid main() {\r\n\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float div = 1.f/u_SimRes;\r\n  float Kc = u_Kc;\r\n  float Ks = u_Ks;\r\n  float Kd = u_Kd;\r\n\r\n\r\n  vec4 top = texture(readTerrain,curuv+vec2(0.f,div));\r\n  vec4 right = texture(readTerrain,curuv+vec2(div,0.f));\r\n  vec4 bottom = texture(readTerrain,curuv+vec2(0.f,-div));\r\n  vec4 left = texture(readTerrain,curuv+vec2(-div,0.f));\r\n\r\n  vec4 curTerrain = texture(readTerrain,curuv);\r\n  vec4 curSediment = texture(readSediment,curuv);\r\n\r\n\r\n  //    t\r\n  //\r\n  // l  c--r\r\n  //    | /\r\n  //    b\r\n  float nordis = div*1.f;\r\n  vec4 nort = texture(readTerrain,curuv+vec2(0.f,nordis));\r\n  vec4 norr = texture(readTerrain,curuv+vec2(nordis,0.f));\r\n  vec4 norb = texture(readTerrain,curuv+vec2(0.f,-nordis));\r\n  vec4 norl = texture(readTerrain,curuv+vec2(-nordis,0.f));\r\n\r\n  vec3 dx = vec3(nordis*1.f,(norr.x-curTerrain.x),0.f);\r\n  vec3 dy = vec3(nordis*1.f,(norr.x-norb.x),nordis*1.f);\r\n\r\n  vec3 nor = normalize(cross(dx,dy));\r\n  float slopeSin = dot(vec3(0.0, 1.0, 0.0), nor);\r\n\r\n\r\n  float velo = length(texture(readVelocity,curuv).xy);\r\n  float slope = max(0.05f, abs(asin(slopeSin))) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));\r\n  float sedicap = Kc*slope*velo;\r\n\r\n  float cursedi = curSediment.x;\r\n  float hight = curTerrain.x;\r\n  float outsedi = curSediment.x;\r\n\r\n\r\n  if(sedicap>cursedi){\r\n    hight = hight - (sedicap-cursedi)*Ks;\r\n    outsedi = outsedi + (sedicap-cursedi)*Ks;\r\n  }else {\r\n    hight = hight + (cursedi-sedicap)*Kd;\r\n    outsedi = outsedi - (cursedi-sedicap)*Kd;\r\n  }\r\n\r\n\r\n  writeTerrainNormal = vec4(nor,1.f);\r\n  writeSediment = vec4(outsedi,0.0f,0.0f,1.0f);\r\n  writeTerrain = vec4(hight,curTerrain.y,curTerrain.z,curTerrain.w);\r\n\r\n}"
 
 /***/ }),
 /* 78 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D read;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D readflux;//flux map R: top, G: right, B: bottom, A: left\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_timestep;\r\n\r\nlayout (location = 0) out vec4 write;\r\nlayout (location = 1) out vec4 writevel;\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n\r\nvoid main(){\r\n\r\n  float timestep = u_timestep;\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float texwidth = u_SimRes;\r\n  float div = 1.f/texwidth;\r\n  float g = 1.4;\r\n  float pipelen = u_PipeLen;\r\n\r\n  vec4 topflux = texture(readflux,curuv+vec2(0.f,div));\r\n  vec4 rightflux = texture(readflux,curuv+vec2(div,0.f));\r\n  vec4 bottomflux = texture(readflux,curuv+vec2(0.f,-div));\r\n  vec4 leftflux = texture(readflux,curuv+vec2(-div,0.f));\r\n\r\n  vec4 curflux = texture(readflux,curuv);\r\n  vec4 cur = texture(read,curuv);\r\n\r\n   //out flow flux\r\n  float ftopout = curflux.x;\r\n  float frightout = curflux.y;\r\n  float fbottomout = curflux.z;\r\n  float fleftout = curflux.w;\r\n\r\n  vec4 outputflux = curflux;\r\n  vec4 inputflux = vec4(topflux.z,rightflux.w,bottomflux.x,leftflux.y);\r\n\r\n  vec2 veloci = vec2(inputflux.w-outputflux.w+outputflux.y-inputflux.y,inputflux.z-outputflux.z+outputflux.x-inputflux.x);\r\n  veloci*=pipelen/(2.f*div*div*timestep);\r\n\r\n  float fout = ftopout+frightout+fbottomout+fleftout;\r\n  float fin = topflux.z+rightflux.w+bottomflux.x+leftflux.y;\r\n\r\n  float deltavol = timestep*(fin-fout)/(div*div);\r\n\r\n  //velocity field calculation\r\n  float velx = (leftflux.y-curflux.w+curflux.y-rightflux.w)*pipelen/(2.f*div*div*timestep);//flux map x: top, y: right, z: bottom, w: left\r\n  float vely = (topflux.z-curflux.x+curflux.z-bottomflux.x)*pipelen/(2.f*div*div*timestep);\r\n\r\n  writevel = vec4(veloci,0.f,1.f);\r\n  write = vec4(cur.x,cur.y+deltavol,cur.z,cur.w);\r\n\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D vel;\r\nuniform sampler2D sedi;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_timestep;\r\n\r\n\r\nlayout (location = 0) out vec4 writeSediment;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\nfloat samplebilinear(vec2 uv){\r\n    vec2 cur_loc = u_SimRes*uv;\r\n    vec2 uva = floor(cur_loc);\r\n    vec2 uvb = ceil(cur_loc);\r\n\r\n    vec2 id00 = uva;\r\n    vec2 id10 = vec2(uvb.x,uva.y);\r\n    vec2 id01 = vec2(uva.x,uvb.y);\r\n    vec2 id11 = uvb;\r\n\r\n    vec2 d = cur_loc - uva;\r\n\r\n    float res =  (texture(sedi,id00/u_SimRes).x*(1.f-d.x)*(1.f-d.y)+\r\n    texture(sedi,id10/u_SimRes).x*d.x*(1.f-d.y)+\r\n    texture(sedi,id01/u_SimRes).x*(1.f-d.x)*d.y+\r\n    texture(sedi,id11/u_SimRes).x*d.x*d.y);\r\n\r\n    return res;\r\n}\r\n\r\n \r\n\r\n\r\nvoid main() {\r\n \r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n\r\n      float div = 1.f/u_SimRes;\r\n\r\n      vec2 curvel = texture(vel,curuv).xy*1.0;\r\n      vec4 cursedi = texture(sedi,curuv);\r\n\r\n\r\n      vec2 oldloc = vec2(curuv.x-curvel.x*u_timestep,curuv.y-curvel.y*u_timestep);\r\n      float oldsedi = texture(sedi, oldloc).x;\r\n\r\n\r\n      writeSediment = vec4(oldsedi, 0.0, 0.0, 1.0);\r\n}"
 
 /***/ }),
 /* 79 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;\r\n\r\nuniform float u_Time;\r\nuniform float raindeg;\r\nuniform vec2 u_SpawnPos;\r\n\r\nlayout (location = 0) out vec4 writeTerrain;\r\n\r\n\r\n//generic noise from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83\r\nfloat mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}\r\nvec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}\r\nvec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}\r\n\r\nfloat noise(vec3 p){\r\n      vec3 a = floor(p);\r\n      vec3 d = p - a;\r\n      d = d * d * (3.0 - 2.0 * d);\r\n\r\n      vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);\r\n      vec4 k1 = perm(b.xyxy);\r\n      vec4 k2 = perm(k1.xyxy + b.zzww);\r\n\r\n      vec4 c = k2 + a.zzzz;\r\n      vec4 k3 = perm(c);\r\n      vec4 k4 = perm(c + 1.0);\r\n\r\n      vec4 o1 = fract(k3 * (1.0 / 41.0));\r\n      vec4 o2 = fract(k4 * (1.0 / 41.0));\r\n\r\n      vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);\r\n      vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);\r\n\r\n      return o4.y * d.y + o4.x * (1.0 - d.y);\r\n}\r\n\r\nfloat random (in vec2 st) {\r\n      return fract(sin(dot(st.xy,\r\n      vec2(12.9898,78.233)))*\r\n      43758.5453123);\r\n}\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nfloat timestep = 0.0001;\r\n\r\n\r\nvoid main() {\r\n\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 cur = texture(readTerrain,curuv);\r\n      float rain = raindeg;\r\n\r\n      float maxx = u_SpawnPos.x+0.05;\r\n      float maxy = u_SpawnPos.y+0.05;\r\n      float minx = u_SpawnPos.x - 0.05;\r\n      float miny = u_SpawnPos.y - 0.05;\r\n\r\n\r\n      float epsilon = 0.000001f;\r\n      float nrain = noise(vec3(curuv * 16000.0, u_Time));\r\n      rain = nrain/18000.0;\r\n      rain += epsilon;\r\n//      if(curuv.x<maxx && curuv.x>minx && curuv.y<maxy&&curuv.y>miny){\r\n//            rain += 0.001;\r\n//      }\r\n//      else{\r\n//            rain = raindeg;\r\n//      }\r\n\r\n\r\n      writeTerrain = vec4(cur.x,cur.y+rain * raindeg,cur.z,cur.w);\r\n}"
 
 /***/ }),
 /* 80 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D read;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D vel;\r\nuniform sampler2D sedi;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_Ks;\r\nuniform float u_Kc;\r\nuniform float u_Kd;\r\nuniform float u_timestep;\r\n\r\nlayout (location = 0) out vec4 writeterrain;\r\nlayout (location = 1) out vec4 writesedi;\r\nlayout (location = 2) out vec4 terrainnormal;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n\r\n\r\nvoid main() {\r\nfloat timestep = u_timestep;\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float texwidth = u_SimRes;\r\n  float div = 1.f/texwidth;\r\n  float g = 1.4;\r\n  float pipelen = u_PipeLen;\r\n  float Kc = u_Kc;\r\n  float Ks = u_Ks;\r\n  float Kd = u_Kd;\r\n  float maxerosion = .3f;\r\n\r\n\r\n  vec4 top = texture(read,curuv+vec2(0.f,div));\r\n  vec4 right = texture(read,curuv+vec2(div,0.f));\r\n  vec4 bottom = texture(read,curuv+vec2(0.f,-div));\r\n  vec4 left = texture(read,curuv+vec2(-div,0.f));\r\n\r\n  vec4 cur = texture(read,curuv);\r\n  vec4 cursediment = texture(sedi,curuv);\r\n\r\n\r\n\r\n  float nordis = div*1.f;\r\n  vec4 nort = texture(read,curuv+vec2(0.f,nordis));\r\n  vec4 norr = texture(read,curuv+vec2(nordis,0.f));\r\n  vec4 norb = texture(read,curuv+vec2(0.f,-nordis));\r\n  vec4 norl = texture(read,curuv+vec2(-nordis,0.f));\r\n\r\n  vec3 dx = vec3(nordis*2.f,(norr.x-norl.x)/40.f,0.f);\r\n  vec3 dy = vec3(0.f,(nort.x-norb.x)/40.f,nordis*2.f);\r\n\r\n  vec3 nor = normalize(cross(dx,dy));\r\n\r\n  //nor = normalize(dy);\r\n  //nor = vec3((nort.x-norb.x)*10.f);\r\n\r\n  float lmax = clamp((1.f-max(0.f,maxerosion - cur.y/maxerosion)),0.f,1.f);\r\n\r\n  float velo = length(texture(vel,curuv).xy)/1.f;\r\n  float slope = max(0.2f,1.f-abs(nor.y));\r\n  float sedicap = Kc*slope*velo;\r\n\r\n  float cursedi = cursediment.x;\r\n  float hight = cur.x;\r\n  float outsedi = cursediment.x;\r\n\r\n  if(sedicap>cursedi){\r\n    hight = hight - (sedicap-cursedi)*Ks;\r\n    outsedi = outsedi + (sedicap-cursedi)*Ks;\r\n  }else if(sedicap<cursedi){\r\n    hight = hight + (cursedi-sedicap)*Kd;\r\n    outsedi = outsedi - (cursedi-sedicap)*Kd;\r\n  }\r\n\r\n\r\n  terrainnormal = vec4(nor,1.f);\r\n  writesedi = vec4(outsedi,0.f,0.f,1.f);\r\n  writeterrain = vec4(hight,cur.y,cur.z,cur.w);\r\n\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D terrain;\r\nuniform float evapod;\r\n\r\nlayout (location = 0) out vec4 writeTerrain;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nfloat timestep = 0.0001;\r\n\r\n\r\nvoid main() {\r\n      float Ke = 0.4;\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 cur = texture(terrain,curuv);\r\n      float eva = 1.f-evapod;\r\n      writeTerrain = vec4(cur.x,cur.y*eva,cur.z,cur.w);\r\n}"
 
 /***/ }),
 /* 81 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;\r\n\r\n// this render pass was used soley for smoothing sharp ridges & ravines which would potentially introduce corruption\r\n// thanks to the references https://github.com/Huw-man/Interactive-Erosion-Simulator-on-GPU & https://github.com/karhu/terrain-erosion\r\n\r\nlayout (location = 0) out vec4 writeTerrain;\r\n\r\nuniform float u_SimRes;\r\nin vec2 fs_Pos;\r\n\r\n\r\nvoid main() {\r\n\r\n    float threathhold = 0.0001f;\r\n    float div = 1.0/u_SimRes;\r\n    vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n    vec4 cur = texture(readTerrain,curuv);\r\n\r\n    vec4 top = texture(readTerrain,curuv+vec2(0.f,div));\r\n    vec4 right = texture(readTerrain,curuv+vec2(div,0.f));\r\n    vec4 bottom = texture(readTerrain,curuv+vec2(0.f,-div));\r\n    vec4 left = texture(readTerrain,curuv+vec2(-div,0.f));\r\n\r\n    float t_d = cur.x - top.x;\r\n    float r_d = cur.x - right.x;\r\n    float b_d = cur.x - bottom.x;\r\n    float l_d = cur.x - left.x;\r\n\r\n    float cur_h = cur.x;\r\n    if(((abs(r_d) > threathhold || abs(l_d) > threathhold)&& r_d*l_d > 0.0)||\r\n    ((abs(t_d) > threathhold || abs(b_d) > threathhold) && t_d * b_d > 0.0)){\r\n        cur_h = (cur.x + top.x + right.x + bottom.x + left.x)/5.0;\r\n    }\r\n\r\n    writeTerrain = vec4(cur_h,cur.y,cur.z,cur.w);\r\n}"
 
 /***/ }),
 /* 82 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D vel;\r\nuniform sampler2D sedi;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_Ks;\r\nuniform float u_Kc;\r\nuniform float u_Kd;\r\nuniform float u_timestep;\r\n\r\n\r\nlayout (location = 0) out vec4 writesedi;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n\r\n\r\nfloat samplebilinear(vec2 uv){\r\n    vec2 cur_loc = u_SimRes*uv;\r\n    vec2 uva = floor(cur_loc);\r\n    vec2 uvb = ceil(cur_loc);\r\n\r\n    vec2 id00 = uva;\r\n    vec2 id10 = vec2(uvb.x,uva.y);\r\n    vec2 id01 = vec2(uva.x,uvb.y);\r\n    vec2 id11 = uvb;\r\n\r\n    vec2 d = cur_loc - uva;\r\n\r\n    float res =  (texture(sedi,id00/u_SimRes).x*(1.f-d.x)*(1.f-d.y)+\r\n    texture(sedi,id10/u_SimRes).x*d.x*(1.f-d.y)+\r\n    texture(sedi,id01/u_SimRes).x*(1.f-d.x)*d.y+\r\n    texture(sedi,id11/u_SimRes).x*d.x*d.y);\r\n\r\n    return res;\r\n}\r\n\r\nvoid main() {\r\nfloat timestep = u_timestep;\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      float texwidth = u_SimRes;\r\n      float div = 1.f/texwidth;\r\n      float g = 1.4;\r\n      float pipelen = u_PipeLen;\r\n      float Kc = u_Kc;\r\n      float Ks = u_Ks;\r\n      float Kd = u_Kd;\r\n\r\n      vec2 curvel = (texture(vel,curuv).xy)*0.01f/u_SimRes;\r\n      float cursedi = texture(sedi,curuv).x;\r\n\r\n      vec2 oldloc = vec2(curuv.x-curvel.x*timestep,curuv.y-curvel.y*timestep);\r\n      float oldsedi = samplebilinear(oldloc);\r\n\r\n      writesedi = vec4(oldsedi,0.f,0.f,1.f);\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\nlayout (location = 0) out vec4 writeTerrain;\r\n\r\nvoid main() {\r\n\r\n      writeTerrain = vec4(0.0, 0.0, 0.0, 0.0);\r\n}"
 
 /***/ }),
 /* 83 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+module.exports = "#version 300 es\r\n\r\n\r\nuniform mat4 u_Model;\r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj;\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nuniform sampler2D hightmap;\r\n\r\nin vec4 vs_Pos;\r\nin vec4 vs_Nor;\r\nin vec4 vs_Col;\r\nin vec2 vs_Uv;\r\n\r\nout vec3 fs_Pos;\r\nout vec4 fs_Nor;\r\nout vec4 fs_Col;\r\n\r\nout vec2 fs_Uv;\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n  fs_Uv = vs_Uv;\r\n  float yval = 1.f*texture(hightmap,vs_Uv).x;\r\n  float wval = 1.f*texture(hightmap,vs_Uv).y;\r\n  vec4 modelposition = vec4(vs_Pos.x, yval + wval, vs_Pos.z, 1.0);\r\n  fs_Pos = modelposition.xyz;\r\n\r\n\r\n  modelposition = u_Model * modelposition;\r\n  gl_Position = u_ViewProj * modelposition;\r\n}\r\n"
 
 /***/ }),
 /* 84 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D terrain;\r\nuniform float raindeg;\r\n\r\nlayout (location = 0) out vec4 writeterrain;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nfloat timestep = 0.0001;\r\n\r\n\r\nvoid main() {\r\n\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 cur = texture(terrain,curuv);\r\n\r\n      float pi = raindeg;\r\n      float md = mod((curuv.x*800.f),3.f);\r\n      //if(curuv.x<0.4||curuv.x>0.6||curuv.y<0.4||curuv.y>0.6) pi = 0.f;\r\n\r\n      writeterrain = vec4(cur.x,cur.y+pi,cur.z,cur.w);\r\n}"
-
-/***/ }),
-/* 85 */
-/***/ (function(module, exports) {
-
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
-
-/***/ }),
-/* 86 */
-/***/ (function(module, exports) {
-
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D terrain;\r\nuniform float evapod;\r\n\r\nlayout (location = 0) out vec4 writeterrain;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nfloat timestep = 0.0001;\r\n\r\n\r\nvoid main() {\r\n      float Ke = 0.4;\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 cur = texture(terrain,curuv);\r\n      float eva = 1.f-evapod;\r\n      writeterrain = vec4(cur.x,cur.y*eva,cur.z,cur.w);\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\n\r\nuniform int u_TerrainType;\r\nuniform float u_WaterTransparency;\r\n\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 0.001;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n\r\n    vec3 n1 = normalize(vec3(-eps, cur.x - r.x, 0.f));\r\n    vec3 n2 = normalize(vec3(-eps, t.x - r.x, eps));\r\n\r\n    vec3 nor = -cross(n1,n2);\r\n    nor = normalize(nor);\r\n    return nor;\r\n}\r\n\r\nvoid main()\r\n{\r\n\r\n\r\n    vec3 sundir = vec3(1.f,2.f,-1.f);\r\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\r\n    sundir2 = normalize(sundir2);\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 nor = -texture(normap,fs_Uv).xyz;\r\n    nor = -calnor(fs_Uv);\r\n\r\n    float lamb = dot(nor,sundir);\r\n    float lamb2 = dot(nor,sundir2);\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    wval *= 450.0;\r\n\r\n    wval = wval < 0.8 ? 0.0 : wval;\r\n\r\n\r\n    out_Col = vec4(wval*vec3(0.0,0.1,1.0),u_WaterTransparency);\r\n}\r\n"
 
 /***/ })
 /******/ ]);

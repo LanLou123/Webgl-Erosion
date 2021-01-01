@@ -31,6 +31,7 @@ class ShaderProgram {
   unifViewProj: WebGLUniformLocation;
   unifColor: WebGLUniformLocation;
   unifPlanePos: WebGLUniformLocation;
+  unifSpanwPos: WebGLUniformLocation;
 
   unifSimRes : WebGLUniformLocation;
   unifPipeLen : WebGLUniformLocation;
@@ -40,14 +41,16 @@ class ShaderProgram {
   unifTimestep : WebGLUniformLocation;
   unifPipeArea : WebGLUniformLocation;
 
-    unifRef: WebGLUniformLocation;
-    unifEye: WebGLUniformLocation;
-    unifUp: WebGLUniformLocation;
-    unifDimensions: WebGLUniformLocation;
-    unifTime : WebGLUniformLocation;
+  unifRef: WebGLUniformLocation;
+  unifEye: WebGLUniformLocation;
+  unifUp: WebGLUniformLocation;
+  unifDimensions: WebGLUniformLocation;
+  unifTime : WebGLUniformLocation;
+  unifWaterTransparency : WebGLUniformLocation;
 
-    unifRndTerrain : WebGLUniformLocation;
-    unifTerrainType : WebGLUniformLocation;
+  unifRndTerrain : WebGLUniformLocation;
+  unifTerrainType : WebGLUniformLocation;
+  unifTerrainDebug : WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -68,7 +71,7 @@ class ShaderProgram {
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifPlanePos   = gl.getUniformLocation(this.prog, "u_PlanePos");
-
+    this.unifSpanwPos = gl.getUniformLocation(this.prog, "u_SpawnPos");
 
     this.unifSimRes = gl.getUniformLocation(this.prog, "u_SimRes");
     this.unifPipeLen = gl.getUniformLocation(this.prog, "u_PipeLen");
@@ -78,14 +81,17 @@ class ShaderProgram {
     this.unifTimestep = gl.getUniformLocation(this.prog, "u_timestep");
     this.unifPipeArea = gl.getUniformLocation(this.prog,"u_PipeArea");
 
-      this.unifEye   = gl.getUniformLocation(this.prog, "u_Eye");
-      this.unifRef   = gl.getUniformLocation(this.prog, "u_Ref");
-      this.unifUp   = gl.getUniformLocation(this.prog, "u_Up");
-      this.unifDimensions = gl.getUniformLocation(this.prog,"u_Dimensions");
-      this.unifTime = gl.getUniformLocation(this.prog,"u_Time");
+    this.unifEye   = gl.getUniformLocation(this.prog, "u_Eye");
+    this.unifRef   = gl.getUniformLocation(this.prog, "u_Ref");
+    this.unifUp   = gl.getUniformLocation(this.prog, "u_Up");
+    this.unifDimensions = gl.getUniformLocation(this.prog,"u_Dimensions");
+    this.unifTime = gl.getUniformLocation(this.prog,"u_Time");
+    this.unifWaterTransparency = gl.getUniformLocation(this.prog,"u_WaterTransparency");
 
-      this.unifRndTerrain = gl.getUniformLocation(this.prog,"u_RndTerrain");
-      this.unifTerrainType = gl.getUniformLocation(this.prog,"u_TerrainType");
+
+    this.unifRndTerrain = gl.getUniformLocation(this.prog,"u_RndTerrain");
+    this.unifTerrainType = gl.getUniformLocation(this.prog,"u_TerrainType");
+    this.unifTerrainDebug = gl.getUniformLocation(this.prog,"u_TerrainDebug");
   }
 
   use() {
@@ -123,6 +129,13 @@ class ShaderProgram {
     }
   }
 
+  setWaterTransparency(t:number){
+    this.use();
+    if(this.unifWaterTransparency!==-1){
+      gl.uniform1f(this.unifWaterTransparency,t);
+    }
+  }
+
     setDimensions(width: number, height: number) {
         this.use();
         if(this.unifDimensions !== -1) {
@@ -136,6 +149,21 @@ class ShaderProgram {
       gl.uniform1i(this.unifTerrainType,t);
     }
     }
+
+
+  setTerrainDebug(t:number){
+    this.use();
+    if(this.unifTerrainDebug!==-1){
+      gl.uniform1i(this.unifTerrainDebug,t);
+    }
+  }
+
+  setSpawnPos(pos: vec2) {
+    this.use();
+    if (this.unifSpanwPos !== -1) {
+      gl.uniform2fv(this.unifSpanwPos, pos);
+    }
+  }
 
     setRndTerrain(r:number){
     this.use();

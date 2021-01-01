@@ -6,25 +6,34 @@ uniform vec2 u_PlanePos; // Our location in the virtual world displayed by the p
 in vec3 fs_Pos;
 in vec4 fs_Nor;
 in vec4 fs_Col;
+
+
 uniform sampler2D hightmap;
 uniform sampler2D normap;
+uniform sampler2D sedimap;
+uniform sampler2D velmap;
+uniform sampler2D fluxmap;
+
 in float fs_Sine;
 in vec2 fs_Uv;
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
 uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
+uniform int u_TerrainDebug;
 
-uniform int u_TerrainType;
 
 
 vec3 calnor(vec2 uv){
     float eps = 0.001;
-    vec4 cur = texture(hightmap,fs_Uv)/40.f;
-    vec4 r = texture(hightmap,fs_Uv+vec2(eps,0.f))/40.f;
-    vec4 t = texture(hightmap,fs_Uv+vec2(0.f,eps))/40.f;
+    vec4 cur = texture(hightmap,uv);
+    vec4 r = texture(hightmap,uv+vec2(eps,0.f));
+    vec4 t = texture(hightmap,uv+vec2(0.f,eps));
 
-    vec3 nor = cross(vec3(eps,r.x-cur.x,0.f),vec3(0.f,t.x-cur.x,eps));
+    vec3 n1 = normalize(vec3(-eps, cur.x - r.x, 0.f));
+    vec3 n2 = normalize(vec3(-eps, t.x - r.x, eps));
+
+    vec3 nor = -cross(n1,n2);
     nor = normalize(nor);
     return nor;
 }
@@ -38,73 +47,69 @@ void main()
     sundir2 = normalize(sundir2);
     sundir = normalize(sundir);
 
-    vec3 nor = -texture(normap,fs_Uv).xyz;
-    nor = -calnor(fs_Uv);
+    vec3 nor1 = -texture(normap,fs_Uv).xyz;
+    vec3 nor = -calnor(fs_Uv);
 
     float lamb = dot(nor,sundir);
     float lamb2 = dot(nor,sundir2);
 
     //lamb =1.f;
 
-    float yval = texture(hightmap,fs_Uv).x/17.f;
-    float yvalex = texture(hightmap,fs_Uv).x/40.f;
+    float yval = texture(hightmap,fs_Uv).x * 4.0;
     float wval = texture(hightmap,fs_Uv).y;
+    float sval = texture(sedimap, fs_Uv).x;
 
     vec3 finalcol = vec3(0);
 
-    vec3 forestcol = vec3(0.3,1.f,0.f);
+    vec3 forestcol = vec3(0.3,1.f,0.2f);
     vec3 mtncolor = vec3(0.99,0.99,0.99);
-    vec3 dirtcol = vec3(0.87,0.4,0.2);
+    vec3 dirtcol = vec3(0.87,0.6,0.2);
     vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);
     vec3 sand = vec3(244.f/255.f,164.f/255.f,96.f/255.f);
     vec3 obsidian = vec3(0.2);
 
-    if(u_TerrainType==0){
-        if(yval>0.f&&yval<=0.2){
-            finalcol = dirtcol;
-        }else if(yval>0.2&&yval<=0.6){
-            finalcol = mix(dirtcol,forestcol,(yval-0.2)/0.4);
-        }else if(yval>0.6){
-            if(yval<1.f)
-            finalcol = mix(forestcol,mtncolor,(yval-0.6)/0.4);
-            else{
-                finalcol = mtncolor;
-            }
-        }
 
-        if(abs(nor.y)<0.7){
-            finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);
+    if(yval<=0.3){
+        finalcol = dirtcol;
+    }else if(yval>0.3&&yval<=0.8){
+        finalcol = mix(dirtcol,forestcol,(yval-0.3)/0.5);
+    }else if(yval>0.8){
+        if(yval<1.2f)
+        finalcol = mix(forestcol,mtncolor,(yval-0.8)/0.4);
+        else{
+            finalcol = mtncolor;
         }
-    }else if(u_TerrainType==1){
-        finalcol =sand;}
-    else if(u_TerrainType==2){
-        finalcol = obsidian;
     }
 
 
-    vec3 fcol = lamb*(finalcol);
-    //fcol += vec3(0.2,0.5,0.6)*lamb2*0.4;
-    float water = 0.1f;
-    if(u_TerrainType==0){
-        if(wval>water) {
-            float river = clamp((wval-water)*8.f,0.f,1.f);
-            fcol = mix(fcol,lamb*vec3(0.f,0.5,0.8f),river);
-        }
-    }else if(u_TerrainType==1){
-        water = 0.06;
-        if(wval>water) {
-            float river = clamp((wval-water)*8.f,0.f,1.f);
-            fcol = mix(fcol,lamb*vec3(1.0f,0.8,0.6f),river);
-        }
-    }else if(u_TerrainType==2){
-       water = 0.06;
-        if(wval>water) {
-            float river = clamp((wval-water)*8.f,0.f,5.f);
-            fcol = mix(fcol,lamb*vec3(1.0f,0.1,0.0f),river);
-        }
-     }
+    if(abs(nor.y)<0.7){
+        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);
+    }
+
+    finalcol = mix(finalcol, sand, clamp(sval*100.0, 0.0, 1.0) );
 
 
+    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));
 
-    out_Col = vec4(fcol,1.f);
+
+    vec3 normal = lamb*(finalcol);
+    vec3 fcol = normal;
+    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4
+    if(u_TerrainDebug == 0){
+        fcol = normal;
+    }else if(u_TerrainDebug == 1){
+        fcol = texture(sedimap,fs_Uv).xyz * 100.0;
+    }else if(u_TerrainDebug == 2){
+        fcol = texture(velmap,fs_Uv).xyz;
+        //fcol = nor1;
+        fcol.xy = fcol.xy / 2.0 + vec2(0.5);
+    }else if(u_TerrainDebug == 3){
+        fcol = texture(hightmap,fs_Uv).xyz;
+        fcol.y *= 5.0;
+    }else if(u_TerrainDebug == 4){
+        fcol = texture(fluxmap,fs_Uv).xyz * 800000.0;
+    }
+
+
+    out_Col = vec4(vec3(fcol)*1.0,1.f);
 }

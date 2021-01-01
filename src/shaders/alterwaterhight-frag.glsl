@@ -1,15 +1,15 @@
 #version 300 es
 precision highp float;
 
-uniform sampler2D read;//water and hight map R: hight map, G: water map, B: , A:
-uniform sampler2D readflux;//flux map R: top, G: right, B: bottom, A: left
+uniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:
+uniform sampler2D readFlux;//flux map R: top, G: right, B: bottom, A: left
 
 uniform float u_SimRes;
 uniform float u_PipeLen;
 uniform float u_timestep;
 
-layout (location = 0) out vec4 write;
-layout (location = 1) out vec4 writevel;
+layout (location = 0) out vec4 writeTerrain;
+layout (location = 1) out vec4 writeVel;
 
 // The fragment shader used to render the background of the scene
 // Modify this to make your background more interesting
@@ -17,24 +17,20 @@ layout (location = 1) out vec4 writevel;
 in vec2 fs_Pos;
 
 
-
-
 void main(){
 
-  float timestep = u_timestep;
+
   vec2 curuv = 0.5f*fs_Pos+0.5f;
-  float texwidth = u_SimRes;
-  float div = 1.f/texwidth;
-  float g = 1.4;
+  float div = 1.f/u_SimRes;
   float pipelen = u_PipeLen;
 
-  vec4 topflux = texture(readflux,curuv+vec2(0.f,div));
-  vec4 rightflux = texture(readflux,curuv+vec2(div,0.f));
-  vec4 bottomflux = texture(readflux,curuv+vec2(0.f,-div));
-  vec4 leftflux = texture(readflux,curuv+vec2(-div,0.f));
+  vec4 topflux = texture(readFlux,curuv+vec2(0.f,div));
+  vec4 rightflux = texture(readFlux,curuv+vec2(div,0.f));
+  vec4 bottomflux = texture(readFlux,curuv+vec2(0.f,-div));
+  vec4 leftflux = texture(readFlux,curuv+vec2(-div,0.f));
 
-  vec4 curflux = texture(readflux,curuv);
-  vec4 cur = texture(read,curuv);
+  vec4 curflux = texture(readFlux,curuv);
+  vec4 cur = texture(readTerrain,curuv);
 
    //out flow flux
   float ftopout = curflux.x;
@@ -45,19 +41,19 @@ void main(){
   vec4 outputflux = curflux;
   vec4 inputflux = vec4(topflux.z,rightflux.w,bottomflux.x,leftflux.y);
 
-  vec2 veloci = vec2(inputflux.w-outputflux.w+outputflux.y-inputflux.y,inputflux.z-outputflux.z+outputflux.x-inputflux.x);
-  veloci*=pipelen/(2.f*div*div*timestep);
-
   float fout = ftopout+frightout+fbottomout+fleftout;
   float fin = topflux.z+rightflux.w+bottomflux.x+leftflux.y;
 
-  float deltavol = timestep*(fin-fout)/(div*div);
+  float deltavol = u_timestep*(fin-fout)/(u_PipeLen*u_PipeLen);
+  float d1 = cur.y;
+  float d2 = d1 + deltavol;
+  float da = (d1 + d2)/2.0f;
 
-  //velocity field calculation
-  float velx = (leftflux.y-curflux.w+curflux.y-rightflux.w)*pipelen/(2.f*div*div*timestep);//flux map x: top, y: right, z: bottom, w: left
-  float vely = (topflux.z-curflux.x+curflux.z-bottomflux.x)*pipelen/(2.f*div*div*timestep);
+  vec2 veloci = vec2(inputflux.w-outputflux.w+outputflux.y-inputflux.y,inputflux.z-outputflux.z+outputflux.x-inputflux.x)/2.0;
+  veloci = veloci/(da * u_PipeLen);
 
-  writevel = vec4(veloci,0.f,1.f);
-  write = vec4(cur.x,cur.y+deltavol,cur.z,cur.w);
+
+  writeVel = vec4(veloci,0.f,1.f);
+  writeTerrain = vec4(cur.x,cur.y+deltavol,cur.z,cur.w);
 
 }

@@ -5,24 +5,16 @@ uniform sampler2D vel;
 uniform sampler2D sedi;
 
 uniform float u_SimRes;
-uniform float u_PipeLen;
-uniform float u_Ks;
-uniform float u_Kc;
-uniform float u_Kd;
 uniform float u_timestep;
 
 
-layout (location = 0) out vec4 writesedi;
+layout (location = 0) out vec4 writeSediment;
 
 
 // The fragment shader used to render the background of the scene
 // Modify this to make your background more interesting
 
 in vec2 fs_Pos;
-
-
-
-
 
 float samplebilinear(vec2 uv){
     vec2 cur_loc = u_SimRes*uv;
@@ -44,22 +36,22 @@ float samplebilinear(vec2 uv){
     return res;
 }
 
+ 
+
+
 void main() {
-float timestep = u_timestep;
+ 
       vec2 curuv = 0.5f*fs_Pos+0.5f;
-      float texwidth = u_SimRes;
-      float div = 1.f/texwidth;
-      float g = 1.4;
-      float pipelen = u_PipeLen;
-      float Kc = u_Kc;
-      float Ks = u_Ks;
-      float Kd = u_Kd;
 
-      vec2 curvel = (texture(vel,curuv).xy)*0.01f/u_SimRes;
-      float cursedi = texture(sedi,curuv).x;
+      float div = 1.f/u_SimRes;
 
-      vec2 oldloc = vec2(curuv.x-curvel.x*timestep,curuv.y-curvel.y*timestep);
-      float oldsedi = samplebilinear(oldloc);
+      vec2 curvel = texture(vel,curuv).xy*1.0;
+      vec4 cursedi = texture(sedi,curuv);
 
-      writesedi = vec4(oldsedi,0.f,0.f,1.f);
+
+      vec2 oldloc = vec2(curuv.x-curvel.x*u_timestep,curuv.y-curvel.y*u_timestep);
+      float oldsedi = texture(sedi, oldloc).x;
+
+
+      writeSediment = vec4(oldsedi, 0.0, 0.0, 1.0);
 }
