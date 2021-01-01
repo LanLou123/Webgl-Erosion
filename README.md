@@ -1,7 +1,5 @@
 ﻿## Terrain hydraulic erosion simulation in WebGl
 
-### Based on
-- [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
 
 ## [**Youtube Link**](https://www.youtube.com/watch?v=S3Q-i0jtO4g)
 
@@ -85,8 +83,11 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - Deposite and erosion step, extra normal map is exported as well to save future calculation : ```hight map + velocity map + sediment map -----> sediment map + hight map + terrain normal map```
    - Lagrangian advection step : ```velocity map + sediment map -----> sediment map```
    - Water evaporation step : ```terrain map -----> terrain map```
-### Some disadvantages and future works:
-- First and foremost, the major limitation of grid based fluid simulation is that the conservation of mass is not easy to accomplish. If only a primitive grid based algorithm is used, it can lead to ravines only or mostly extending along the grid axes, I've tried my best to eliminate this artifact, but they are still somewhat noticable, this is also the reason why parameters for this project are so hard to adjust.
-- However, this drawback does not exsit in particle based method since the simulated fluid is represented by particles which store their position, velocity and sometimes their mass, therefore, one future goal for this project is to use particle method instead.
-- Plus, I found this paper quite interesting, the author was using particle based method, and seems having some good results:[Implementation of a particle based method for hydraulic
-erosion](https://www.firespark.de/resources/downloads/implementation%20of%20a%20methode%20for%20hydraulic%20erosion.pdf)
+
+### Future Plans:
+- Better GUI & Visulization
+- Thermal & glacial  erosion and muti-layered(rock/sand/etc) erosion
+
+### Reference
+- [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
+
