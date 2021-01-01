@@ -31,7 +31,7 @@
 
 ### Base terrain generation:
 
-- I referenced polygonal terrain in this part, the initial terrain was generated using a voroni polygon map, which was then applied with FBM and domain warping, but I didn't actually implement the adjacent graph structure from the article, because the initial idea was to generate river using adjacent graph, however after finishing erosion sim, I realized the river generation is automatically done in erosion process, thus save me from building an expensive datastructure on CPU which would potentially slow the process down (overhead caused by infomation communication between CPU and GPU)
+- The initial terrain was generated using FBM and domain warping as an option, you can choose randomrized base terrain by clicking "Reset" botton
 
 ### Erosion
 
