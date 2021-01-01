@@ -3,8 +3,9 @@
 ### Based on
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
 
+## [**Youtube Link**](https://www.youtube.com/watch?v=S3Q-i0jtO4g)
 
-## [**DEMO**]( https://lanlou123.github.io/Webgl-Erosion/)
+## [**DEMO** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
 #### note : click button "start generation" to the right top corner to start erosion sim, the simulation will happen in realtime
 
