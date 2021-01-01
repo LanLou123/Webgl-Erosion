@@ -45,7 +45,7 @@ void main() {
 
       float div = 1.f/u_SimRes;
 
-      vec2 curvel = texture(vel,curuv).xy*1.0;
+      vec2 curvel = texture(vel,curuv).xy/10.0;
       vec4 cursedi = texture(sedi,curuv);
 
 

@@ -25,12 +25,12 @@ let PauseGeneration = true;
 
 const controls = {
   tesselations: 5,
-    pipelen: div/1.0,//
+    pipelen: div*1.0,//
     Kc : 0.01,
     Ks : 0.0008,
     Kd : 0.0008,
     timestep : 0.001,
-    pipeAra : div*div*1.0,
+    pipeAra : div*div/1.0,
     evadegree : 0.01,
     raindegree : 0.6,
     spawnposx : 0.5,

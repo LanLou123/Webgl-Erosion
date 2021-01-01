@@ -58,7 +58,7 @@ void main() {
 
 
   float velo = length(texture(readVelocity,curuv).xy);
-  float slope = max(0.05f, abs(asin(slopeSin))) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
+  float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo;
 
   float cursedi = curSediment.x;
