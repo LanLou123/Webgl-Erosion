@@ -31,12 +31,12 @@ const controls = {
     Kd : 0.0008,
     timestep : 0.001,
     pipeAra : div*div/1.0,
-    evadegree : 0.02,
-    raindegree : 0.6,
+    EvaporationDegree : 0.02,
+    RainDegree : 0.6,
     spawnposx : 0.5,
     spawnposy : 0.5,
     'Load Scene': loadScene, // A function pointer, essentially
-    'Start' :StartGeneration,
+    'Start/Resume' :StartGeneration,
     'Reset' : Reset,
     'setTerrainRandom':setTerrainRandom,
     'Pause' : Pause,
@@ -172,7 +172,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.uniform1i(readUnifr,0);
 
     let raind = gl.getUniformLocation(rains.prog,'raindeg');
-    gl.uniform1f(raind,controls.raindegree);
+    gl.uniform1f(raind,controls.RainDegree);
 
     renderer.render(camera,rains,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -459,7 +459,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.uniform1i(readterrainUnife,0);
 
     let erapodegree = gl.getUniformLocation(eva.prog,'evapod');
-    gl.uniform1f(erapodegree,controls.evadegree);
+    gl.uniform1f(erapodegree,controls.EvaporationDegree);
 
     renderer.render(camera,eva,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -654,12 +654,16 @@ function main() {
   const gui = new DAT.GUI();
   // gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
   // gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1,volcanic:2});
-    gui.add(controls,'Start');
+    gui.add(controls,'Start/Resume');
     gui.add(controls,'Pause');
     gui.add(controls,'Reset');
 
     gui.add(controls, 'WaterTransparency', 0.0, 1.0);
-    gui.add(controls, 'evadegree', 0.0001, 0.4);
+    gui.add(controls, 'EvaporationDegree', 0.0001, 0.08);
+    gui.add(controls,'RainDegree', 0.1,0.9);
+    gui.add(controls,'Kc', 0.008,0.04);
+    gui.add(controls,'Ks', 0.0001,0.0009);
+    gui.add(controls,'Kd', 0.0001,0.0009);
     gui.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4});
   // gui.add(controls, 'spawnposx' ,0.0, 1.0);
   // gui.add(controls, 'spawnposy' ,0.0, 1.0);

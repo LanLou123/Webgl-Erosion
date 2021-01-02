@@ -5,7 +5,18 @@
 
 ## [**DEMO** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
-#### note : click button "start generation" to the right top corner to start erosion sim, the simulation will happen in realtime
+### controls : 
+- press button ```Start/Resume``` to the right top corner to start or resume the erosion sim, the simulation will happen in realtime
+- press button ```Pause``` to pause the simulation
+- press button ```Reset``` to reset simulation and start with a randomly generated base terrain
+- use ```WaterTrabsparancy``` slider to control alpha of water
+- use ```EvaporationDegree``` slider to control anomunt of evaporation you want each simulation step
+- use ```RainDegree``` slider to control anomunt of Rain you want each simulation step
+- use ```Kc``` slider to control Kc (erosion capacity constant)
+- use ```Ks``` slider to control Ks (erosion dissolvating constant)
+- use ```Kd``` slider to control Kc (erosion deposition constant)
+- use the dropdown to check the debug views
+- press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
 
 ![](screenshot/combine.png)
 
@@ -27,6 +38,9 @@
 
 - ![](screenshot/eflux.PNG)
 
+### Delta like features on near flat terrain
+
+- ![](screenshot/delta.PNG)
 
 
 ### Base terrain generation:

@@ -6015,12 +6015,12 @@ const controls = {
     Kd: 0.0008,
     timestep: 0.001,
     pipeAra: div * div / 1.0,
-    evadegree: 0.02,
-    raindegree: 0.6,
+    EvaporationDegree: 0.02,
+    RainDegree: 0.6,
     spawnposx: 0.5,
     spawnposy: 0.5,
     'Load Scene': loadScene,
-    'Start': StartGeneration,
+    'Start/Resume': StartGeneration,
     'Reset': Reset,
     'setTerrainRandom': setTerrainRandom,
     'Pause': Pause,
@@ -6119,7 +6119,7 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     let readUnifr = gl.getUniformLocation(rains.prog, "readTerrain");
     gl.uniform1i(readUnifr, 0);
     let raind = gl.getUniformLocation(rains.prog, 'raindeg');
-    gl.uniform1f(raind, controls.raindegree);
+    gl.uniform1f(raind, controls.RainDegree);
     renderer.render(camera, rains, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //swap terrain tex-----------------------------------------------
@@ -6320,7 +6320,7 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     let readterrainUnife = gl.getUniformLocation(eva.prog, "terrain");
     gl.uniform1i(readterrainUnife, 0);
     let erapodegree = gl.getUniformLocation(eva.prog, 'evapod');
-    gl.uniform1f(erapodegree, controls.evadegree);
+    gl.uniform1f(erapodegree, controls.EvaporationDegree);
     renderer.render(camera, eva, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //---------------swap terrain mao----------------------------
@@ -6458,11 +6458,15 @@ function main() {
     const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
     // gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
     // gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1,volcanic:2});
-    gui.add(controls, 'Start');
+    gui.add(controls, 'Start/Resume');
     gui.add(controls, 'Pause');
     gui.add(controls, 'Reset');
     gui.add(controls, 'WaterTransparency', 0.0, 1.0);
-    gui.add(controls, 'evadegree', 0.0001, 0.4);
+    gui.add(controls, 'EvaporationDegree', 0.0001, 0.08);
+    gui.add(controls, 'RainDegree', 0.1, 0.9);
+    gui.add(controls, 'Kc', 0.008, 0.04);
+    gui.add(controls, 'Ks', 0.0001, 0.0009);
+    gui.add(controls, 'Kd', 0.0001, 0.0009);
     gui.add(controls, 'TerrainDebug', { normal: 0, sediment: 1, velocity: 2, terrain: 3, flux: 4 });
     // gui.add(controls, 'spawnposx' ,0.0, 1.0);
     // gui.add(controls, 'spawnposy' ,0.0, 1.0);
@@ -17157,7 +17161,7 @@ module.exports = "#version 300 es\r\n\r\n\r\nuniform mat4 u_Model;\r\nuniform ma
 /* 71 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\n\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nuniform sampler2D sedimap;\r\nuniform sampler2D velmap;\r\nuniform sampler2D fluxmap;\r\n\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\n\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 0.001;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n\r\n    vec3 n1 = normalize(vec3(-eps, cur.x - r.x, 0.f));\r\n    vec3 n2 = normalize(vec3(-eps, t.x - r.x, eps));\r\n\r\n    vec3 nor = -cross(n1,n2);\r\n    nor = normalize(nor);\r\n    return nor;\r\n}\r\n\r\nvoid main()\r\n{\r\n\r\n\r\n    vec3 sundir = vec3(1.f,2.f,-1.f);\r\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\r\n    sundir2 = normalize(sundir2);\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 nor1 = -texture(normap,fs_Uv).xyz;\r\n    vec3 nor = -calnor(fs_Uv);\r\n\r\n    float lamb = dot(nor,sundir);\r\n    float lamb2 = dot(nor,sundir2);\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    float sval = texture(sedimap, fs_Uv).x;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n    vec3 forestcol = vec3(0.1,0.6f,0.1f);\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.87,0.6,0.2);\r\n    vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);\r\n    vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n\r\n    if(yval<=0.1){\r\n        finalcol = grass;\r\n    }else if(yval>0.1&&yval<=0.4){\r\n        finalcol = mix(grass,forestcol,(yval-0.1)/0.3);\r\n    }else if(yval>0.4){\r\n        if(yval<0.7f ){\r\n            finalcol = mix(forestcol, mtncolor, (yval-0.4)/0.3);\r\n        }\r\n\r\n\r\n    }\r\n\r\n\r\n    if(abs(nor.y)<0.9){\r\n        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.9);\r\n    }\r\n\r\n    finalcol = mix(finalcol, sand, clamp(sval*100.0, 0.0, 1.0) );\r\n\r\n\r\n    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));\r\n\r\n\r\n    vec3 normal = lamb*(finalcol);\r\n    vec3 fcol = normal;\r\n    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4\r\n    if(u_TerrainDebug == 0){\r\n        fcol = normal;\r\n    }else if(u_TerrainDebug == 1){\r\n        fcol = texture(sedimap,fs_Uv).xyz * 100.0;\r\n    }else if(u_TerrainDebug == 2){\r\n        fcol = texture(velmap,fs_Uv).xyz;\r\n        //fcol = nor1;\r\n        fcol.xy = fcol.xy / 2.0 + vec2(0.5);\r\n    }else if(u_TerrainDebug == 3){\r\n        fcol = texture(hightmap,fs_Uv).xyz;\r\n        fcol.y *= 5.0;\r\n    }else if(u_TerrainDebug == 4){\r\n        fcol = texture(fluxmap,fs_Uv).xyz * 800000.0;\r\n    }\r\n\r\n\r\n    out_Col = vec4(vec3(fcol)*1.0,1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\n\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nuniform sampler2D sedimap;\r\nuniform sampler2D velmap;\r\nuniform sampler2D fluxmap;\r\n\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\n\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 0.001;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n\r\n    vec3 n1 = normalize(vec3(-eps, cur.x - r.x, 0.f));\r\n    vec3 n2 = normalize(vec3(-eps, t.x - r.x, eps));\r\n\r\n    vec3 nor = -cross(n1,n2);\r\n    nor = normalize(nor);\r\n    return nor;\r\n}\r\n\r\nvoid main()\r\n{\r\n\r\n\r\n    vec3 sundir = vec3(1.f,2.f,-1.f);\r\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\r\n    sundir2 = normalize(sundir2);\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 nor1 = -texture(normap,fs_Uv).xyz;\r\n    vec3 nor = -calnor(fs_Uv);\r\n\r\n    float lamb = dot(nor,sundir);\r\n    float lamb2 = dot(nor,sundir2);\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    float sval = texture(sedimap, fs_Uv).x;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n    vec3 forestcol = vec3(0.1,0.6f,0.1f);\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.87,0.6,0.2);\r\n    vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);\r\n    vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n\r\n    if(yval<=0.1){\r\n        finalcol = grass;\r\n    }else if(yval>0.1&&yval<=0.4){\r\n        finalcol = mix(grass,forestcol,(yval-0.1)/0.3);\r\n    }else if(yval>0.4){\r\n        if(yval<0.7f ){\r\n            finalcol = mix(forestcol, mtncolor, (yval-0.4)/0.3);\r\n        }\r\n\r\n\r\n    }\r\n\r\n\r\n    if(abs(nor.y)<0.9){\r\n        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.9);\r\n    }\r\n\r\n    finalcol = mix(finalcol, sand, clamp(sval*200.0, 0.0, 1.0) );\r\n\r\n\r\n    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));\r\n\r\n\r\n    vec3 normal = lamb*(finalcol);\r\n    vec3 fcol = normal;\r\n    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4\r\n    if(u_TerrainDebug == 0){\r\n        fcol = normal;\r\n    }else if(u_TerrainDebug == 1){\r\n        fcol = texture(sedimap,fs_Uv).xyz * 100.0;\r\n    }else if(u_TerrainDebug == 2){\r\n        fcol = texture(velmap,fs_Uv).xyz;\r\n        //fcol = nor1;\r\n        fcol.xy = fcol.xy / 2.0 + vec2(0.5);\r\n    }else if(u_TerrainDebug == 3){\r\n        fcol = texture(hightmap,fs_Uv).xyz;\r\n        fcol.y *= 5.0;\r\n    }else if(u_TerrainDebug == 4){\r\n        fcol = texture(fluxmap,fs_Uv).xyz * 800000.0;\r\n    }\r\n\r\n\r\n    out_Col = vec4(vec3(fcol)*1.0,1.f);\r\n}\r\n"
 
 /***/ }),
 /* 72 */
