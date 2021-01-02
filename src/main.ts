@@ -32,7 +32,7 @@ const controls = {
     timestep : 0.001,
     pipeAra : div*div/1.0,
     EvaporationDegree : 0.02,
-    RainDegree : 0.6,
+    RainDegree : 0.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
     'Load Scene': loadScene, // A function pointer, essentially
@@ -699,7 +699,7 @@ function main() {
   loadScene();
   num_simsteps = erosioninterations;
 
-  const camera = new Camera(vec3.fromValues(0, 1, -0.6), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(0, 0.6, -0.6), vec3.fromValues(0, 0, 0));
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.0, 0.0, 0.0, 1);
   gl.enable(gl.DEPTH_TEST);

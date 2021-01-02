@@ -7,18 +7,22 @@ class Camera {
   viewMatrix: mat4 = mat4.create();
   fovy: number = 45;
   aspectRatio: number = 1;
-  near: number = 0.01;
+  near: number = 0.001;
   far: number = 1000;
   position: vec3 = vec3.create();
   direction: vec3 = vec3.create();
   target: vec3 = vec3.create();
-  up: vec3 = vec3.create();
+  up: vec3 = vec3.fromValues(0.0, 1.0, 0.0);
 
   constructor(position: vec3, target: vec3) {
     this.controls = CameraControls(document.getElementById('canvas'), {
       eye: position,
       center: target,
     });
+
+    this.controls.up = vec3.fromValues(0,1,0);
+    this.controls.zoomSpeed = -1.0;
+    this.controls.mode = 'turntable';
     vec3.add(this.target, this.position, this.direction);
     mat4.lookAt(this.viewMatrix, this.controls.eye, this.controls.center, this.controls.up);
   }
@@ -32,6 +36,8 @@ class Camera {
   }
 
   update() {
+
+    this.controls.up = vec3.fromValues(0,1,0);
     this.controls.tick();
     vec3.add(this.target, this.position, this.direction);
     mat4.lookAt(this.viewMatrix, this.controls.eye, this.controls.center, this.controls.up);
