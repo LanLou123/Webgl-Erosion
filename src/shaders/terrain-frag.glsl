@@ -63,7 +63,7 @@ void main()
 
     vec3 forestcol = vec3(0.1,0.6f,0.1f);
     vec3 mtncolor = vec3(0.99,0.99,0.99);
-    vec3 dirtcol = vec3(0.87,0.6,0.2);
+    vec3 dirtcol = vec3(0.27,0.3,0.1);
     vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);
     vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);
     vec3 obsidian = vec3(0.2);

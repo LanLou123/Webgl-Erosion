@@ -20,6 +20,10 @@
 
 ![](screenshot/combine.png)
 
+### Results after longer period of time
+
+![](screenshot/long.PNG)
+
 ## Debug view images
 
 ### Sediment map
