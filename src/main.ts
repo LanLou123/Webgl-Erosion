@@ -27,12 +27,12 @@ const controls = {
   tesselations: 5,
     pipelen: div*1.0,//
     Kc : 0.01,
-    Ks : 0.0004,
-    Kd : 0.0008,
+    Ks : 0.0005,
+    Kd : 0.0002,
     timestep : 0.001,
     pipeAra : div*div/1.0,
     EvaporationDegree : 0.02,
-    RainDegree : 0.5,
+    RainDegree : 0.3,
     spawnposx : 0.5,
     spawnposy : 0.5,
     'Load Scene': loadScene, // A function pointer, essentially
@@ -43,7 +43,7 @@ const controls = {
     TerrainBaseMap : 0,
     TerrainBiomeType : 1,
     TerrainDebug : 0,
-    WaterTransparency : 0.99,
+    WaterTransparency : 0.50,
 };
 
 
