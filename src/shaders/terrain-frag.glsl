@@ -61,29 +61,29 @@ void main()
 
     vec3 finalcol = vec3(0);
 
-    vec3 forestcol = vec3(0.3,1.f,0.2f);
+    vec3 forestcol = vec3(0.1,0.6f,0.1f);
     vec3 mtncolor = vec3(0.99,0.99,0.99);
     vec3 dirtcol = vec3(0.87,0.6,0.2);
-    vec3 grass = vec3(173.0/255.0,255.0/255.0,47.0/255.0);
-    vec3 sand = vec3(244.f/255.f,164.f/255.f,96.f/255.f);
+    vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);
+    vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);
     vec3 obsidian = vec3(0.2);
 
 
-    if(yval<=0.3){
-        finalcol = dirtcol;
-    }else if(yval>0.3&&yval<=0.8){
-        finalcol = mix(dirtcol,forestcol,(yval-0.3)/0.5);
-    }else if(yval>0.8){
-        if(yval<1.2f)
-        finalcol = mix(forestcol,mtncolor,(yval-0.8)/0.4);
-        else{
-            finalcol = mtncolor;
+    if(yval<=0.1){
+        finalcol = grass;
+    }else if(yval>0.1&&yval<=0.4){
+        finalcol = mix(grass,forestcol,(yval-0.1)/0.3);
+    }else if(yval>0.4){
+        if(yval<0.7f ){
+            finalcol = mix(forestcol, mtncolor, (yval-0.4)/0.3);
         }
+
+
     }
 
 
-    if(abs(nor.y)<0.7){
-        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.7);
+    if(abs(nor.y)<0.9){
+        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.9);
     }
 
     finalcol = mix(finalcol, sand, clamp(sval*100.0, 0.0, 1.0) );

@@ -27,22 +27,23 @@ const controls = {
   tesselations: 5,
     pipelen: div*1.0,//
     Kc : 0.01,
-    Ks : 0.0008,
+    Ks : 0.0004,
     Kd : 0.0008,
     timestep : 0.001,
     pipeAra : div*div/1.0,
-    evadegree : 0.01,
+    evadegree : 0.02,
     raindegree : 0.6,
     spawnposx : 0.5,
     spawnposy : 0.5,
-  'Load Scene': loadScene, // A function pointer, essentially
-    'StartGeneration' :StartGeneration,
+    'Load Scene': loadScene, // A function pointer, essentially
+    'Start' :StartGeneration,
     'Reset' : Reset,
     'setTerrainRandom':setTerrainRandom,
+    'Pause' : Pause,
     TerrainBaseMap : 0,
     TerrainBiomeType : 1,
     TerrainDebug : 0,
-    WaterTransparency : 0.3,
+    WaterTransparency : 0.99,
 };
 
 
@@ -76,6 +77,10 @@ function loadScene() {
   plane.create();
   waterPlane = new Plane(vec3.fromValues(0,0,0), vec2.fromValues(1,1), 22);
   waterPlane.create();
+}
+
+function Pause(){
+    PauseGeneration = true;
 }
 
 function Reset(){
@@ -649,10 +654,13 @@ function main() {
   const gui = new DAT.GUI();
   // gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
   // gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1,volcanic:2});
-  gui.add(controls,'Reset');
-  gui.add(controls,'StartGeneration');
-  gui.add(controls, 'WaterTransparency', 0.0, 1.0);
-  gui.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4});
+    gui.add(controls,'Start');
+    gui.add(controls,'Pause');
+    gui.add(controls,'Reset');
+
+    gui.add(controls, 'WaterTransparency', 0.0, 1.0);
+    gui.add(controls, 'evadegree', 0.0001, 0.4);
+    gui.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4});
   // gui.add(controls, 'spawnposx' ,0.0, 1.0);
   // gui.add(controls, 'spawnposy' ,0.0, 1.0);
   //gui.add(controls,'setTerrainRandom');

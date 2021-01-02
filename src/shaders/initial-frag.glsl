@@ -140,9 +140,9 @@ void main() {
 
 
 
-  vec2 cpos = 1.5 * uv;
+  vec2 cpos = 2.5 * uv;
   cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 52.0,mod(u_Time,100.f)+120.f);
-  float terrain_hight = fbm(cpos*2.0) / 2.00;
+  float terrain_hight = fbm(cpos*2.0) / 4.00;
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);

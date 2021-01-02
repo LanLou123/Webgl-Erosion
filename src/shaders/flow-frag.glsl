@@ -42,11 +42,11 @@ void main() {
   float Hrightout = (curTerrain.y+curTerrain.x)-(right.y+right.x);
   float Hbottomout = (curTerrain.y+curTerrain.x)-(bottom.x+bottom.y);
   float Hleftout = (curTerrain.y+curTerrain.x)-(left.y+left.x);
-
-  Htopout = max(0.0, Htopout);
-  Hbottomout = max(0.0, Hbottomout);
-  Hrightout = max(0.0, Hrightout);
-  Hleftout = max(0.0, Hleftout);
+//
+//  Htopout = max(0.0, Htopout);
+//  Hbottomout = max(0.0, Hbottomout);
+//  Hrightout = max(0.0, Hrightout);
+//  Hleftout = max(0.0, Hleftout);
 
   //out flow readFlux
   float ftopout = max(0.f,curFlux.x+(u_timestep*g*u_PipeArea*Htopout)/pipelen);

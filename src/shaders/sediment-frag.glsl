@@ -58,6 +58,8 @@ void main() {
 
 
   float velo = length(texture(readVelocity,curuv).xy);
+  float veloepsilon = 0.01f;
+  velo = max(veloepsilon, velo);
   float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo;
 
