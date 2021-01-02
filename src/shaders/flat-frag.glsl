@@ -9,6 +9,7 @@ uniform sampler2D hightmap;
 
 uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
+uniform float u_Time;
 
 in vec2 fs_Pos;
 out vec4 out_Col;
@@ -17,6 +18,27 @@ out vec4 out_Col;
 #define FOV 45.f
 vec3 sky(in vec3 rd){
     return mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));
+}
+
+
+// ====================== iq cloud ========================
+
+
+
+vec3 sundir = normalize(vec3(1.f,2.f,-1.f));
+
+
+vec4 render( in vec3 ro, in vec3 rd)
+{
+    // background sky
+    float sun = clamp( dot(sundir,rd), 0.0, 1.0 );
+    vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;
+    col += 0.2*vec3(1.0,.6,0.1)*pow( sun, 8.0 );
+
+    // sun glare
+    col += 0.2*vec3(1.0,0.4,0.2)*pow( sun, 3.0 );
+
+    return vec4( col, 1.0 );
 }
 
 
@@ -39,8 +61,11 @@ void main() {
 
     vec3 rd = normalize(p - u_Eye);
     vec3 ro = u_Eye;
+    //gl_FragDepth = 0.998;
 
+    vec4 cloudCol = render(ro,rd);
+    //cloudCol.xyz += sky(rd);
 
    //out_Col = vec4((col.xyz * 100.0), 1.0);
-    out_Col = vec4(sky(rd),1.f);
+    out_Col = vec4(cloudCol);
 }

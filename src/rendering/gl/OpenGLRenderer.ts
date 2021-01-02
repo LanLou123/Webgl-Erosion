@@ -31,8 +31,8 @@ class OpenGLRenderer {
     mat4.multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
     prog.setModelMatrix(model);
     prog.setViewProjMatrix(viewProj);
-      prog.setEyeRefUp(camera.controls.eye, camera.controls.center, camera.controls.up);
-      prog.setDimensions(this.canvas.width,this.canvas.height);
+    prog.setEyeRefUp(camera.controls.eye, camera.controls.center, camera.controls.up);
+    prog.setDimensions(this.canvas.width,this.canvas.height);
 
     for (let drawable of drawables) {
       prog.draw(drawable);

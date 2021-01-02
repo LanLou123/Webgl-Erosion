@@ -8,5 +8,7 @@ out vec2 fs_Pos;
 
 void main() {
   fs_Pos = vs_Pos.xy;
-  gl_Position = vs_Pos;
+  vec4 pos = vs_Pos;
+
+  gl_Position = pos;
 }

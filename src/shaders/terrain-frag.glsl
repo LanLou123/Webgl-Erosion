@@ -86,7 +86,7 @@ void main()
         finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.9);
     }
 
-    finalcol = mix(finalcol, sand, clamp(sval*200.0, 0.0, 1.0) );
+    finalcol = mix(finalcol, sand, clamp(sval*130.0, 0.0, 1.0) );
 
 
     //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));

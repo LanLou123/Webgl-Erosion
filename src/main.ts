@@ -27,12 +27,12 @@ const controls = {
   tesselations: 5,
     pipelen: div*1.0,//
     Kc : 0.01,
-    Ks : 0.0005,
-    Kd : 0.0002,
+    Ks : 0.0004,
+    Kd : 0.0003,
     timestep : 0.001,
     pipeAra : div*div/1.0,
     EvaporationDegree : 0.02,
-    RainDegree : 0.3,
+    RainDegree : 0.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
     'Load Scene': loadScene, // A function pointer, essentially
@@ -790,6 +790,7 @@ function main() {
     noiseterrain.setTime(timer);
     rains.setSpawnPos(vec2.fromValues(controls.spawnposx, controls.spawnposy));
     rains.setTime(timer);
+    flat.setTime(timer);
     lambert.setTerrainDebug(controls.TerrainDebug);
     water.setWaterTransparency(controls.WaterTransparency);
 
@@ -891,6 +892,8 @@ function main() {
 
     // back ground ----------------------------------
     flat.use();
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LESS);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
     let postUniform = gl.getUniformLocation(flat.prog,"hightmap");
@@ -898,6 +901,7 @@ function main() {
     renderer.render(camera, flat, [
       square,
     ]);
+    //gl.disable(gl.DEPTH_TEST);
     stats.end();
 
     // Tell the browser to call `tick` again whenever it renders a new frame
