@@ -5,9 +5,17 @@ uniform sampler2D readTerrain;
 
 uniform float u_Time;
 uniform float raindeg;
-uniform vec2 u_SpawnPos;
+
+uniform vec4 u_MouseWorldPos;
+uniform vec3 u_MouseWorldDir;
+uniform float u_BrushSize;
+uniform int u_BrushType;
+uniform int u_BrushPressed;
+uniform vec2 u_BrushPos;
+uniform int u_BrushOperation;
 
 layout (location = 0) out vec4 writeTerrain;
+
 
 
 //generic noise from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
@@ -46,25 +54,52 @@ float random (in vec2 st) {
 in vec2 fs_Pos;
 
 
-float timestep = 0.0001;
 
 
 void main() {
 
       vec2 curuv = 0.5f*fs_Pos+0.5f;
+      vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);
+      vec3 watercol = vec3(0.1,0.3,0.8);
+
+
+      float addterrain = 0.0;
+      float addwater = 0.0;
+      float amount = 0.0006;
+      if(u_BrushType != 0){
+            vec3 ro = u_MouseWorldPos.xyz;
+            vec3 rd = u_MouseWorldDir;
+            vec2 pointOnPlane = u_BrushPos;
+            float pdis2fragment = distance(pointOnPlane, curuv);
+            if (pdis2fragment < 0.01 * u_BrushSize){
+                  float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);
+
+                  if(u_BrushType == 1 && u_BrushPressed == 1){
+                        addterrain =  amount * dens;
+                        addterrain = u_BrushOperation == 0 ? addterrain : -addterrain;
+                  }else if(u_BrushType == 2 && u_BrushPressed == 1){
+                        addwater =  amount * dens * 10.0;
+                        addwater = u_BrushOperation == 0 ? addwater : -addwater;
+                  }
+
+            }
+
+      }
+
+
+
+
       vec4 cur = texture(readTerrain,curuv);
       float rain = raindeg;
 
-      float maxx = u_SpawnPos.x+0.05;
-      float maxy = u_SpawnPos.y+0.05;
-      float minx = u_SpawnPos.x - 0.05;
-      float miny = u_SpawnPos.y - 0.05;
 
 
       float epsilon = 0.000001f;
       float nrain = noise(vec3(curuv * 16000.0, u_Time));
       rain = nrain/18000.0;
       rain += epsilon;
+
+
 //      if(curuv.x<maxx && curuv.x>minx && curuv.y<maxy&&curuv.y>miny){
 //            rain += 0.001;
 //      }
@@ -73,5 +108,5 @@ void main() {
 //      }
 
 
-      writeTerrain = vec4(cur.x,cur.y+rain * raindeg,cur.z,cur.w);
+      writeTerrain = vec4(min(max(cur.x + addterrain, -0.10),0.30),max(cur.y+rain * raindeg + addwater, epsilon),cur.z,cur.w);
 }

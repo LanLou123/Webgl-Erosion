@@ -1,4 +1,4 @@
-import {vec2, vec3} from 'gl-matrix';
+import {mat4, vec2, vec3, vec4} from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
@@ -8,8 +8,14 @@ import Camera from './Camera';
 import {gl, setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 
-// Define an object with application parameters and button callbacks
-// This will be referred to by dat.GUI's functions that add GUI elements.
+
+
+
+var mouseChange = require('mouse-change');
+var clientWidth : number;
+var clientHeight : number;
+var lastX = 0;
+var lastY = 0;
 
 const simresolution = 1000;
 let erosioninterations = 68000;
@@ -19,7 +25,9 @@ let start = false;
 let SimFramecnt = 0;
 let TerrainGeometryDirty = true;
 let PauseGeneration = true;
-
+let HightMapCpuBuf = new Float32Array(simresolution * simresolution * 4);;
+let HightMapBufCounter  = 0;
+let MaxHightMapBufCounter = 60; // determine how many frame to update CPU buffer of terrain hight map for ray casting on CPU
 
 
 
@@ -42,8 +50,13 @@ const controls = {
     'Pause' : Pause,
     TerrainBaseMap : 0,
     TerrainBiomeType : 1,
+    TerrainScale : 4.0,
     TerrainDebug : 0,
     WaterTransparency : 0.50,
+    brushType : 0, // 0 : no brush, 1 : terrain, 2 : water
+    brushSize : 2,
+    brushOperation : 0, // 0 : add, 1 : subtract
+    brushPressed : 0, // 0 : not pressed, 1 : pressed
 };
 
 
@@ -117,6 +130,11 @@ function Render2Texture(renderer:OpenGLRenderer, gl:WebGL2RenderingContext,camer
     shader.use();
 
     renderer.render(camera,shader,[square]);
+    if(cur_texture == read_terrain_tex){
+        HightMapCpuBuf = new Float32Array(simres * simres * 4);
+        gl.readPixels(0,0,simres,simres, gl.RGBA, gl.FLOAT, HightMapCpuBuf);
+        console.log(HightMapCpuBuf);
+    }
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 }
 
@@ -175,6 +193,13 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.uniform1f(raind,controls.RainDegree);
 
     renderer.render(camera,rains,[square]);
+
+
+    if(HightMapBufCounter % MaxHightMapBufCounter == 0) {
+        gl.readPixels(0, 0, simres, simres, gl.RGBA, gl.FLOAT, HightMapCpuBuf);
+    }
+    HightMapBufCounter ++;
+
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
 
@@ -607,6 +632,8 @@ function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+
+
     //specify our render buffer here
     render_buffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
@@ -638,8 +665,25 @@ function SimulationStep(curstep:number,
     return false;
 }
 
+function handleInteraction (buttons : number, x : number, y : number){
+    lastX = x;
+    lastY = y;
+}
 
+function onKeyDown(event : KeyboardEvent){
+    if(event.key == 'c'){
+        controls.brushPressed = 1;
+    }else{
+        controls.brushPressed = 0;
+    }
 
+}
+
+function onKeyUp(event : KeyboardEvent){
+    if(event.key == 'c'){
+        controls.brushPressed = 0;
+    }
+}
 
 function main() {
   // Initial display for framerate
@@ -654,17 +698,30 @@ function main() {
   const gui = new DAT.GUI();
   // gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
   // gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1,volcanic:2});
-    gui.add(controls,'Start/Resume');
-    gui.add(controls,'Pause');
-    gui.add(controls,'Reset');
-
-    gui.add(controls, 'WaterTransparency', 0.0, 1.0);
-    gui.add(controls, 'EvaporationDegree', 0.0001, 0.08);
-    gui.add(controls,'RainDegree', 0.1,0.9);
-    gui.add(controls,'Kc', 0.008,0.04);
-    gui.add(controls,'Ks', 0.0001,0.0009);
-    gui.add(controls,'Kd', 0.0001,0.0009);
-    gui.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4});
+    var simcontrols = gui.addFolder('Simulation Controls');
+    simcontrols.add(controls,'Start/Resume');
+    simcontrols.add(controls,'Pause');
+    simcontrols.add(controls,'Reset');
+    simcontrols.open();
+    var terrainParameters = gui.addFolder('Terrain Parameters');
+    terrainParameters.add(controls,'TerrainScale', 1.0, 10.0);
+    terrainParameters.open();
+    var erosionpara = gui.addFolder('Erosion Parameters');
+    erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
+    erosionpara.add(controls,'RainDegree', 0.1,0.9);
+    erosionpara.add(controls,'Kc', 0.008,0.04);
+    erosionpara.add(controls,'Ks', 0.0001,0.0009);
+    erosionpara.add(controls,'Kd', 0.0001,0.0009);
+    erosionpara.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4});
+    erosionpara.open();
+    var terraineditor = gui.addFolder('Terrain Editor');
+    terraineditor.add(controls,'brushType',{NoBrush : 0, TerrainBrush : 1, WaterBrush : 2});
+    terraineditor.add(controls,'brushSize',1.0, 5.0);
+    terraineditor.add(controls,'brushOperation', {Add : 0, Subtract : 1});
+    terraineditor.open();
+    var renderingpara = gui.addFolder('Rendering Parameters');
+    renderingpara.add(controls, 'WaterTransparency', 0.0, 1.0);
+    renderingpara.open();
   // gui.add(controls, 'spawnposx' ,0.0, 1.0);
   // gui.add(controls, 'spawnposy' ,0.0, 1.0);
   //gui.add(controls,'setTerrainRandom');
@@ -681,6 +738,13 @@ function main() {
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
   const gl = <WebGL2RenderingContext> canvas.getContext('webgl2');
+
+  clientWidth = canvas.clientWidth;
+  clientHeight = canvas.clientHeight;
+
+  mouseChange(canvas, handleInteraction);
+  document.addEventListener('keydown', onKeyDown, false);
+  document.addEventListener('keyup', onKeyUp, false);
 
     if (!gl) {
     alert('WebGL 2 not supported!');
@@ -782,20 +846,72 @@ function main() {
         Render2Texture(renderer, gl, camera, clean, write_flux_tex);
         Render2Texture(renderer, gl, camera, clean, write_sediment_tex);
         Render2Texture(renderer, gl, camera, clean, terrain_nor);
+
+    }
+
+    function rayCast(ro : vec3, rd : vec3){
+
+        let res = vec2.fromValues(-10.0, -10.0);
+        let cur = ro;
+        let step = 0.01;
+        for(let i = 0;i<100;++i){
+            let curTexSpace = vec2.fromValues((cur[0] + .50)/1.0, (cur[2] + .50)/1.0);
+            let scaledTexSpace = vec2.fromValues(curTexSpace[0] * simres, curTexSpace[1] * simres);
+            vec2.floor(scaledTexSpace,scaledTexSpace);
+            let hvalcoordinate = scaledTexSpace[1] * simres * 4 + scaledTexSpace[0] * 4 + 0;
+            let hval = HightMapCpuBuf[hvalcoordinate];
+            if(cur[1] <  hval){
+                res = curTexSpace;
+                console.log(curTexSpace);
+                break;
+
+            }
+            let rdscaled = vec3.fromValues(rd[0] * step, rd[1] * step, rd[2] * step);
+
+            vec3.add(cur,cur,rdscaled);
+        }
+
+        return res;
     }
 
   function tick() {
-    timer++;
 
+
+    // ================ ray casting ===================
+    //===================================================
+    var screenMouseX = lastX / clientWidth;
+    var screenMouseY = lastY / clientHeight;
+    //console.log(screenMouseX + ' ' + screenMouseY);
+
+    let viewProj = mat4.create();
+    let invViewProj = mat4.create();
+    mat4.multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
+    mat4.invert(invViewProj,viewProj);
+    let mousePoint = vec4.fromValues(2.0 * screenMouseX - 1.0, 1.0 - 2.0 * screenMouseY, -1.0, 1.0);
+    let mousePointEnd = vec4.fromValues(2.0 * screenMouseX - 1.0, 1.0 - 2.0 * screenMouseY, -0.0, 1.0);
+
+    vec4.transformMat4(mousePoint,mousePoint,invViewProj);
+    vec4.transformMat4(mousePointEnd,mousePointEnd,invViewProj);
+    mousePoint[0] /= mousePoint[3];
+    mousePoint[1] /= mousePoint[3];
+    mousePoint[2] /= mousePoint[3];
+    mousePoint[3] /= mousePoint[3];
+    mousePointEnd[0] /= mousePointEnd[3];
+    mousePointEnd[1] /= mousePointEnd[3];
+    mousePointEnd[2] /= mousePointEnd[3];
+    mousePointEnd[3] /= mousePointEnd[3];
+    let dir = vec3.fromValues(mousePointEnd[0] - mousePoint[0], mousePointEnd[1] - mousePoint[1], mousePointEnd[2] - mousePoint[2]);
+    vec3.normalize(dir,dir);
+    let ro = vec3.fromValues(mousePoint[0], mousePoint[1], mousePoint[2]);
+
+
+    //==========set initial terrain uniforms=================
+    timer++;
     noiseterrain.setTime(timer);
-    rains.setSpawnPos(vec2.fromValues(controls.spawnposx, controls.spawnposy));
-    rains.setTime(timer);
-    flat.setTime(timer);
-    lambert.setTerrainDebug(controls.TerrainDebug);
-    water.setWaterTransparency(controls.WaterTransparency);
+    noiseterrain.setTerrainScale(controls.TerrainScale);
+
 
     if(TerrainGeometryDirty){
-
 
         cleanUpTextures();
         Render2Texture(renderer,gl,camera,noiseterrain,read_terrain_tex);
@@ -803,6 +919,31 @@ function main() {
 
         TerrainGeometryDirty = false;
     }
+
+    //ray cast happens here
+    let pos = vec2.fromValues(0.0, 0.0);
+    pos = rayCast(ro, dir);
+
+    //===================per tick uniforms==================
+
+    rains.setSpawnPos(vec2.fromValues(controls.spawnposx, controls.spawnposy));
+    rains.setTime(timer);
+    flat.setTime(timer);
+    lambert.setTerrainDebug(controls.TerrainDebug);
+    water.setWaterTransparency(controls.WaterTransparency);
+    lambert.setMouseWorldPos(mousePoint);
+    lambert.setMouseWorldDir(dir);
+    lambert.setBrushSize(controls.brushSize);
+    lambert.setBrushType(controls.brushType);
+    lambert.setBrushPos(pos);
+
+    rains.setMouseWorldPos(mousePoint);
+    rains.setMouseWorldDir(dir);
+    rains.setBrushSize(controls.brushSize);
+    rains.setBrushType(controls.brushType);
+    rains.setBrushPressed(controls.brushPressed);
+    rains.setBrushPos(pos);
+    rains.setBrushOperation(controls.brushOperation);
 
     flow.setPipeLen(controls.pipelen);
     flow.setSimres(simresolution);
@@ -839,6 +980,8 @@ function main() {
 
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
+
+
 
     // render terrain -----------------------------------------
     lambert.use();

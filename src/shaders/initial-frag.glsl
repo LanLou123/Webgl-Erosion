@@ -4,6 +4,7 @@ precision highp float;
 
 in vec2 fs_Pos;
 uniform float u_Time;
+uniform float u_TerrainScale;
 
 layout (location = 0) out vec4 initial;
 layout (location = 1) out vec4 initial2;
@@ -140,7 +141,7 @@ void main() {
 
 
 
-  vec2 cpos = 2.5 * uv;
+  vec2 cpos = 0.5 * uv * u_TerrainScale;
   cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 52.0,mod(u_Time,100.f)+120.f);
   float terrain_hight = fbm(cpos*2.0) / 4.00;
   float rainfall = .0f;

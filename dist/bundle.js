@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 22);
+/******/ 	return __webpack_require__(__webpack_require__.s = 23);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -129,13 +129,13 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__gl_matrix_common_js__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2_js__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d_js__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2_js__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d_js__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3_js__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4_js__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat_js__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_quat2_js__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec2_js__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_quat2_js__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec2_js__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec3_js__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__gl_matrix_vec4_js__ = __webpack_require__(10);
 /* unused harmony reexport glMatrix */
@@ -5301,7 +5301,7 @@ class Drawable {
 
 module.exports = createFilteredVector
 
-var cubicHermite = __webpack_require__(40)
+var cubicHermite = __webpack_require__(41)
 var bsearch = __webpack_require__(13)
 
 function clamp(lo, hi, x) {
@@ -5973,19 +5973,231 @@ function determinant(a) {
 
 /***/ }),
 /* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = mouseListen
+
+var mouse = __webpack_require__(62)
+
+function mouseListen (element, callback) {
+  if (!callback) {
+    callback = element
+    element = window
+  }
+
+  var buttonState = 0
+  var x = 0
+  var y = 0
+  var mods = {
+    shift: false,
+    alt: false,
+    control: false,
+    meta: false
+  }
+  var attached = false
+
+  function updateMods (ev) {
+    var changed = false
+    if ('altKey' in ev) {
+      changed = changed || ev.altKey !== mods.alt
+      mods.alt = !!ev.altKey
+    }
+    if ('shiftKey' in ev) {
+      changed = changed || ev.shiftKey !== mods.shift
+      mods.shift = !!ev.shiftKey
+    }
+    if ('ctrlKey' in ev) {
+      changed = changed || ev.ctrlKey !== mods.control
+      mods.control = !!ev.ctrlKey
+    }
+    if ('metaKey' in ev) {
+      changed = changed || ev.metaKey !== mods.meta
+      mods.meta = !!ev.metaKey
+    }
+    return changed
+  }
+
+  function handleEvent (nextButtons, ev) {
+    var nextX = mouse.x(ev)
+    var nextY = mouse.y(ev)
+    if ('buttons' in ev) {
+      nextButtons = ev.buttons | 0
+    }
+    if (nextButtons !== buttonState ||
+      nextX !== x ||
+      nextY !== y ||
+      updateMods(ev)) {
+      buttonState = nextButtons | 0
+      x = nextX || 0
+      y = nextY || 0
+      callback && callback(buttonState, x, y, mods)
+    }
+  }
+
+  function clearState (ev) {
+    handleEvent(0, ev)
+  }
+
+  function handleBlur () {
+    if (buttonState ||
+      x ||
+      y ||
+      mods.shift ||
+      mods.alt ||
+      mods.meta ||
+      mods.control) {
+      x = y = 0
+      buttonState = 0
+      mods.shift = mods.alt = mods.control = mods.meta = false
+      callback && callback(0, 0, 0, mods)
+    }
+  }
+
+  function handleMods (ev) {
+    if (updateMods(ev)) {
+      callback && callback(buttonState, x, y, mods)
+    }
+  }
+
+  function handleMouseMove (ev) {
+    if (mouse.buttons(ev) === 0) {
+      handleEvent(0, ev)
+    } else {
+      handleEvent(buttonState, ev)
+    }
+  }
+
+  function handleMouseDown (ev) {
+    handleEvent(buttonState | mouse.buttons(ev), ev)
+  }
+
+  function handleMouseUp (ev) {
+    handleEvent(buttonState & ~mouse.buttons(ev), ev)
+  }
+
+  function attachListeners () {
+    if (attached) {
+      return
+    }
+    attached = true
+
+    element.addEventListener('mousemove', handleMouseMove)
+
+    element.addEventListener('mousedown', handleMouseDown)
+
+    element.addEventListener('mouseup', handleMouseUp)
+
+    element.addEventListener('mouseleave', clearState)
+    element.addEventListener('mouseenter', clearState)
+    element.addEventListener('mouseout', clearState)
+    element.addEventListener('mouseover', clearState)
+
+    element.addEventListener('blur', handleBlur)
+
+    element.addEventListener('keyup', handleMods)
+    element.addEventListener('keydown', handleMods)
+    element.addEventListener('keypress', handleMods)
+
+    if (element !== window) {
+      window.addEventListener('blur', handleBlur)
+
+      window.addEventListener('keyup', handleMods)
+      window.addEventListener('keydown', handleMods)
+      window.addEventListener('keypress', handleMods)
+    }
+  }
+
+  function detachListeners () {
+    if (!attached) {
+      return
+    }
+    attached = false
+
+    element.removeEventListener('mousemove', handleMouseMove)
+
+    element.removeEventListener('mousedown', handleMouseDown)
+
+    element.removeEventListener('mouseup', handleMouseUp)
+
+    element.removeEventListener('mouseleave', clearState)
+    element.removeEventListener('mouseenter', clearState)
+    element.removeEventListener('mouseout', clearState)
+    element.removeEventListener('mouseover', clearState)
+
+    element.removeEventListener('blur', handleBlur)
+
+    element.removeEventListener('keyup', handleMods)
+    element.removeEventListener('keydown', handleMods)
+    element.removeEventListener('keypress', handleMods)
+
+    if (element !== window) {
+      window.removeEventListener('blur', handleBlur)
+
+      window.removeEventListener('keyup', handleMods)
+      window.removeEventListener('keydown', handleMods)
+      window.removeEventListener('keypress', handleMods)
+    }
+  }
+
+  // Attach listeners
+  attachListeners()
+
+  var result = {
+    element: element
+  }
+
+  Object.defineProperties(result, {
+    enabled: {
+      get: function () { return attached },
+      set: function (f) {
+        if (f) {
+          attachListeners()
+        } else {
+          detachListeners()
+        }
+      },
+      enumerable: true
+    },
+    buttons: {
+      get: function () { return buttonState },
+      enumerable: true
+    },
+    x: {
+      get: function () { return x },
+      enumerable: true
+    },
+    y: {
+      get: function () { return y },
+      enumerable: true
+    },
+    mods: {
+      get: function () { return mods },
+      enumerable: true
+    }
+  })
+
+  return result
+}
+
+
+/***/ }),
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_stats_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_dat_gui__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Square__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__geometry_Plane__ = __webpack_require__(32);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__rendering_gl_OpenGLRenderer__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Camera__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Square__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__geometry_Plane__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__rendering_gl_OpenGLRenderer__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Camera__ = __webpack_require__(35);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__globals__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__ = __webpack_require__(69);
 
@@ -5997,8 +6209,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-// Define an object with application parameters and button callbacks
-// This will be referred to by dat.GUI's functions that add GUI elements.
+var mouseChange = __webpack_require__(22);
+var clientWidth;
+var clientHeight;
+var lastX = 0;
+var lastY = 0;
 const simresolution = 1000;
 let erosioninterations = 68000;
 let speed = 3;
@@ -6007,6 +6222,10 @@ let start = false;
 let SimFramecnt = 0;
 let TerrainGeometryDirty = true;
 let PauseGeneration = true;
+let HightMapCpuBuf = new Float32Array(simresolution * simresolution * 4);
+;
+let HightMapBufCounter = 0;
+let MaxHightMapBufCounter = 60; // determine how many frame to update CPU buffer of terrain hight map for ray casting on CPU
 const controls = {
     tesselations: 5,
     pipelen: div * 1.0,
@@ -6026,8 +6245,13 @@ const controls = {
     'Pause': Pause,
     TerrainBaseMap: 0,
     TerrainBiomeType: 1,
+    TerrainScale: 4.0,
     TerrainDebug: 0,
     WaterTransparency: 0.50,
+    brushType: 0,
+    brushSize: 2,
+    brushOperation: 0,
+    brushPressed: 0,
 };
 function StartGeneration() {
     PauseGeneration = false;
@@ -6088,6 +6312,11 @@ function Render2Texture(renderer, gl, camera, shader, cur_texture) {
     renderer.clear();
     shader.use();
     renderer.render(camera, shader, [square]);
+    if (cur_texture == read_terrain_tex) {
+        HightMapCpuBuf = new Float32Array(simres * simres * 4);
+        gl.readPixels(0, 0, simres, simres, gl.RGBA, gl.FLOAT, HightMapCpuBuf);
+        console.log(HightMapCpuBuf);
+    }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect, rains, eva, ave) {
@@ -6121,6 +6350,10 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     let raind = gl.getUniformLocation(rains.prog, 'raindeg');
     gl.uniform1f(raind, controls.RainDegree);
     renderer.render(camera, rains, [square]);
+    if (HightMapBufCounter % MaxHightMapBufCounter == 0) {
+        gl.readPixels(0, 0, simres, simres, gl.RGBA, gl.FLOAT, HightMapCpuBuf);
+    }
+    HightMapBufCounter++;
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //swap terrain tex-----------------------------------------------
     let tmp = read_terrain_tex;
@@ -6446,6 +6679,23 @@ function SimulationStep(curstep, flow, waterhight, sediment, advect, rains, evap
     }
     return false;
 }
+function handleInteraction(buttons, x, y) {
+    lastX = x;
+    lastY = y;
+}
+function onKeyDown(event) {
+    if (event.key == 'c') {
+        controls.brushPressed = 1;
+    }
+    else {
+        controls.brushPressed = 0;
+    }
+}
+function onKeyUp(event) {
+    if (event.key == 'c') {
+        controls.brushPressed = 0;
+    }
+}
 function main() {
     // Initial display for framerate
     const stats = __WEBPACK_IMPORTED_MODULE_1_stats_js__();
@@ -6458,16 +6708,30 @@ function main() {
     const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
     // gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
     // gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1,volcanic:2});
-    gui.add(controls, 'Start/Resume');
-    gui.add(controls, 'Pause');
-    gui.add(controls, 'Reset');
-    gui.add(controls, 'WaterTransparency', 0.0, 1.0);
-    gui.add(controls, 'EvaporationDegree', 0.0001, 0.08);
-    gui.add(controls, 'RainDegree', 0.1, 0.9);
-    gui.add(controls, 'Kc', 0.008, 0.04);
-    gui.add(controls, 'Ks', 0.0001, 0.0009);
-    gui.add(controls, 'Kd', 0.0001, 0.0009);
-    gui.add(controls, 'TerrainDebug', { normal: 0, sediment: 1, velocity: 2, terrain: 3, flux: 4 });
+    var simcontrols = gui.addFolder('Simulation Controls');
+    simcontrols.add(controls, 'Start/Resume');
+    simcontrols.add(controls, 'Pause');
+    simcontrols.add(controls, 'Reset');
+    simcontrols.open();
+    var terrainParameters = gui.addFolder('Terrain Parameters');
+    terrainParameters.add(controls, 'TerrainScale', 1.0, 10.0);
+    terrainParameters.open();
+    var erosionpara = gui.addFolder('Erosion Parameters');
+    erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
+    erosionpara.add(controls, 'RainDegree', 0.1, 0.9);
+    erosionpara.add(controls, 'Kc', 0.008, 0.04);
+    erosionpara.add(controls, 'Ks', 0.0001, 0.0009);
+    erosionpara.add(controls, 'Kd', 0.0001, 0.0009);
+    erosionpara.add(controls, 'TerrainDebug', { normal: 0, sediment: 1, velocity: 2, terrain: 3, flux: 4 });
+    erosionpara.open();
+    var terraineditor = gui.addFolder('Terrain Editor');
+    terraineditor.add(controls, 'brushType', { NoBrush: 0, TerrainBrush: 1, WaterBrush: 2 });
+    terraineditor.add(controls, 'brushSize', 1.0, 5.0);
+    terraineditor.add(controls, 'brushOperation', { Add: 0, Subtract: 1 });
+    terraineditor.open();
+    var renderingpara = gui.addFolder('Rendering Parameters');
+    renderingpara.add(controls, 'WaterTransparency', 0.0, 1.0);
+    renderingpara.open();
     // gui.add(controls, 'spawnposx' ,0.0, 1.0);
     // gui.add(controls, 'spawnposy' ,0.0, 1.0);
     //gui.add(controls,'setTerrainRandom');
@@ -6482,6 +6746,11 @@ function main() {
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
     const gl = canvas.getContext('webgl2');
+    clientWidth = canvas.clientWidth;
+    clientHeight = canvas.clientHeight;
+    mouseChange(canvas, handleInteraction);
+    document.addEventListener('keydown', onKeyDown, false);
+    document.addEventListener('keyup', onKeyUp, false);
     if (!gl) {
         alert('WebGL 2 not supported!');
     }
@@ -6564,20 +6833,82 @@ function main() {
         Render2Texture(renderer, gl, camera, clean, write_sediment_tex);
         Render2Texture(renderer, gl, camera, clean, terrain_nor);
     }
+    function rayCast(ro, rd) {
+        let res = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(-10.0, -10.0);
+        let cur = ro;
+        let step = 0.01;
+        for (let i = 0; i < 100; ++i) {
+            let curTexSpace = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues((cur[0] + .50) / 1.0, (cur[2] + .50) / 1.0);
+            let scaledTexSpace = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(curTexSpace[0] * simres, curTexSpace[1] * simres);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].floor(scaledTexSpace, scaledTexSpace);
+            let hvalcoordinate = scaledTexSpace[1] * simres * 4 + scaledTexSpace[0] * 4 + 0;
+            let hval = HightMapCpuBuf[hvalcoordinate];
+            if (cur[1] < hval) {
+                res = curTexSpace;
+                console.log(curTexSpace);
+                break;
+            }
+            let rdscaled = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(rd[0] * step, rd[1] * step, rd[2] * step);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].add(cur, cur, rdscaled);
+        }
+        return res;
+    }
     function tick() {
+        // ================ ray casting ===================
+        //===================================================
+        var screenMouseX = lastX / clientWidth;
+        var screenMouseY = lastY / clientHeight;
+        //console.log(screenMouseX + ' ' + screenMouseY);
+        let viewProj = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
+        let invViewProj = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].invert(invViewProj, viewProj);
+        let mousePoint = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(2.0 * screenMouseX - 1.0, 1.0 - 2.0 * screenMouseY, -1.0, 1.0);
+        let mousePointEnd = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(2.0 * screenMouseX - 1.0, 1.0 - 2.0 * screenMouseY, -0.0, 1.0);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].transformMat4(mousePoint, mousePoint, invViewProj);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].transformMat4(mousePointEnd, mousePointEnd, invViewProj);
+        mousePoint[0] /= mousePoint[3];
+        mousePoint[1] /= mousePoint[3];
+        mousePoint[2] /= mousePoint[3];
+        mousePoint[3] /= mousePoint[3];
+        mousePointEnd[0] /= mousePointEnd[3];
+        mousePointEnd[1] /= mousePointEnd[3];
+        mousePointEnd[2] /= mousePointEnd[3];
+        mousePointEnd[3] /= mousePointEnd[3];
+        let dir = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(mousePointEnd[0] - mousePoint[0], mousePointEnd[1] - mousePoint[1], mousePointEnd[2] - mousePoint[2]);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].normalize(dir, dir);
+        let ro = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(mousePoint[0], mousePoint[1], mousePoint[2]);
+        //==========set initial terrain uniforms=================
         timer++;
         noiseterrain.setTime(timer);
-        rains.setSpawnPos(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(controls.spawnposx, controls.spawnposy));
-        rains.setTime(timer);
-        flat.setTime(timer);
-        lambert.setTerrainDebug(controls.TerrainDebug);
-        water.setWaterTransparency(controls.WaterTransparency);
+        noiseterrain.setTerrainScale(controls.TerrainScale);
         if (TerrainGeometryDirty) {
             cleanUpTextures();
             Render2Texture(renderer, gl, camera, noiseterrain, read_terrain_tex);
             Render2Texture(renderer, gl, camera, noiseterrain, write_terrain_tex);
             TerrainGeometryDirty = false;
         }
+        //ray cast happens here
+        let pos = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(0.0, 0.0);
+        pos = rayCast(ro, dir);
+        //===================per tick uniforms==================
+        rains.setSpawnPos(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(controls.spawnposx, controls.spawnposy));
+        rains.setTime(timer);
+        flat.setTime(timer);
+        lambert.setTerrainDebug(controls.TerrainDebug);
+        water.setWaterTransparency(controls.WaterTransparency);
+        lambert.setMouseWorldPos(mousePoint);
+        lambert.setMouseWorldDir(dir);
+        lambert.setBrushSize(controls.brushSize);
+        lambert.setBrushType(controls.brushType);
+        lambert.setBrushPos(pos);
+        rains.setMouseWorldPos(mousePoint);
+        rains.setMouseWorldDir(dir);
+        rains.setBrushSize(controls.brushSize);
+        rains.setBrushType(controls.brushType);
+        rains.setBrushPressed(controls.brushPressed);
+        rains.setBrushPos(pos);
+        rains.setBrushOperation(controls.brushOperation);
         flow.setPipeLen(controls.pipelen);
         flow.setSimres(simresolution);
         flow.setTimestep(controls.timestep);
@@ -6679,7 +7010,7 @@ main();
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7146,7 +7477,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7662,7 +7993,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8554,7 +8885,7 @@ function equals(a, b) {
 }
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9231,21 +9562,21 @@ var forEach = function () {
 }();
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 !function(e,t){ true?module.exports=t():"function"==typeof define&&define.amd?define(t):e.Stats=t()}(this,function(){"use strict";var c=function(){var n=0,l=document.createElement("div");function e(e){return l.appendChild(e.dom),e}function t(e){for(var t=0;t<l.children.length;t++)l.children[t].style.display=t===e?"block":"none";n=e}l.style.cssText="position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000",l.addEventListener("click",function(e){e.preventDefault(),t(++n%l.children.length)},!1);var i=(performance||Date).now(),a=i,o=0,f=e(new c.Panel("FPS","#0ff","#002")),r=e(new c.Panel("MS","#0f0","#020"));if(self.performance&&self.performance.memory)var d=e(new c.Panel("MB","#f08","#201"));return t(0),{REVISION:16,dom:l,addPanel:e,showPanel:t,begin:function(){i=(performance||Date).now()},end:function(){o++;var e=(performance||Date).now();if(r.update(e-i,200),a+1e3<=e&&(f.update(1e3*o/(e-a),100),a=e,o=0,d)){var t=performance.memory;d.update(t.usedJSHeapSize/1048576,t.jsHeapSizeLimit/1048576)}return e},update:function(){i=this.end()},domElement:l,setMode:t}};return c.Panel=function(n,l,i){var a=1/0,o=0,f=Math.round,r=f(window.devicePixelRatio||1),d=80*r,e=48*r,c=3*r,p=2*r,u=3*r,s=15*r,m=74*r,h=30*r,y=document.createElement("canvas");y.width=d,y.height=e,y.style.cssText="width:80px;height:48px";var v=y.getContext("2d");return v.font="bold "+9*r+"px Helvetica,Arial,sans-serif",v.textBaseline="top",v.fillStyle=i,v.fillRect(0,0,d,e),v.fillStyle=l,v.fillText(n,c,p),v.fillRect(u,s,m,h),v.fillStyle=i,v.globalAlpha=.9,v.fillRect(u,s,m,h),{dom:y,update:function(e,t){a=Math.min(a,e),o=Math.max(o,e),v.fillStyle=i,v.globalAlpha=1,v.fillRect(0,0,d,s),v.fillStyle=l,v.fillText(f(e)+" "+n+" ("+f(a)+"-"+f(o)+")",c,p),v.drawImage(y,u+r,s,m-r,h,u,s,m-r,h),v.fillRect(u+m-r,s,r,h),v.fillStyle=i,v.globalAlpha=.9,v.fillRect(u+m-r,s,r,f((1-e/t)*h))}}},c});
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(29)
-module.exports.color = __webpack_require__(30)
+module.exports = __webpack_require__(30)
+module.exports.color = __webpack_require__(31)
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 /**
@@ -12910,7 +13241,7 @@ dat.dom.dom,
 dat.utils.common);
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports) {
 
 /**
@@ -13670,7 +14001,7 @@ dat.color.toString,
 dat.utils.common);
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13714,7 +14045,7 @@ class Square extends __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__["a" /*
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13793,7 +14124,7 @@ class Plane extends __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__["a" /* 
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13836,12 +14167,12 @@ class OpenGLRenderer {
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
-var CameraControls = __webpack_require__(35);
+var CameraControls = __webpack_require__(36);
 
 class Camera {
     constructor(position, target) {
@@ -13883,7 +14214,7 @@ class Camera {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13891,9 +14222,9 @@ class Camera {
 
 module.exports = createCamera
 
-var now         = __webpack_require__(36)
-var createView  = __webpack_require__(38)
-var mouseChange = __webpack_require__(61)
+var now         = __webpack_require__(37)
+var createView  = __webpack_require__(39)
+var mouseChange = __webpack_require__(22)
 var mouseWheel  = __webpack_require__(63)
 var mouseOffset = __webpack_require__(66)
 var hasPassive  = __webpack_require__(67)
@@ -14126,7 +14457,7 @@ function createCamera(element, options) {
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {module.exports =
@@ -14137,10 +14468,10 @@ function createCamera(element, options) {
     return +new Date
   }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38)))
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 var g;
@@ -14167,7 +14498,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14175,9 +14506,9 @@ module.exports = g;
 
 module.exports = createViewController
 
-var createTurntable = __webpack_require__(39)
-var createOrbit     = __webpack_require__(42)
-var createMatrix    = __webpack_require__(45)
+var createTurntable = __webpack_require__(40)
+var createOrbit     = __webpack_require__(43)
+var createMatrix    = __webpack_require__(46)
 
 function ViewController(controllers, mode) {
   this._controllerNames = Object.keys(controllers)
@@ -14295,7 +14626,7 @@ function createViewController(options) {
 }
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14305,7 +14636,7 @@ module.exports = createTurntableController
 
 var filterVector = __webpack_require__(12)
 var invert44     = __webpack_require__(4)
-var rotateM      = __webpack_require__(41)
+var rotateM      = __webpack_require__(42)
 var cross        = __webpack_require__(14)
 var normalize3   = __webpack_require__(5)
 var dot3         = __webpack_require__(15)
@@ -14873,7 +15204,7 @@ function createTurntableController(options) {
 }
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14918,7 +15249,7 @@ module.exports = cubicHermite
 module.exports.derivative = dcubicHermite
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports) {
 
 module.exports = rotate;
@@ -14987,7 +15318,7 @@ function rotate(out, a, rad, axis) {
 };
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14997,9 +15328,9 @@ module.exports = createOrbitController
 
 var filterVector  = __webpack_require__(12)
 var lookAt        = __webpack_require__(16)
-var mat4FromQuat  = __webpack_require__(43)
+var mat4FromQuat  = __webpack_require__(44)
 var invert44      = __webpack_require__(4)
-var quatFromFrame = __webpack_require__(44)
+var quatFromFrame = __webpack_require__(45)
 
 function len3(x,y,z) {
   return Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2))
@@ -15386,7 +15717,7 @@ function createOrbitController(options) {
 }
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports) {
 
 module.exports = fromQuat;
@@ -15438,7 +15769,7 @@ function fromQuat(out, q) {
 };
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15485,18 +15816,18 @@ function quatFromFrame(
 }
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var bsearch   = __webpack_require__(13)
-var m4interp  = __webpack_require__(46)
+var m4interp  = __webpack_require__(47)
 var invert44  = __webpack_require__(4)
-var rotateX   = __webpack_require__(58)
-var rotateY   = __webpack_require__(59)
-var rotateZ   = __webpack_require__(60)
+var rotateX   = __webpack_require__(59)
+var rotateY   = __webpack_require__(60)
+var rotateZ   = __webpack_require__(61)
 var lookAt    = __webpack_require__(16)
 var translate = __webpack_require__(18)
 var scale     = __webpack_require__(20)
@@ -15690,15 +16021,15 @@ function createMatrixCameraController(options) {
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var lerp = __webpack_require__(47)
+var lerp = __webpack_require__(48)
 
-var recompose = __webpack_require__(48)
-var decompose = __webpack_require__(51)
+var recompose = __webpack_require__(49)
+var decompose = __webpack_require__(52)
 var determinant = __webpack_require__(21)
-var slerp = __webpack_require__(56)
+var slerp = __webpack_require__(57)
 
 var state0 = state()
 var state1 = state()
@@ -15747,7 +16078,7 @@ function vec4() {
 }
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports) {
 
 module.exports = lerp;
@@ -15772,7 +16103,7 @@ function lerp(out, a, b, t) {
 }
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -15789,10 +16120,10 @@ From: http://www.w3.org/TR/css3-transforms/#recomposing-to-a-3d-matrix
 var mat4 = {
     identity: __webpack_require__(17),
     translate: __webpack_require__(18),
-    multiply: __webpack_require__(49),
+    multiply: __webpack_require__(50),
     create: __webpack_require__(19),
     scale: __webpack_require__(20),
-    fromRotationTranslation: __webpack_require__(50)
+    fromRotationTranslation: __webpack_require__(51)
 }
 
 var rotationMatrix = mat4.create()
@@ -15837,7 +16168,7 @@ module.exports = function recomposeMat4(matrix, translation, scale, skew, perspe
 }
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports) {
 
 module.exports = multiply;
@@ -15884,7 +16215,7 @@ function multiply(out, a, b) {
 };
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports) {
 
 module.exports = fromRotationTranslation;
@@ -15942,7 +16273,7 @@ function fromRotationTranslation(out, q, v) {
 };
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*jshint unused:true*/
@@ -15962,15 +16293,15 @@ https://github.com/ChromiumWebApps/chromium/blob/master/ui/gfx/transform_util.cc
 http://www.w3.org/TR/css3-transforms/#decomposing-a-3d-matrix
 */
 
-var normalize = __webpack_require__(52)
+var normalize = __webpack_require__(53)
 
 var create = __webpack_require__(19)
-var clone = __webpack_require__(53)
+var clone = __webpack_require__(54)
 var determinant = __webpack_require__(21)
 var invert = __webpack_require__(4)
-var transpose = __webpack_require__(54)
+var transpose = __webpack_require__(55)
 var vec3 = {
-    length: __webpack_require__(55),
+    length: __webpack_require__(56),
     normalize: __webpack_require__(5),
     dot: __webpack_require__(15),
     cross: __webpack_require__(14)
@@ -16126,7 +16457,7 @@ function combine(out, a, b, scale1, scale2) {
 }
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports) {
 
 module.exports = function normalize(out, mat) {
@@ -16141,7 +16472,7 @@ module.exports = function normalize(out, mat) {
 }
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = clone;
@@ -16174,7 +16505,7 @@ function clone(a) {
 };
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports) {
 
 module.exports = transpose;
@@ -16228,7 +16559,7 @@ function transpose(out, a) {
 };
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports) {
 
 module.exports = length;
@@ -16247,13 +16578,13 @@ function length(a) {
 }
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(57)
+module.exports = __webpack_require__(58)
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports) {
 
 module.exports = slerp
@@ -16310,7 +16641,7 @@ function slerp (out, a, b, t) {
 
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports) {
 
 module.exports = rotateX;
@@ -16359,7 +16690,7 @@ function rotateX(out, a, rad) {
 };
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports) {
 
 module.exports = rotateY;
@@ -16408,7 +16739,7 @@ function rotateY(out, a, rad) {
 };
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports) {
 
 module.exports = rotateZ;
@@ -16455,218 +16786,6 @@ function rotateZ(out, a, rad) {
     out[7] = a13 * c - a03 * s;
     return out;
 };
-
-/***/ }),
-/* 61 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = mouseListen
-
-var mouse = __webpack_require__(62)
-
-function mouseListen (element, callback) {
-  if (!callback) {
-    callback = element
-    element = window
-  }
-
-  var buttonState = 0
-  var x = 0
-  var y = 0
-  var mods = {
-    shift: false,
-    alt: false,
-    control: false,
-    meta: false
-  }
-  var attached = false
-
-  function updateMods (ev) {
-    var changed = false
-    if ('altKey' in ev) {
-      changed = changed || ev.altKey !== mods.alt
-      mods.alt = !!ev.altKey
-    }
-    if ('shiftKey' in ev) {
-      changed = changed || ev.shiftKey !== mods.shift
-      mods.shift = !!ev.shiftKey
-    }
-    if ('ctrlKey' in ev) {
-      changed = changed || ev.ctrlKey !== mods.control
-      mods.control = !!ev.ctrlKey
-    }
-    if ('metaKey' in ev) {
-      changed = changed || ev.metaKey !== mods.meta
-      mods.meta = !!ev.metaKey
-    }
-    return changed
-  }
-
-  function handleEvent (nextButtons, ev) {
-    var nextX = mouse.x(ev)
-    var nextY = mouse.y(ev)
-    if ('buttons' in ev) {
-      nextButtons = ev.buttons | 0
-    }
-    if (nextButtons !== buttonState ||
-      nextX !== x ||
-      nextY !== y ||
-      updateMods(ev)) {
-      buttonState = nextButtons | 0
-      x = nextX || 0
-      y = nextY || 0
-      callback && callback(buttonState, x, y, mods)
-    }
-  }
-
-  function clearState (ev) {
-    handleEvent(0, ev)
-  }
-
-  function handleBlur () {
-    if (buttonState ||
-      x ||
-      y ||
-      mods.shift ||
-      mods.alt ||
-      mods.meta ||
-      mods.control) {
-      x = y = 0
-      buttonState = 0
-      mods.shift = mods.alt = mods.control = mods.meta = false
-      callback && callback(0, 0, 0, mods)
-    }
-  }
-
-  function handleMods (ev) {
-    if (updateMods(ev)) {
-      callback && callback(buttonState, x, y, mods)
-    }
-  }
-
-  function handleMouseMove (ev) {
-    if (mouse.buttons(ev) === 0) {
-      handleEvent(0, ev)
-    } else {
-      handleEvent(buttonState, ev)
-    }
-  }
-
-  function handleMouseDown (ev) {
-    handleEvent(buttonState | mouse.buttons(ev), ev)
-  }
-
-  function handleMouseUp (ev) {
-    handleEvent(buttonState & ~mouse.buttons(ev), ev)
-  }
-
-  function attachListeners () {
-    if (attached) {
-      return
-    }
-    attached = true
-
-    element.addEventListener('mousemove', handleMouseMove)
-
-    element.addEventListener('mousedown', handleMouseDown)
-
-    element.addEventListener('mouseup', handleMouseUp)
-
-    element.addEventListener('mouseleave', clearState)
-    element.addEventListener('mouseenter', clearState)
-    element.addEventListener('mouseout', clearState)
-    element.addEventListener('mouseover', clearState)
-
-    element.addEventListener('blur', handleBlur)
-
-    element.addEventListener('keyup', handleMods)
-    element.addEventListener('keydown', handleMods)
-    element.addEventListener('keypress', handleMods)
-
-    if (element !== window) {
-      window.addEventListener('blur', handleBlur)
-
-      window.addEventListener('keyup', handleMods)
-      window.addEventListener('keydown', handleMods)
-      window.addEventListener('keypress', handleMods)
-    }
-  }
-
-  function detachListeners () {
-    if (!attached) {
-      return
-    }
-    attached = false
-
-    element.removeEventListener('mousemove', handleMouseMove)
-
-    element.removeEventListener('mousedown', handleMouseDown)
-
-    element.removeEventListener('mouseup', handleMouseUp)
-
-    element.removeEventListener('mouseleave', clearState)
-    element.removeEventListener('mouseenter', clearState)
-    element.removeEventListener('mouseout', clearState)
-    element.removeEventListener('mouseover', clearState)
-
-    element.removeEventListener('blur', handleBlur)
-
-    element.removeEventListener('keyup', handleMods)
-    element.removeEventListener('keydown', handleMods)
-    element.removeEventListener('keypress', handleMods)
-
-    if (element !== window) {
-      window.removeEventListener('blur', handleBlur)
-
-      window.removeEventListener('keyup', handleMods)
-      window.removeEventListener('keydown', handleMods)
-      window.removeEventListener('keypress', handleMods)
-    }
-  }
-
-  // Attach listeners
-  attachListeners()
-
-  var result = {
-    element: element
-  }
-
-  Object.defineProperties(result, {
-    enabled: {
-      get: function () { return attached },
-      set: function (f) {
-        if (f) {
-          attachListeners()
-        } else {
-          detachListeners()
-        }
-      },
-      enumerable: true
-    },
-    buttons: {
-      get: function () { return buttonState },
-      enumerable: true
-    },
-    x: {
-      get: function () { return x },
-      enumerable: true
-    },
-    y: {
-      get: function () { return y },
-      enumerable: true
-    },
-    mods: {
-      get: function () { return mods },
-      enumerable: true
-    }
-  })
-
-  return result
-}
-
 
 /***/ }),
 /* 62 */
@@ -16988,6 +17107,8 @@ class ShaderProgram {
         this.unifViewProj = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_ViewProj");
         this.unifPlanePos = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_PlanePos");
         this.unifSpanwPos = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_SpawnPos");
+        this.unifMouseWorldPos = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_MouseWorldPos");
+        this.unifMouseWorldDir = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_MouseWorldDir");
         this.unifSimRes = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_SimRes");
         this.unifPipeLen = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_PipeLen");
         this.unifKs = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Ks");
@@ -17004,6 +17125,12 @@ class ShaderProgram {
         this.unifRndTerrain = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_RndTerrain");
         this.unifTerrainType = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_TerrainType");
         this.unifTerrainDebug = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_TerrainDebug");
+        this.unifTerrainScale = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_TerrainScale");
+        this.unifBrushSize = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_BrushSize");
+        this.unifBrushType = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_BrushType");
+        this.unifBrushOperation = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_BrushOperation");
+        this.unifBrushPressed = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_BrushPressed");
+        this.unifBrusPos = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_BrushPos");
     }
     use() {
         if (activeProgram !== this.prog) {
@@ -17053,16 +17180,64 @@ class ShaderProgram {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifTerrainType, t);
         }
     }
+    setBrushType(t) {
+        this.use();
+        if (this.unifBrushType !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifBrushType, t);
+        }
+    }
+    setBrushSize(t) {
+        this.use();
+        if (this.unifBrushSize !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1f(this.unifBrushSize, t);
+        }
+    }
+    setBrushOperation(t) {
+        this.use();
+        if (this.unifBrushOperation !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifBrushOperation, t);
+        }
+    }
+    setBrushPos(t) {
+        this.use();
+        if (this.unifBrusPos !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform2fv(this.unifBrusPos, t);
+        }
+    }
+    setBrushPressed(t) {
+        this.use();
+        if (this.unifBrushPressed !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifBrushPressed, t);
+        }
+    }
     setTerrainDebug(t) {
         this.use();
         if (this.unifTerrainDebug !== -1) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifTerrainDebug, t);
         }
     }
+    setTerrainScale(t) {
+        this.use();
+        if (this.unifTerrainScale !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1f(this.unifTerrainScale, t);
+        }
+    }
     setSpawnPos(pos) {
         this.use();
         if (this.unifSpanwPos !== -1) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform2fv(this.unifSpanwPos, pos);
+        }
+    }
+    setMouseWorldPos(pos) {
+        this.use();
+        if (this.unifMouseWorldPos !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifMouseWorldPos, pos);
+        }
+    }
+    setMouseWorldDir(dir) {
+        this.use();
+        if (this.unifMouseWorldDir !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform3fv(this.unifMouseWorldDir, dir);
         }
     }
     setRndTerrain(r) {
@@ -17169,7 +17344,7 @@ module.exports = "#version 300 es\r\n\r\n\r\nuniform mat4 u_Model;\r\nuniform ma
 /* 71 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\n\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nuniform sampler2D sedimap;\r\nuniform sampler2D velmap;\r\nuniform sampler2D fluxmap;\r\n\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\n\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 0.001;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n\r\n    vec3 n1 = normalize(vec3(-eps, cur.x - r.x, 0.f));\r\n    vec3 n2 = normalize(vec3(-eps, t.x - r.x, eps));\r\n\r\n    vec3 nor = -cross(n1,n2);\r\n    nor = normalize(nor);\r\n    return nor;\r\n}\r\n\r\nvoid main()\r\n{\r\n\r\n\r\n    vec3 sundir = vec3(1.f,2.f,-1.f);\r\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\r\n    sundir2 = normalize(sundir2);\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 nor1 = -texture(normap,fs_Uv).xyz;\r\n    vec3 nor = -calnor(fs_Uv);\r\n\r\n    float lamb = dot(nor,sundir);\r\n    float lamb2 = dot(nor,sundir2);\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    float sval = texture(sedimap, fs_Uv).x;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n    vec3 forestcol = vec3(0.1,0.6f,0.1f);\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.27,0.3,0.1);\r\n    vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);\r\n    vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n\r\n    if(yval<=0.1){\r\n        finalcol = grass;\r\n    }else if(yval>0.1&&yval<=0.4){\r\n        finalcol = mix(grass,forestcol,(yval-0.1)/0.3);\r\n    }else if(yval>0.4){\r\n        if(yval<0.7f ){\r\n            finalcol = mix(forestcol, mtncolor, (yval-0.4)/0.3);\r\n        }\r\n\r\n\r\n    }\r\n\r\n\r\n    if(abs(nor.y)<0.9){\r\n        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.9);\r\n    }\r\n\r\n    finalcol = mix(finalcol, sand, clamp(sval*130.0, 0.0, 1.0) );\r\n\r\n\r\n    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));\r\n\r\n\r\n    vec3 normal = lamb*(finalcol);\r\n    vec3 fcol = normal;\r\n    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4\r\n    if(u_TerrainDebug == 0){\r\n        fcol = normal;\r\n    }else if(u_TerrainDebug == 1){\r\n        fcol = texture(sedimap,fs_Uv).xyz * 100.0;\r\n    }else if(u_TerrainDebug == 2){\r\n        fcol = texture(velmap,fs_Uv).xyz;\r\n        //fcol = nor1;\r\n        fcol.xy = fcol.xy / 2.0 + vec2(0.5);\r\n    }else if(u_TerrainDebug == 3){\r\n        fcol = texture(hightmap,fs_Uv).xyz;\r\n        fcol.y *= 5.0;\r\n    }else if(u_TerrainDebug == 4){\r\n        fcol = texture(fluxmap,fs_Uv).xyz * 800000.0;\r\n    }\r\n\r\n\r\n    out_Col = vec4(vec3(fcol)*1.0,1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\n\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nuniform sampler2D sedimap;\r\nuniform sampler2D velmap;\r\nuniform sampler2D fluxmap;\r\n\r\n\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\nuniform vec4 u_MouseWorldPos;\r\nuniform vec3 u_MouseWorldDir;\r\nuniform float u_BrushSize;\r\nuniform int u_BrushType;\r\nuniform vec2 u_BrushPos;\r\n\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 0.001;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n\r\n    vec3 n1 = normalize(vec3(-eps, cur.x - r.x, 0.f));\r\n    vec3 n2 = normalize(vec3(-eps, t.x - r.x, eps));\r\n\r\n    vec3 nor = -cross(n1,n2);\r\n    nor = normalize(nor);\r\n    return nor;\r\n}\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n    vec3 forestcol = vec3(0.1,0.6f,0.1f);\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.27,0.3,0.1);\r\n    vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);\r\n    vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);\r\n    vec3 watercol = vec3(0.1,0.3,0.8);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n    vec3 addcol = vec3(0.0);\r\n    if(u_BrushType != 0){\r\n        vec3 ro = u_MouseWorldPos.xyz;\r\n        vec3 rd = u_MouseWorldDir;\r\n        vec2 pointOnPlane = u_BrushPos;\r\n        float pdis2fragment = distance(pointOnPlane, fs_Uv);\r\n        if (pdis2fragment < 0.01 * u_BrushSize){\r\n            float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);\r\n\r\n            if(u_BrushType == 1){\r\n                addcol = sand * 0.8;\r\n            }else if(u_BrushType == 2){\r\n                addcol = watercol * 0.8;\r\n            }\r\n            addcol *= dens;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    vec3 sundir = vec3(1.f,2.f,-1.f);\r\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\r\n    sundir2 = normalize(sundir2);\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 nor1 = -texture(normap,fs_Uv).xyz;\r\n    vec3 nor = -calnor(fs_Uv);\r\n\r\n    float lamb = dot(nor,sundir);\r\n    float lamb2 = dot(nor,sundir2);\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    float sval = texture(sedimap, fs_Uv).x;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n\r\n    if(yval<=0.1){\r\n        finalcol = grass;\r\n    }else if(yval>0.1&&yval<=0.4){\r\n        finalcol = mix(grass,forestcol,(yval-0.1)/0.3);\r\n    }else if(yval>0.4){\r\n        if(yval<0.7f ){\r\n            finalcol = mix(forestcol, mtncolor, (yval-0.4)/0.3);\r\n        }\r\n        else if((yval > 0.7f)){\r\n            finalcol = mtncolor;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    if(abs(nor.y)<0.9){\r\n        finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.9);\r\n    }\r\n\r\n    finalcol = mix(finalcol, sand, clamp(sval*130.0, 0.0, 1.0) );\r\n\r\n\r\n    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));\r\n\r\n\r\n    vec3 normal = lamb*(finalcol);\r\n    vec3 fcol = normal;\r\n    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4\r\n    if(u_TerrainDebug == 0){\r\n        fcol = normal;\r\n    }else if(u_TerrainDebug == 1){\r\n        fcol = texture(sedimap,fs_Uv).xyz * 100.0;\r\n    }else if(u_TerrainDebug == 2){\r\n        fcol = texture(velmap,fs_Uv).xyz;\r\n        //fcol = nor1;\r\n        fcol.xy = fcol.xy / 2.0 + vec2(0.5);\r\n    }else if(u_TerrainDebug == 3){\r\n        fcol = texture(hightmap,fs_Uv).xyz;\r\n        fcol.y *= 5.0;\r\n    }else if(u_TerrainDebug == 4){\r\n        fcol = texture(fluxmap,fs_Uv).xyz * 800000.0;\r\n    }\r\n\r\n\r\n    fcol += addcol;\r\n\r\n    out_Col = vec4(vec3(fcol)*1.0,1.f);\r\n}\r\n"
 
 /***/ }),
 /* 72 */
@@ -17187,7 +17362,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampl
 /* 74 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\nin vec2 fs_Pos;\r\nuniform float u_Time;\r\n\r\nlayout (location = 0) out vec4 initial;\r\nlayout (location = 1) out vec4 initial2;\r\n\r\n//voroni=========================================================================\r\n\r\nvec3 hash3( vec2 p ){\r\n    vec3 q = vec3( dot(p,vec2(127.1,311.7)),\r\n\t\t\t\t   dot(p,vec2(269.5,183.3)),\r\n\t\t\t\t   dot(p,vec2(419.2,371.9)) );\r\n\treturn fract(sin(q)*43758.5453);\r\n}\r\n\r\nfloat iqnoise( in vec2 x, float u, float v ){\r\n    vec2 p = floor(x);\r\n    vec2 f = fract(x);\r\n\r\n\tfloat k = 1.0+63.0*pow(1.0-v,4.0);\r\n\r\n\tfloat va = 0.0;\r\n\tfloat wt = 0.0;\r\n    for( int j=-2; j<=2; j++ )\r\n    for( int i=-2; i<=2; i++ )\r\n    {\r\n        vec2 g = vec2( float(i),float(j) );\r\n\t\tvec3 o = hash3( p + g )*vec3(u,u,1.0);\r\n\t\tvec2 r = g - f + o.xy;\r\n\t\tfloat d = dot(r,r);\r\n\t\tfloat ww = pow( 1.0-smoothstep(0.0,1.414,sqrt(d)), k );\r\n\t\tva += o.z*ww;\r\n\t\twt += ww;\r\n    }\r\n\r\n    return va/wt;\r\n}\r\n//voroni=========================================================================\r\n\r\n\r\n\r\n//smooth========================================================================\r\nvec2 random2(vec2 st){\r\n    st = vec2( dot(st,vec2(127.1,311.7)),\r\n              dot(st,vec2(269.5,183.3)) );\r\n    return -1.0 + 2.0*fract(sin(st)*43758.5453123);\r\n}\r\n\r\n// Value Noise by Inigo Quilez - iq/2013\r\n// https://www.shadertoy.com/view/lsf3WH\r\nfloat noise2(vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    vec2 u = f*f*(3.0-2.0*f);\r\n\r\n    return mix( mix( dot( random2(i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),\r\n                     dot( random2(i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),\r\n                mix( dot( random2(i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),\r\n                     dot( random2(i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);\r\n}\r\n\r\n\r\n//smooth========================================================================\r\n\r\n#define OCTAVES 16\r\n\r\nfloat random (in vec2 st) {\r\n    return fract(sin(dot(st.xy,\r\n                         vec2(12.9898,78.233)))*\r\n        43758.5453123);\r\n}\r\n\r\n\r\nfloat noise (in vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    // Four corners in 2D of a tile\r\n    float a = random(i);\r\n    float b = random(i + vec2(1.0, 0.0));\r\n    float c = random(i + vec2(0.0, 1.0));\r\n    float d = random(i + vec2(1.0, 1.0));\r\n\r\n    vec2 u = f * f * (3.0 - 2.0 * f);\r\n\r\n    return mix(a, b, u.x) +\r\n            (c - a)* u.y * (1.0 - u.x) +\r\n            (d - b) * u.x * u.y;\r\n}\r\n\r\n\r\nfloat fbm (in vec2 st) {\r\n    // Initial values\r\n    float value = 0.0;\r\n    float amplitude = .5;\r\n    float frequency = 0.;\r\n    //\r\n    // Loop of octaves\r\n    for (int i = 0; i < OCTAVES; i++) {\r\n        value += amplitude * noise(st);//iqnoise(st,1.f,1.f);\r\n        st *= 2.0;\r\n        amplitude *= .33;\r\n    }\r\n    return value;\r\n}\r\n\r\nvec4 caculatenor(vec2 pos){\r\n    float eps = 0.01;\r\n    float rh = fbm(vec2(pos.x+eps,pos.y));\r\n    float th = fbm(vec2(pos.x,pos.y+eps));\r\n    float cur = fbm(pos);\r\n    vec3 n = cross(vec3(eps,rh-cur,0.f),vec3(0.f,th-cur,eps));\r\n    n = normalize(n);\r\n    return vec4(n,1.f);\r\n\r\n}\r\n\r\nfloat domainwarp(vec2 p){\r\n    return fbm(p+fbm(p+fbm(p)));\r\n}\r\n\r\nfloat test(vec2 p){\r\n    return abs(cos(length(p - vec2(5.0))));\r\n}\r\n\r\n\r\n//nice one 5.3f*uv+vec2(178.f,27.f);\r\n\r\n// 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);\r\nvoid main() {\r\n\r\n  vec2 rdp1 = vec2(0.2,0.5);\r\n  vec2 rdp2 = vec2(0.1,0.8);\r\n  vec2 uv = 0.5f*fs_Pos+vec2(0.5f);\r\n\r\n\r\n\r\n  vec2 cpos = 2.5 * uv;\r\n  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 52.0,mod(u_Time,100.f)+120.f);\r\n  float terrain_hight = fbm(cpos*2.0) / 4.00;\r\n  float rainfall = .0f;\r\n  //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;\r\n  initial = vec4(terrain_hight,rainfall,0.f,1.f);\r\n  initial2= vec4(terrain_hight,rainfall,0.f,1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\nin vec2 fs_Pos;\r\nuniform float u_Time;\r\nuniform float u_TerrainScale;\r\n\r\nlayout (location = 0) out vec4 initial;\r\nlayout (location = 1) out vec4 initial2;\r\n\r\n//voroni=========================================================================\r\n\r\nvec3 hash3( vec2 p ){\r\n    vec3 q = vec3( dot(p,vec2(127.1,311.7)),\r\n\t\t\t\t   dot(p,vec2(269.5,183.3)),\r\n\t\t\t\t   dot(p,vec2(419.2,371.9)) );\r\n\treturn fract(sin(q)*43758.5453);\r\n}\r\n\r\nfloat iqnoise( in vec2 x, float u, float v ){\r\n    vec2 p = floor(x);\r\n    vec2 f = fract(x);\r\n\r\n\tfloat k = 1.0+63.0*pow(1.0-v,4.0);\r\n\r\n\tfloat va = 0.0;\r\n\tfloat wt = 0.0;\r\n    for( int j=-2; j<=2; j++ )\r\n    for( int i=-2; i<=2; i++ )\r\n    {\r\n        vec2 g = vec2( float(i),float(j) );\r\n\t\tvec3 o = hash3( p + g )*vec3(u,u,1.0);\r\n\t\tvec2 r = g - f + o.xy;\r\n\t\tfloat d = dot(r,r);\r\n\t\tfloat ww = pow( 1.0-smoothstep(0.0,1.414,sqrt(d)), k );\r\n\t\tva += o.z*ww;\r\n\t\twt += ww;\r\n    }\r\n\r\n    return va/wt;\r\n}\r\n//voroni=========================================================================\r\n\r\n\r\n\r\n//smooth========================================================================\r\nvec2 random2(vec2 st){\r\n    st = vec2( dot(st,vec2(127.1,311.7)),\r\n              dot(st,vec2(269.5,183.3)) );\r\n    return -1.0 + 2.0*fract(sin(st)*43758.5453123);\r\n}\r\n\r\n// Value Noise by Inigo Quilez - iq/2013\r\n// https://www.shadertoy.com/view/lsf3WH\r\nfloat noise2(vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    vec2 u = f*f*(3.0-2.0*f);\r\n\r\n    return mix( mix( dot( random2(i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),\r\n                     dot( random2(i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),\r\n                mix( dot( random2(i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),\r\n                     dot( random2(i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);\r\n}\r\n\r\n\r\n//smooth========================================================================\r\n\r\n#define OCTAVES 16\r\n\r\nfloat random (in vec2 st) {\r\n    return fract(sin(dot(st.xy,\r\n                         vec2(12.9898,78.233)))*\r\n        43758.5453123);\r\n}\r\n\r\n\r\nfloat noise (in vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    // Four corners in 2D of a tile\r\n    float a = random(i);\r\n    float b = random(i + vec2(1.0, 0.0));\r\n    float c = random(i + vec2(0.0, 1.0));\r\n    float d = random(i + vec2(1.0, 1.0));\r\n\r\n    vec2 u = f * f * (3.0 - 2.0 * f);\r\n\r\n    return mix(a, b, u.x) +\r\n            (c - a)* u.y * (1.0 - u.x) +\r\n            (d - b) * u.x * u.y;\r\n}\r\n\r\n\r\nfloat fbm (in vec2 st) {\r\n    // Initial values\r\n    float value = 0.0;\r\n    float amplitude = .5;\r\n    float frequency = 0.;\r\n    //\r\n    // Loop of octaves\r\n    for (int i = 0; i < OCTAVES; i++) {\r\n        value += amplitude * noise(st);//iqnoise(st,1.f,1.f);\r\n        st *= 2.0;\r\n        amplitude *= .33;\r\n    }\r\n    return value;\r\n}\r\n\r\nvec4 caculatenor(vec2 pos){\r\n    float eps = 0.01;\r\n    float rh = fbm(vec2(pos.x+eps,pos.y));\r\n    float th = fbm(vec2(pos.x,pos.y+eps));\r\n    float cur = fbm(pos);\r\n    vec3 n = cross(vec3(eps,rh-cur,0.f),vec3(0.f,th-cur,eps));\r\n    n = normalize(n);\r\n    return vec4(n,1.f);\r\n\r\n}\r\n\r\nfloat domainwarp(vec2 p){\r\n    return fbm(p+fbm(p+fbm(p)));\r\n}\r\n\r\nfloat test(vec2 p){\r\n    return abs(cos(length(p - vec2(5.0))));\r\n}\r\n\r\n\r\n//nice one 5.3f*uv+vec2(178.f,27.f);\r\n\r\n// 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);\r\nvoid main() {\r\n\r\n  vec2 rdp1 = vec2(0.2,0.5);\r\n  vec2 rdp2 = vec2(0.1,0.8);\r\n  vec2 uv = 0.5f*fs_Pos+vec2(0.5f);\r\n\r\n\r\n\r\n  vec2 cpos = 0.5 * uv * u_TerrainScale;\r\n  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 52.0,mod(u_Time,100.f)+120.f);\r\n  float terrain_hight = fbm(cpos*2.0) / 4.00;\r\n  float rainfall = .0f;\r\n  //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;\r\n  initial = vec4(terrain_hight,rainfall,0.f,1.f);\r\n  initial2= vec4(terrain_hight,rainfall,0.f,1.f);\r\n}\r\n"
 
 /***/ }),
 /* 75 */
@@ -17217,7 +17392,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampl
 /* 79 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;\r\n\r\nuniform float u_Time;\r\nuniform float raindeg;\r\nuniform vec2 u_SpawnPos;\r\n\r\nlayout (location = 0) out vec4 writeTerrain;\r\n\r\n\r\n//generic noise from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83\r\nfloat mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}\r\nvec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}\r\nvec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}\r\n\r\nfloat noise(vec3 p){\r\n      vec3 a = floor(p);\r\n      vec3 d = p - a;\r\n      d = d * d * (3.0 - 2.0 * d);\r\n\r\n      vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);\r\n      vec4 k1 = perm(b.xyxy);\r\n      vec4 k2 = perm(k1.xyxy + b.zzww);\r\n\r\n      vec4 c = k2 + a.zzzz;\r\n      vec4 k3 = perm(c);\r\n      vec4 k4 = perm(c + 1.0);\r\n\r\n      vec4 o1 = fract(k3 * (1.0 / 41.0));\r\n      vec4 o2 = fract(k4 * (1.0 / 41.0));\r\n\r\n      vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);\r\n      vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);\r\n\r\n      return o4.y * d.y + o4.x * (1.0 - d.y);\r\n}\r\n\r\nfloat random (in vec2 st) {\r\n      return fract(sin(dot(st.xy,\r\n      vec2(12.9898,78.233)))*\r\n      43758.5453123);\r\n}\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nfloat timestep = 0.0001;\r\n\r\n\r\nvoid main() {\r\n\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 cur = texture(readTerrain,curuv);\r\n      float rain = raindeg;\r\n\r\n      float maxx = u_SpawnPos.x+0.05;\r\n      float maxy = u_SpawnPos.y+0.05;\r\n      float minx = u_SpawnPos.x - 0.05;\r\n      float miny = u_SpawnPos.y - 0.05;\r\n\r\n\r\n      float epsilon = 0.000001f;\r\n      float nrain = noise(vec3(curuv * 16000.0, u_Time));\r\n      rain = nrain/18000.0;\r\n      rain += epsilon;\r\n//      if(curuv.x<maxx && curuv.x>minx && curuv.y<maxy&&curuv.y>miny){\r\n//            rain += 0.001;\r\n//      }\r\n//      else{\r\n//            rain = raindeg;\r\n//      }\r\n\r\n\r\n      writeTerrain = vec4(cur.x,cur.y+rain * raindeg,cur.z,cur.w);\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;\r\n\r\nuniform float u_Time;\r\nuniform float raindeg;\r\n\r\nuniform vec4 u_MouseWorldPos;\r\nuniform vec3 u_MouseWorldDir;\r\nuniform float u_BrushSize;\r\nuniform int u_BrushType;\r\nuniform int u_BrushPressed;\r\nuniform vec2 u_BrushPos;\r\nuniform int u_BrushOperation;\r\n\r\nlayout (location = 0) out vec4 writeTerrain;\r\n\r\n\r\n\r\n//generic noise from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83\r\nfloat mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}\r\nvec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}\r\nvec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}\r\n\r\nfloat noise(vec3 p){\r\n      vec3 a = floor(p);\r\n      vec3 d = p - a;\r\n      d = d * d * (3.0 - 2.0 * d);\r\n\r\n      vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);\r\n      vec4 k1 = perm(b.xyxy);\r\n      vec4 k2 = perm(k1.xyxy + b.zzww);\r\n\r\n      vec4 c = k2 + a.zzzz;\r\n      vec4 k3 = perm(c);\r\n      vec4 k4 = perm(c + 1.0);\r\n\r\n      vec4 o1 = fract(k3 * (1.0 / 41.0));\r\n      vec4 o2 = fract(k4 * (1.0 / 41.0));\r\n\r\n      vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);\r\n      vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);\r\n\r\n      return o4.y * d.y + o4.x * (1.0 - d.y);\r\n}\r\n\r\nfloat random (in vec2 st) {\r\n      return fract(sin(dot(st.xy,\r\n      vec2(12.9898,78.233)))*\r\n      43758.5453123);\r\n}\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n\r\nvoid main() {\r\n\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);\r\n      vec3 watercol = vec3(0.1,0.3,0.8);\r\n\r\n\r\n      float addterrain = 0.0;\r\n      float addwater = 0.0;\r\n      float amount = 0.0006;\r\n      if(u_BrushType != 0){\r\n            vec3 ro = u_MouseWorldPos.xyz;\r\n            vec3 rd = u_MouseWorldDir;\r\n            vec2 pointOnPlane = u_BrushPos;\r\n            float pdis2fragment = distance(pointOnPlane, curuv);\r\n            if (pdis2fragment < 0.01 * u_BrushSize){\r\n                  float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);\r\n\r\n                  if(u_BrushType == 1 && u_BrushPressed == 1){\r\n                        addterrain =  amount * dens;\r\n                        addterrain = u_BrushOperation == 0 ? addterrain : -addterrain;\r\n                  }else if(u_BrushType == 2 && u_BrushPressed == 1){\r\n                        addwater =  amount * dens * 10.0;\r\n                        addwater = u_BrushOperation == 0 ? addwater : -addwater;\r\n                  }\r\n\r\n            }\r\n\r\n      }\r\n\r\n\r\n\r\n\r\n      vec4 cur = texture(readTerrain,curuv);\r\n      float rain = raindeg;\r\n\r\n\r\n\r\n      float epsilon = 0.000001f;\r\n      float nrain = noise(vec3(curuv * 16000.0, u_Time));\r\n      rain = nrain/18000.0;\r\n      rain += epsilon;\r\n\r\n\r\n//      if(curuv.x<maxx && curuv.x>minx && curuv.y<maxy&&curuv.y>miny){\r\n//            rain += 0.001;\r\n//      }\r\n//      else{\r\n//            rain = raindeg;\r\n//      }\r\n\r\n\r\n      writeTerrain = vec4(min(max(cur.x + addterrain, -0.10),0.30),max(cur.y+rain * raindeg + addwater, epsilon),cur.z,cur.w);\r\n}"
 
 /***/ }),
 /* 80 */

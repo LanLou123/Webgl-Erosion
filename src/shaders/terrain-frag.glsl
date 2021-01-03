@@ -3,6 +3,7 @@ precision highp float;
 
 uniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane
 
+
 in vec3 fs_Pos;
 in vec4 fs_Nor;
 in vec4 fs_Col;
@@ -14,6 +15,7 @@ uniform sampler2D sedimap;
 uniform sampler2D velmap;
 uniform sampler2D fluxmap;
 
+
 in float fs_Sine;
 in vec2 fs_Uv;
 out vec4 out_Col; // This is the final output color that you will see on your
@@ -22,6 +24,11 @@ uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
 uniform int u_TerrainDebug;
 
+uniform vec4 u_MouseWorldPos;
+uniform vec3 u_MouseWorldDir;
+uniform float u_BrushSize;
+uniform int u_BrushType;
+uniform vec2 u_BrushPos;
 
 
 vec3 calnor(vec2 uv){
@@ -38,8 +45,37 @@ vec3 calnor(vec2 uv){
     return nor;
 }
 
+
+
 void main()
 {
+
+    vec3 forestcol = vec3(0.1,0.6f,0.1f);
+    vec3 mtncolor = vec3(0.99,0.99,0.99);
+    vec3 dirtcol = vec3(0.27,0.3,0.1);
+    vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);
+    vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);
+    vec3 watercol = vec3(0.1,0.3,0.8);
+    vec3 obsidian = vec3(0.2);
+
+    vec3 addcol = vec3(0.0);
+    if(u_BrushType != 0){
+        vec3 ro = u_MouseWorldPos.xyz;
+        vec3 rd = u_MouseWorldDir;
+        vec2 pointOnPlane = u_BrushPos;
+        float pdis2fragment = distance(pointOnPlane, fs_Uv);
+        if (pdis2fragment < 0.01 * u_BrushSize){
+            float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);
+
+            if(u_BrushType == 1){
+                addcol = sand * 0.8;
+            }else if(u_BrushType == 2){
+                addcol = watercol * 0.8;
+            }
+            addcol *= dens;
+        }
+
+    }
 
 
     vec3 sundir = vec3(1.f,2.f,-1.f);
@@ -61,13 +97,6 @@ void main()
 
     vec3 finalcol = vec3(0);
 
-    vec3 forestcol = vec3(0.1,0.6f,0.1f);
-    vec3 mtncolor = vec3(0.99,0.99,0.99);
-    vec3 dirtcol = vec3(0.27,0.3,0.1);
-    vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);
-    vec3 sand = vec3(214.f/255.f,164.f/255.f,96.f/255.f);
-    vec3 obsidian = vec3(0.2);
-
 
     if(yval<=0.1){
         finalcol = grass;
@@ -77,7 +106,9 @@ void main()
         if(yval<0.7f ){
             finalcol = mix(forestcol, mtncolor, (yval-0.4)/0.3);
         }
-
+        else if((yval > 0.7f)){
+            finalcol = mtncolor;
+        }
 
     }
 
@@ -110,6 +141,8 @@ void main()
         fcol = texture(fluxmap,fs_Uv).xyz * 800000.0;
     }
 
+
+    fcol += addcol;
 
     out_Col = vec4(vec3(fcol)*1.0,1.f);
 }

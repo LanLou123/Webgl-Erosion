@@ -32,6 +32,9 @@ class ShaderProgram {
   unifColor: WebGLUniformLocation;
   unifPlanePos: WebGLUniformLocation;
   unifSpanwPos: WebGLUniformLocation;
+  unifMouseWorldPos : WebGLUniformLocation;
+  unifMouseWorldDir : WebGLUniformLocation;
+
 
   unifSimRes : WebGLUniformLocation;
   unifPipeLen : WebGLUniformLocation;
@@ -51,6 +54,13 @@ class ShaderProgram {
   unifRndTerrain : WebGLUniformLocation;
   unifTerrainType : WebGLUniformLocation;
   unifTerrainDebug : WebGLUniformLocation;
+  unifTerrainScale : WebGLUniformLocation;
+
+  unifBrushType : WebGLUniformLocation;
+  unifBrushSize : WebGLUniformLocation;
+  unifBrushOperation : WebGLUniformLocation;
+  unifBrushPressed : WebGLUniformLocation;
+  unifBrusPos : WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -72,6 +82,8 @@ class ShaderProgram {
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifPlanePos   = gl.getUniformLocation(this.prog, "u_PlanePos");
     this.unifSpanwPos = gl.getUniformLocation(this.prog, "u_SpawnPos");
+    this.unifMouseWorldPos =  gl.getUniformLocation(this.prog, "u_MouseWorldPos");
+    this.unifMouseWorldDir = gl.getUniformLocation(this.prog, "u_MouseWorldDir");
 
     this.unifSimRes = gl.getUniformLocation(this.prog, "u_SimRes");
     this.unifPipeLen = gl.getUniformLocation(this.prog, "u_PipeLen");
@@ -92,6 +104,13 @@ class ShaderProgram {
     this.unifRndTerrain = gl.getUniformLocation(this.prog,"u_RndTerrain");
     this.unifTerrainType = gl.getUniformLocation(this.prog,"u_TerrainType");
     this.unifTerrainDebug = gl.getUniformLocation(this.prog,"u_TerrainDebug");
+    this.unifTerrainScale = gl.getUniformLocation(this.prog,"u_TerrainScale");
+
+    this.unifBrushSize = gl.getUniformLocation(this.prog,"u_BrushSize");
+    this.unifBrushType = gl.getUniformLocation(this.prog,"u_BrushType");
+    this.unifBrushOperation = gl.getUniformLocation(this.prog,"u_BrushOperation");
+    this.unifBrushPressed = gl.getUniformLocation(this.prog,"u_BrushPressed");
+    this.unifBrusPos = gl.getUniformLocation(this.prog,"u_BrushPos");
   }
 
   use() {
@@ -150,6 +169,40 @@ class ShaderProgram {
     }
     }
 
+    setBrushType(t :number){
+    this.use();
+    if(this.unifBrushType !== -1){
+      gl.uniform1i(this.unifBrushType,t);
+    }
+    }
+
+    setBrushSize(t:number){
+    this.use();
+    if(this.unifBrushSize !== -1){
+      gl.uniform1f(this.unifBrushSize, t);
+    }
+    }
+
+    setBrushOperation(t :number){
+      this.use();
+      if(this.unifBrushOperation !== -1){
+        gl.uniform1i(this.unifBrushOperation,t);
+      }
+    }
+
+    setBrushPos(t:vec2){
+    this.use();
+    if(this.unifBrusPos !== -1){
+      gl.uniform2fv(this.unifBrusPos, t);
+    }
+    }
+
+  setBrushPressed(t :number){
+    this.use();
+    if(this.unifBrushPressed !== -1){
+      gl.uniform1i(this.unifBrushPressed,t);
+    }
+  }
 
   setTerrainDebug(t:number){
     this.use();
@@ -158,10 +211,31 @@ class ShaderProgram {
     }
   }
 
+  setTerrainScale(t : number){
+    this.use();
+    if(this.unifTerrainScale !== -1){
+      gl.uniform1f(this.unifTerrainScale, t);
+    }
+  }
+
   setSpawnPos(pos: vec2) {
     this.use();
     if (this.unifSpanwPos !== -1) {
       gl.uniform2fv(this.unifSpanwPos, pos);
+    }
+  }
+
+  setMouseWorldPos(pos : vec4){
+    this.use();
+    if(this.unifMouseWorldPos !== -1){
+      gl.uniform4fv(this.unifMouseWorldPos, pos);
+    }
+  }
+
+  setMouseWorldDir(dir : vec3){
+    this.use();
+    if(this.unifMouseWorldDir !== -1){
+      gl.uniform3fv(this.unifMouseWorldDir, dir);
     }
   }
 

@@ -17,8 +17,13 @@
 - use ```Kd``` slider to control Kc (erosion deposition constant)
 - use the dropdown to check the debug views
 - press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
+- press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
 
 ![](screenshot/combine.png)
+
+### Terrain editor support
+
+![](screenshot/editor.PNG)
 
 ### Results after longer period of time
 
