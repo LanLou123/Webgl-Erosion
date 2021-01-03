@@ -1,7 +1,7 @@
 ﻿## Terrain hydraulic erosion simulation in WebGl
 
 
-## [**Youtube Link**](https://www.youtube.com/watch?v=_8y9peDmtwg)
+## [**Youtube Link**](https://www.youtube.com/watch?v=mHNzvRx9i_A)
 
 ## [**DEMO** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
