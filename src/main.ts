@@ -25,7 +25,7 @@ let start = false;
 let SimFramecnt = 0;
 let TerrainGeometryDirty = true;
 let PauseGeneration = true;
-let HightMapCpuBuf = new Float32Array(simresolution * simresolution * 4);;
+let HightMapCpuBuf = new Float32Array(simresolution * simresolution * 4);
 let HightMapBufCounter  = 0;
 let MaxHightMapBufCounter = 60; // determine how many frame to update CPU buffer of terrain hight map for ray casting on CPU
 
@@ -33,7 +33,7 @@ let MaxHightMapBufCounter = 60; // determine how many frame to update CPU buffer
 
 const controls = {
   tesselations: 5,
-    pipelen: div*1.0,//
+    pipelen: div/1.0,//
     Kc : 0.01,
     Ks : 0.0004,
     Kd : 0.0003,
@@ -709,7 +709,7 @@ function main() {
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
     erosionpara.add(controls,'RainDegree', 0.1,0.9);
-    erosionpara.add(controls,'Kc', 0.008,0.04);
+    erosionpara.add(controls,'Kc', 0.002,0.04);
     erosionpara.add(controls,'Ks', 0.0001,0.0009);
     erosionpara.add(controls,'Kd', 0.0001,0.0009);
     erosionpara.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4});

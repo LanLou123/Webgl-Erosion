@@ -51,6 +51,7 @@ void main(){
 
   vec2 veloci = vec2(inputflux.w-outputflux.w+outputflux.y-inputflux.y,inputflux.z-outputflux.z+outputflux.x-inputflux.x)/2.0;
   veloci = veloci/(da * u_PipeLen);
+  if(da * u_PipeLen == 0.0) veloci = vec2(0.0);
 
 
   writeVel = vec4(veloci,0.f,1.f);

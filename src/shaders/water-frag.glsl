@@ -25,8 +25,8 @@ vec3 calnor(vec2 uv){
     vec4 r = texture(hightmap,uv+vec2(eps,0.f));
     vec4 t = texture(hightmap,uv+vec2(0.f,eps));
 
-    vec3 n1 = normalize(vec3(-eps, cur.x - r.x, 0.f));
-    vec3 n2 = normalize(vec3(-eps, t.x - r.x, eps));
+    vec3 n1 = normalize(vec3(-eps, cur.y - r.y, 0.f));
+    vec3 n2 = normalize(vec3(-eps, t.y - r.y, eps));
 
     vec3 nor = -cross(n1,n2);
     nor = normalize(nor);
@@ -42,11 +42,13 @@ void main()
     sundir2 = normalize(sundir2);
     sundir = normalize(sundir);
 
-    vec3 nor = -texture(normap,fs_Uv).xyz;
-    nor = -calnor(fs_Uv);
+    vec3 nor = -calnor(fs_Uv);
+    vec3 viewdir = normalize(u_Eye - fs_Pos);
+    vec3 lightdir = normalize(sundir);
+    vec3 halfway = normalize(lightdir + viewdir);
+    float spec = pow(max(dot(nor, halfway), 0.0), 333.0);
 
-    float lamb = dot(nor,sundir);
-    float lamb2 = dot(nor,sundir2);
+
 
     //lamb =1.f;
 
@@ -54,9 +56,11 @@ void main()
     float wval = texture(hightmap,fs_Uv).y;
     wval *= 400.0;
 
-    wval = wval < 0.3 ? 0.0 : wval - 0.3;
+    wval = wval < 0.1 ? 0.0 : wval - 0.1;
 
     vec3 watercolor = mix(vec3(0.0,0.3,0.8), vec3(0.0,0.0,0.9), pow(wval,0.4));
+    vec3 watercolorspec = vec3(1.0);
+    watercolorspec *= spec;
 
-    out_Col = vec4(watercolor,u_WaterTransparency * wval);
+    out_Col = vec4(watercolor + watercolorspec,u_WaterTransparency * (wval + 0.0));
 }

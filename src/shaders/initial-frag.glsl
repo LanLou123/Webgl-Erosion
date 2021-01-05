@@ -68,7 +68,7 @@ float noise2(vec2 st) {
 
 //smooth========================================================================
 
-#define OCTAVES 16
+#define OCTAVES 26
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
