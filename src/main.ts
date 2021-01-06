@@ -133,7 +133,7 @@ function Render2Texture(renderer:OpenGLRenderer, gl:WebGL2RenderingContext,camer
     if(cur_texture == read_terrain_tex){
         HightMapCpuBuf = new Float32Array(simres * simres * 4);
         gl.readPixels(0,0,simres,simres, gl.RGBA, gl.FLOAT, HightMapCpuBuf);
-        console.log(HightMapCpuBuf);
+        //console.log(HightMapCpuBuf);
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 }
@@ -862,7 +862,7 @@ function main() {
             let hval = HightMapCpuBuf[hvalcoordinate];
             if(cur[1] <  hval){
                 res = curTexSpace;
-                console.log(curTexSpace);
+                //console.log(curTexSpace);
                 break;
 
             }
@@ -879,10 +879,13 @@ function main() {
 
     // ================ ray casting ===================
     //===================================================
+    clientWidth = canvas.clientWidth;
+    clientHeight = canvas.clientHeight;
     var screenMouseX = lastX / clientWidth;
     var screenMouseY = lastY / clientHeight;
     //console.log(screenMouseX + ' ' + screenMouseY);
 
+      //console.log(clientHeight + ' ' + clientWidth);
     let viewProj = mat4.create();
     let invViewProj = mat4.create();
     mat4.multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);

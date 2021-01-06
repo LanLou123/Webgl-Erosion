@@ -4,11 +4,6 @@
     <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/alterwaterhight-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/alterwaterhight-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/average-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/average-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/rain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/rain-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/water-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/water-frag.glsl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +114,7 @@
       <workItem from="1556455864718" duration="46779000" />
       <workItem from="1578525519030" duration="2053000" />
       <workItem from="1608602188335" duration="11655000" />
-      <workItem from="1608677913703" duration="173966000" />
+      <workItem from="1608677913703" duration="180147000" />
     </task>
     <servers />
   </component>
