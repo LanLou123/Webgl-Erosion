@@ -58,6 +58,10 @@ void main()
     vec3 watercol = vec3(0.1,0.3,0.8);
     vec3 obsidian = vec3(0.2);
 
+    vec3 rock1 = vec3(0.4,0.4,0.4);
+    vec3 rock2 = vec3(0.2,0.2,0.2);
+    vec3 rock3 = vec3(0.1,0.1,0.1);
+
     vec3 addcol = vec3(0.0);
     if(u_BrushType != 0){
         vec3 ro = u_MouseWorldPos.xyz;

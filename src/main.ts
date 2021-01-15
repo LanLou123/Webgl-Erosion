@@ -38,7 +38,7 @@ const controls = {
     Ks : 0.0004,
     Kd : 0.0003,
     timestep : 0.001,
-    pipeAra : div*div/1.0,
+    pipeAra : div*div * 1.0,
     EvaporationDegree : 0.02,
     RainDegree : 0.5,
     spawnposx : 0.5,
@@ -86,9 +86,9 @@ let num_simsteps : number;
 function loadScene() {
   square = new Square(vec3.fromValues(0, 0, 0));
   square.create();
-  plane = new Plane(vec3.fromValues(0,0,0), vec2.fromValues(1,1), 22);
+  plane = new Plane(vec3.fromValues(0,0,0), vec2.fromValues(1,1), 18);
   plane.create();
-  waterPlane = new Plane(vec3.fromValues(0,0,0), vec2.fromValues(1,1), 22);
+  waterPlane = new Plane(vec3.fromValues(0,0,0), vec2.fromValues(1,1), 18);
   waterPlane.create();
 }
 
@@ -1031,6 +1031,11 @@ function main() {
     gl.bindTexture(gl.TEXTURE_2D,terrain_nor);
     norUniform = gl.getUniformLocation(water.prog,"normap");
     gl.uniform1i(norUniform,1);
+
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
+    sediUniform = gl.getUniformLocation(water.prog,"sedimap");
+    gl.uniform1i(sediUniform,2);
     renderer.render(camera, water, [
       plane,
     ]);
