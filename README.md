@@ -19,7 +19,7 @@
 - press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
 - press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
 
-![](screenshot/combine.png)
+![](screenshot/thumb.PNG)
 
 ### Terrain editor support
 
