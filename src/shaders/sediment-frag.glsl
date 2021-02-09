@@ -63,6 +63,18 @@ void main() {
   float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo;
 
+  float lmax = 0.0f;
+  float maxdepth = 0.005;
+  if(curTerrain.y > maxdepth){ // max river bed depth
+    lmax = 0.0f;
+  }else{
+    lmax = 1.0 - ((maxdepth - curTerrain.y)/maxdepth);
+  }
+
+
+  //sedicap *= lmax;
+
+
   float cursedi = curSediment.x;
   float hight = curTerrain.x;
   float outsedi = curSediment.x;

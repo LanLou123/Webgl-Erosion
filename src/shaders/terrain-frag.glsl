@@ -121,9 +121,9 @@ void main()
         finalcol = mix(dirtcol,finalcol,(abs(nor.y))/0.9);
     }
 
-   finalcol = obsidian;
+   // finalcol = obsidian;
 
-    finalcol = mix(finalcol, mtncolor, clamp(sval*160.0, 0.0, 1.0) );
+    finalcol = mix(finalcol, sand, clamp(sval*150.0, 0.0, 1.0) );
 
 
     //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));

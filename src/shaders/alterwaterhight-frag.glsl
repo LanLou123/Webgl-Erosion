@@ -45,6 +45,7 @@ void main(){
   float fin = topflux.z+rightflux.w+bottomflux.x+leftflux.y;
 
   float deltavol = u_timestep*(fin-fout)/(u_PipeLen*u_PipeLen);
+
   float d1 = cur.y;
   float d2 = d1 + deltavol;
   float da = (d1 + d2)/2.0f;

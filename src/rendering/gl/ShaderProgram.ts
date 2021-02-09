@@ -55,6 +55,7 @@ class ShaderProgram {
   unifTerrainType : WebGLUniformLocation;
   unifTerrainDebug : WebGLUniformLocation;
   unifTerrainScale : WebGLUniformLocation;
+  unifTerrainHeight : WebGLUniformLocation;
 
   unifBrushType : WebGLUniformLocation;
   unifBrushSize : WebGLUniformLocation;
@@ -105,6 +106,7 @@ class ShaderProgram {
     this.unifTerrainType = gl.getUniformLocation(this.prog,"u_TerrainType");
     this.unifTerrainDebug = gl.getUniformLocation(this.prog,"u_TerrainDebug");
     this.unifTerrainScale = gl.getUniformLocation(this.prog,"u_TerrainScale");
+    this.unifTerrainHeight = gl.getUniformLocation(this.prog,"u_TerrainHeight");
 
     this.unifBrushSize = gl.getUniformLocation(this.prog,"u_BrushSize");
     this.unifBrushType = gl.getUniformLocation(this.prog,"u_BrushType");
@@ -217,6 +219,14 @@ class ShaderProgram {
       gl.uniform1f(this.unifTerrainScale, t);
     }
   }
+
+  setTerrainHeight(t : number){
+    this.use();
+    if(this.unifTerrainHeight !== -1){
+      gl.uniform1f(this.unifTerrainHeight, t);
+    }
+  }
+
 
   setSpawnPos(pos: vec2) {
     this.use();

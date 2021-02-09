@@ -34,7 +34,7 @@ let MaxHightMapBufCounter = 60; // determine how many frame to update CPU buffer
 const controls = {
   tesselations: 5,
     pipelen: div/1.0,//
-    Kc : 0.01,
+    Kc : 0.012,
     Ks : 0.0004,
     Kd : 0.0003,
     timestep : 0.001,
@@ -51,6 +51,7 @@ const controls = {
     TerrainBaseMap : 0,
     TerrainBiomeType : 1,
     TerrainScale : 4.0,
+    TerrainHeight : 1.0,
     TerrainDebug : 0,
     WaterTransparency : 0.50,
     brushType : 0, // 0 : no brush, 1 : terrain, 2 : water
@@ -705,6 +706,7 @@ function main() {
     simcontrols.open();
     var terrainParameters = gui.addFolder('Terrain Parameters');
     terrainParameters.add(controls,'TerrainScale', 1.0, 10.0);
+    terrainParameters.add(controls,'TerrainHeight', 1.0, 2.0);
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
@@ -911,6 +913,7 @@ function main() {
     //==========set initial terrain uniforms=================
     timer++;
     noiseterrain.setTime(timer);
+    noiseterrain.setTerrainHeight(controls.TerrainHeight);
     noiseterrain.setTerrainScale(controls.TerrainScale);
 
 

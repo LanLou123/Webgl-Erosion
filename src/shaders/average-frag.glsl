@@ -14,7 +14,7 @@ in vec2 fs_Pos;
 
 void main() {
 
-    float threathhold = 0.0005f;
+    float threathhold = 0.0004f;
     float div = 1.0/u_SimRes;
     vec2 curuv = 0.5f*fs_Pos+0.5f;
     vec4 cur = texture(readTerrain,curuv);
