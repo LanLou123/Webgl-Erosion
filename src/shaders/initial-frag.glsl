@@ -143,7 +143,7 @@ void main() {
 
 
   vec2 cpos = 0.5 * uv * u_TerrainScale;
-  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 152.0,mod(u_Time,100.f)+120.f);
+  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 2.0,mod(u_Time,100.f)+10.f);
   float terrain_hight = fbm(cpos*2.0) / 4.00;
     terrain_hight *= u_TerrainHeight;
   float rainfall = .0f;

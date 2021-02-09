@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/bundle.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bundle.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/bundle.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bundle.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/alterwaterhight-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/alterwaterhight-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/average-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/average-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/initial-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" afterDir="false" />
-    </list>
+    <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -44,7 +33,7 @@
     <property name="ts.external.directory.path" value="D:\my_erosion\Webgl-Erosion\node_modules\typescript\lib" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
-  <component name="RunManager" selected="npm.start">
+  <component name="RunManager" selected="npm.build">
     <configuration name="Unnamed" type="js.build_tools.npm">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -125,7 +114,7 @@
       <workItem from="1608677913703" duration="193150000" />
       <workItem from="1610669299371" duration="5414000" />
       <workItem from="1612766725532" duration="1800000" />
-      <workItem from="1612769658913" duration="12906000" />
+      <workItem from="1612769658913" duration="13504000" />
     </task>
     <servers />
   </component>
