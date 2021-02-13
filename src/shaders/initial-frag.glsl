@@ -69,7 +69,7 @@ float noise2(vec2 st) {
 
 //smooth========================================================================
 
-#define OCTAVES 26
+#define OCTAVES 12
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -111,25 +111,14 @@ float fbm (in vec2 st) {
     return value;
 }
 
-vec4 caculatenor(vec2 pos){
-    float eps = 0.01;
-    float rh = fbm(vec2(pos.x+eps,pos.y));
-    float th = fbm(vec2(pos.x,pos.y+eps));
-    float cur = fbm(pos);
-    vec3 n = cross(vec3(eps,rh-cur,0.f),vec3(0.f,th-cur,eps));
-    n = normalize(n);
-    return vec4(n,1.f);
-
-}
 
 float domainwarp(vec2 p){
     return fbm(p+fbm(p+fbm(p)));
 }
 
 float test(vec2 p){
-    return abs(cos(length(p - vec2(5.0))));
+    return abs(pow(2.0,-length(p - vec2(0.5))*5.0));
 }
-
 
 //nice one 5.3f*uv+vec2(178.f,27.f);
 
@@ -144,8 +133,9 @@ void main() {
 
   vec2 cpos = 0.5 * uv * u_TerrainScale;
   cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 2.0,mod(u_Time,100.f)+10.f);
-  float terrain_hight = fbm(cpos*2.0) / 4.00;
-    terrain_hight *= u_TerrainHeight;
+  float terrain_hight = pow(fbm(cpos*2.0),3.0) * 1.00;
+    //terrain_hight = test(uv);
+    terrain_hight *= u_TerrainHeight*500.0;
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);

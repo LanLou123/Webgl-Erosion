@@ -9,6 +9,7 @@ uniform float u_timestep;
 
 
 layout (location = 0) out vec4 writeSediment;
+layout (location = 1) out vec4 writeVel;
 
 
 // The fragment shader used to render the background of the scene
@@ -44,17 +45,27 @@ float samplebilinear(vec2 uv, float sampleKernelSize){
 void main() {
  
     vec2 curuv = 0.5f*fs_Pos+0.5f;
-
     float div = 1.f/u_SimRes;
+    float alpha = 1.0;
 
-    vec2 curvel = texture(vel,curuv).xy/20.0;
+    vec2 curvel = (texture(vel,curuv).xy)/u_SimRes;
     vec4 cursedi = texture(sedi,curuv);
+
+    vec4 top = texture(vel,curuv+vec2(0.f,div));
+    vec4 right = texture(vel,curuv+vec2(div,0.f));
+    vec4 bottom = texture(vel,curuv+vec2(0.f,-div));
+    vec4 left = texture(vel,curuv+vec2(-div,0.f));
+    vec4 cur = texture(vel,curuv);
+
+    vec4 newVel = (top + right + bottom + left + alpha * cur)/(4.0 + alpha);
+
 
 
     vec2 oldloc = vec2(curuv.x-curvel.x*u_timestep,curuv.y-curvel.y*u_timestep);
     float oldsedi = texture(sedi, oldloc).x;
-    oldsedi = samplebilinear(oldloc,u_SimRes * 100.0);
+    oldsedi = samplebilinear(oldloc,u_SimRes );
 
 
     writeSediment = vec4(oldsedi, 0.0, 0.0, 1.0);
+    writeVel = newVel;
 }

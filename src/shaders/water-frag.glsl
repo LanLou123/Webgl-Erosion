@@ -17,16 +17,16 @@ uniform vec2 u_Dimensions;
 
 uniform int u_TerrainType;
 uniform float u_WaterTransparency;
-
+uniform float u_SimRes;
 
 vec3 calnor(vec2 uv){
-    float eps = 0.001;
+    float eps = 1.0/u_SimRes;
     vec4 cur = texture(hightmap,uv);
     vec4 r = texture(hightmap,uv+vec2(eps,0.f));
     vec4 t = texture(hightmap,uv+vec2(0.f,eps));
 
-    vec3 n1 = normalize(vec3(-eps, cur.y - r.y, 0.f));
-    vec3 n2 = normalize(vec3(-eps, t.y - r.y, eps));
+    vec3 n1 = normalize(vec3(-1.0, cur.y + cur.x - r.y - r.x, 0.f));
+    vec3 n2 = normalize(vec3(-1.0, t.x + t.y - r.y - r.x, 1.0));
 
     vec3 nor = -cross(n1,n2);
     nor = normalize(nor);
@@ -54,7 +54,7 @@ void main()
 
     float yval = texture(hightmap,fs_Uv).x * 4.0;
     float wval = texture(hightmap,fs_Uv).y;
-    wval *= 400.0;
+    wval *= 3.0;
 
     wval = wval < 0.1 ? 0.0 : wval - 0.1;
 

@@ -75,10 +75,10 @@ void main() {
                   float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);
 
                   if(u_BrushType == 1 && u_BrushPressed == 1){
-                        addterrain =  amount * dens;
+                        addterrain =  amount * 1.0 * 280.0;
                         addterrain = u_BrushOperation == 0 ? addterrain : -addterrain;
                   }else if(u_BrushType == 2 && u_BrushPressed == 1){
-                        addwater =  amount * dens * 10.0;
+                        addwater =  amount * dens * 280.0;
                         addwater = u_BrushOperation == 0 ? addwater : -addwater;
                   }
 
@@ -95,11 +95,14 @@ void main() {
 
 
       float epsilon = 0.000001f;
-      float nrain = noise(vec3(curuv * 116000.0, u_Time));
-      rain = nrain/18000.0;
-      rain += epsilon;
+      float nrain = noise(vec3(curuv * 100.0, u_Time));
+      nrain = 1.0f;
+      rain = nrain/5000.0;
 
 
+
+      rain = 0.0f;
+      epsilon = 0.0f;
 //      if(curuv.x<maxx && curuv.x>minx && curuv.y<maxy&&curuv.y>miny){
 //            rain += 0.001;
 //      }
@@ -108,5 +111,5 @@ void main() {
 //      }
 
 
-      writeTerrain = vec4(min(max(cur.x + addterrain, -0.10),0.30),max(cur.y+rain * raindeg + addwater, epsilon),cur.z,cur.w);
+      writeTerrain = vec4(min(max(cur.x + addterrain, -0.10),2000.30),max(cur.y+rain * raindeg + addwater, epsilon),cur.z,cur.w);
 }

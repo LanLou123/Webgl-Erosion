@@ -17,22 +17,21 @@ var clientHeight : number;
 var lastX = 0;
 var lastY = 0;
 
-const simresolution = 1000;
+const simresolution = 1024;
 let erosioninterations = 68000;
 let speed = 3;
 const div = 1/simresolution;
 let start = false;
 let SimFramecnt = 0;
 let TerrainGeometryDirty = true;
-let PauseGeneration = true;
+let PauseGeneration = false;
 let HightMapCpuBuf = new Float32Array(simresolution * simresolution * 4);
 let HightMapBufCounter  = 0;
 let MaxHightMapBufCounter = 60; // determine how many frame to update CPU buffer of terrain hight map for ray casting on CPU
 
 
-
-const controls = {
-  tesselations: 5,
+const controlscomp = {
+    tesselations: 5,
     pipelen: div/1.0,//
     Kc : 0.012,
     Ks : 0.0004,
@@ -61,6 +60,40 @@ const controls = {
 };
 
 
+const controls = {
+  tesselations: 5,
+    pipelen:  1.0,//
+    Kc : 0.2,
+    Ks : 0.015,
+    Kd : 0.01,
+    timestep : 0.1,
+    pipeAra :  0.02,
+    EvaporationDegree : 0.002,
+    RainDegree : 0.5,
+    spawnposx : 0.5,
+    spawnposy : 0.5,
+    'Load Scene': loadScene, // A function pointer, essentially
+    'Start/Resume' :StartGeneration,
+    'Reset' : Reset,
+    'setTerrainRandom':setTerrainRandom,
+    'Pause' : Pause,
+    TerrainBaseMap : 0,
+    TerrainBiomeType : 1,
+    TerrainScale : 4.0,
+    TerrainHeight : 1.0,
+    TerrainDebug : 0,
+    WaterTransparency : 0.50,
+    brushType : 0, // 0 : no brush, 1 : terrain, 2 : water
+    brushSize : 2,
+    brushOperation : 0, // 0 : add, 1 : subtract
+    brushPressed : 0, // 0 : not pressed, 1 : pressed
+    talusAngleFallOffCoeff : 0.9,
+    talusAngleTangentBias : 0.0,
+    thermalRate : 0.5,
+    thermalErosionScale : 1.0,
+};
+
+
 function StartGeneration(){
     PauseGeneration = false;
 }
@@ -76,6 +109,10 @@ let read_terrain_tex : WebGLTexture;
 let write_terrain_tex : WebGLTexture;
 let read_flux_tex : WebGLTexture;
 let write_flux_tex : WebGLTexture;
+let read_terrain_flux_tex : WebGLTexture;// thermal
+let write_terrain_flux_tex : WebGLTexture;
+let read_maxslippage_tex : WebGLTexture;
+let write_maxslippage_tex : WebGLTexture;
 let read_vel_tex : WebGLTexture;
 let write_vel_tex : WebGLTexture;
 let read_sediment_tex : WebGLTexture;
@@ -100,7 +137,7 @@ function Pause(){
 function Reset(){
     SimFramecnt = 0;
     TerrainGeometryDirty = true;
-    PauseGeneration = true;
+    //PauseGeneration = true;
 }
 
 function setTerrainRandom() {
@@ -150,7 +187,10 @@ function SimulatePerStep(renderer:OpenGLRenderer,
                          advect:ShaderProgram,
                          rains:ShaderProgram,
                          eva:ShaderProgram,
-                         ave:ShaderProgram) {
+                         ave:ShaderProgram,
+                         thermalterrainflux:ShaderProgram,
+                         thermalapply:ShaderProgram,
+                         maxslippageheight:ShaderProgram) {
 
 
     //////////////////////////////////////////////////////////////////
@@ -253,6 +293,11 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     let readfluxUniff = gl.getUniformLocation(shader.prog,"readFlux");
     gl.uniform1i(readfluxUniff,1);
 
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
+    let readsediUniff = gl.getUniformLocation(shader.prog,"readSedi");
+    gl.uniform1i(readsediUniff,2);
+
     renderer.render(camera,shader,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
@@ -309,6 +354,11 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     let readfluxUnifw = gl.getUniformLocation(waterhight.prog,"readFlux");
     gl.uniform1i(readfluxUnifw,1);
 
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
+    let readsediUnifw = gl.getUniformLocation(waterhight.prog,"readSedi");
+    gl.uniform1i(readsediUnifw,2);
+
 
     renderer.render(camera,waterhight,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -325,6 +375,9 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     write_vel_tex = tmp;
 
     //-----swap flux ping and pong and velocity ping pong
+
+
+
 
     //////////////////////////////////////////////////////////////////
     //3---use velocity map, sediment map and hight map to derive sediment map and new hight map :
@@ -401,11 +454,11 @@ function SimulatePerStep(renderer:OpenGLRenderer,
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_sediment_tex,0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,write_vel_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
-    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
 
     status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
@@ -444,11 +497,175 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     read_sediment_tex = write_sediment_tex;
     write_sediment_tex = tmp;
 
+    tmp = read_vel_tex;
+    read_vel_tex = write_vel_tex;
+    write_vel_tex = tmp;
+
     //----------swap sediment map---------
 
     //////////////////////////////////////////////////////////////////
+    // maxslippage map generation
+    // 4.5---use terrain map to derive new maxslippage map :
+    // hight map -----> terrain flux map
+    //////////////////////////////////////////////////////////////////
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
+        simres,simres);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_maxslippage_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
+
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        console.log( "frame buffer status:" + status.toString());
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D,null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER,null);
+
+    gl.viewport(0,0,simres,simres);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+
+
+    renderer.clear();
+    maxslippageheight.use();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
+    let readvelUnifm = gl.getUniformLocation(maxslippageheight.prog,"readTerrain");
+    gl.uniform1i(readvelUnifm,0);
+
+
+
+    renderer.render(camera,maxslippageheight,[square]);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+
+
+    //---------------------------------
+    //swap maxslippage maps
+    tmp = read_maxslippage_tex;
+    read_maxslippage_tex = write_maxslippage_tex;
+    write_maxslippage_tex = tmp;
+    //--------------------------------
+
+
+    //////////////////////////////////////////////////////////////////
+    // thermal terrain flux map generation
+    // 5---use velocity map, sediment map to derive new sediment map :
+    // hight map -----> terrain flux map
+    //////////////////////////////////////////////////////////////////
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
+        simres,simres);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_flux_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
+
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        console.log( "frame buffer status:" + status.toString());
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D,null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER,null);
+
+    gl.viewport(0,0,simres,simres);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+
+
+    renderer.clear();
+    thermalterrainflux.use();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
+    let readvelUnift = gl.getUniformLocation(thermalterrainflux.prog,"readTerrain");
+    gl.uniform1i(readvelUnift,0);
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D,read_maxslippage_tex);
+    let readslippageUnift = gl.getUniformLocation(thermalterrainflux.prog,"readMaxSlippage");
+    gl.uniform1i(readslippageUnift,1);
+
+
+    renderer.render(camera,thermalterrainflux,[square]);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+
+    //---------------------------------
+    //swap terrain flux maps
+    tmp = read_terrain_flux_tex;
+    read_terrain_flux_tex = write_terrain_flux_tex;
+    write_terrain_flux_tex = tmp;
+
+
+    //////////////////////////////////////////////////////////////////
+    // thermal erosion apply
+    // 6---use terrain flux map to derive new terrain map :
+    // terrain flux map -----> terrain map
+    //////////////////////////////////////////////////////////////////
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
+        simres,simres);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
+
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        console.log( "frame buffer status:" + status.toString());
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D,null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER,null);
+
+    gl.viewport(0,0,simres,simres);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
+
+
+    renderer.clear();
+    thermalapply.use();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D,read_terrain_flux_tex);
+    let readvelUnifta = gl.getUniformLocation(thermalapply.prog,"readTerrainFlux");
+    gl.uniform1i(readvelUnifta,0);
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
+    let readterrainUnifta = gl.getUniformLocation(thermalapply.prog,"readTerrain");
+    gl.uniform1i(readterrainUnifta,1);
+
+
+    renderer.render(camera,thermalapply,[square]);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+
+
+    //---------------swap terrain mao----------------------------
+
+    tmp = read_terrain_tex;
+    read_terrain_tex = write_terrain_tex;
+    write_terrain_tex = tmp;
+
+    //////////////////////////////////////////////////////////////////
     // water level evaporation at end of each iteration
-    // 5---use terrain map to derive new terrain map :
+    // 7---use terrain map to derive new terrain map :
     // terrain map -----> terrain map
     //////////////////////////////////////////////////////////////////
 
@@ -586,6 +803,43 @@ function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+    read_terrain_flux_tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,read_terrain_flux_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
+        gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+
+    write_terrain_flux_tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,write_terrain_flux_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
+        gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    read_maxslippage_tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,read_maxslippage_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
+        gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    write_maxslippage_tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,write_maxslippage_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
+        gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
     read_vel_tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D,read_vel_tex);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
@@ -656,12 +910,15 @@ function SimulationStep(curstep:number,
                         rains:ShaderProgram,
                         evapo:ShaderProgram,
                         average:ShaderProgram,
+                        thermalterrainflux:ShaderProgram,
+                        thermalapply:ShaderProgram,
+                        maxslippageheight : ShaderProgram,
                         renderer:OpenGLRenderer, 
                         gl:WebGL2RenderingContext,camera:Camera){
-    if(curstep>num_simsteps||PauseGeneration) return true;
+    if(PauseGeneration) return true;
     else{
         SimulatePerStep(renderer,
-            gl,camera,flow,waterhight,sediment,advect,rains,evapo,average);
+            gl,camera,flow,waterhight,sediment,advect,rains,evapo,average,thermalterrainflux,thermalapply, maxslippageheight);
     }
     return false;
 }
@@ -705,17 +962,23 @@ function main() {
     simcontrols.add(controls,'Reset');
     simcontrols.open();
     var terrainParameters = gui.addFolder('Terrain Parameters');
-    terrainParameters.add(controls,'TerrainScale', 1.0, 10.0);
+    terrainParameters.add(controls,'TerrainScale', 0.1, 10.0);
     terrainParameters.add(controls,'TerrainHeight', 1.0, 2.0);
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
     erosionpara.add(controls,'RainDegree', 0.1,0.9);
-    erosionpara.add(controls,'Kc', 0.002,0.04);
-    erosionpara.add(controls,'Ks', 0.0001,0.0009);
-    erosionpara.add(controls,'Kd', 0.0001,0.0009);
-    erosionpara.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4});
+    erosionpara.add(controls,'Kc', 0.1,1.0);
+    erosionpara.add(controls,'Ks', 0.01,0.1);
+    erosionpara.add(controls,'Kd', 0.01,0.1);
+    erosionpara.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6});
     erosionpara.open();
+    var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
+    thermalerosionpara.add(controls,'talusAngleFallOffCoeff',0.0, 1.0 );
+    thermalerosionpara.add(controls,'talusAngleTangentBias',0.0, 0.01 );
+    thermalerosionpara.add(controls,'thermalRate',0.0, 1.0 );
+    thermalerosionpara.add(controls,'thermalErosionScale',0.0, 10.0 );
+    thermalerosionpara.open();
     var terraineditor = gui.addFolder('Terrain Editor');
     terraineditor.add(controls,'brushType',{NoBrush : 0, TerrainBrush : 1, WaterBrush : 2});
     terraineditor.add(controls,'brushSize',1.0, 5.0);
@@ -751,11 +1014,18 @@ function main() {
     if (!gl) {
     alert('WebGL 2 not supported!');
   }
+    var extensions = gl.getSupportedExtensions();
+    for(let e in extensions){
+        console.log(e);
+    }
   if(!gl.getExtension('OES_texture_float_linear')){
         console.log("float texture not supported");
     }
+  if(!gl.getExtension('OES_texture_float')){
+      console.log("no float texutre!!!?? y am i here?");
+  }
   if(!gl.getExtension('EXT_color_buffer_float')) {
-      console.log("cant render to float texture because ur browser is stupid...");
+      console.log("cant render to float texture ");
   }
   // `setGL` is a function imported above which sets the value of `gl` in the `globals.ts` module.
   // Later, we can import `gl` from `globals.ts` to access it
@@ -833,6 +1103,21 @@ function main() {
         new Shader(gl.FRAGMENT_SHADER, require('./shaders/water-frag.glsl')),
     ]);
 
+    const thermalterrainflux = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/thermalterrainflux-frag.glsl')),
+    ]);
+
+    const thermalapply = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/thermalapply-frag.glsl')),
+    ]);
+
+
+    const maxslippageheight = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/maxslippageheight-frag.glsl')),
+    ]);
 
     noiseterrain.setRndTerrain(controls.TerrainBaseMap);
     noiseterrain.setTerrainType(controls.TerrainBiomeType);
@@ -842,6 +1127,10 @@ function main() {
         Render2Texture(renderer, gl, camera, clean, read_terrain_tex);
         Render2Texture(renderer, gl, camera, clean, read_vel_tex);
         Render2Texture(renderer, gl, camera, clean, read_flux_tex);
+        Render2Texture(renderer, gl, camera, clean, read_terrain_flux_tex);
+        Render2Texture(renderer, gl, camera, clean, write_terrain_flux_tex);
+        Render2Texture(renderer, gl, camera, clean, read_maxslippage_tex);
+        Render2Texture(renderer, gl, camera, clean, write_maxslippage_tex);
         Render2Texture(renderer, gl, camera, clean, read_sediment_tex);
         Render2Texture(renderer, gl, camera, clean, write_terrain_tex);
         Render2Texture(renderer, gl, camera, clean, write_vel_tex);
@@ -862,7 +1151,7 @@ function main() {
             vec2.floor(scaledTexSpace,scaledTexSpace);
             let hvalcoordinate = scaledTexSpace[1] * simres * 4 + scaledTexSpace[0] * 4 + 0;
             let hval = HightMapCpuBuf[hvalcoordinate];
-            if(cur[1] <  hval){
+            if(cur[1] <  hval/1000.0){
                 res = curTexSpace;
                 //console.log(curTexSpace);
                 break;
@@ -937,11 +1226,13 @@ function main() {
     flat.setTime(timer);
     lambert.setTerrainDebug(controls.TerrainDebug);
     water.setWaterTransparency(controls.WaterTransparency);
+    water.setSimres(simresolution);
     lambert.setMouseWorldPos(mousePoint);
     lambert.setMouseWorldDir(dir);
     lambert.setBrushSize(controls.brushSize);
     lambert.setBrushType(controls.brushType);
     lambert.setBrushPos(pos);
+    lambert.setSimres(simresolution);
 
     rains.setMouseWorldPos(mousePoint);
     rains.setMouseWorldDir(dir);
@@ -959,6 +1250,7 @@ function main() {
     waterhight.setPipeLen(controls.pipelen);
     waterhight.setSimres(simresolution);
     waterhight.setTimestep(controls.timestep);
+    waterhight.setPipeArea(controls.pipeAra);
 
     sediment.setSimres(simresolution);
     sediment.setPipeLen(controls.pipelen);
@@ -974,13 +1266,33 @@ function main() {
     sediadvect.setKd(controls.Kd);
     sediadvect.setTimestep(controls.timestep);
 
+    thermalterrainflux.setSimres(simresolution);
+    thermalterrainflux.setPipeLen(controls.pipelen);
+    thermalterrainflux.setTimestep(controls.timestep);
+    thermalterrainflux.setPipeArea(controls.pipeAra);
+    gl.uniform1f(gl.getUniformLocation(thermalterrainflux.prog,"unif_talusAngleFallOffCoeff"),controls.talusAngleFallOffCoeff);
+    gl.uniform1f(gl.getUniformLocation(thermalterrainflux.prog,"unif_talusAngleTangentBias"),controls.talusAngleTangentBias);
+    gl.uniform1f(gl.getUniformLocation(thermalterrainflux.prog,"unif_thermalRate"),controls.thermalRate);
+
+    thermalapply.setSimres(simresolution);
+    thermalapply.setPipeLen(controls.pipelen);
+    thermalapply.setTimestep(controls.timestep);
+    thermalapply.setPipeArea(controls.pipeAra);
+    gl.uniform1f(gl.getUniformLocation(thermalapply.prog,"unif_thermalErosionScale"),controls.thermalErosionScale);
+
+
+    maxslippageheight.setSimres(simresolution);
+    maxslippageheight.setPipeLen(controls.pipelen);
+    maxslippageheight.setTimestep(controls.timestep);
+    maxslippageheight.setPipeArea(controls.pipeAra);
+
     average.setSimres(simresolution);
 
     camera.update();
     stats.begin();
 
     for(let i = 0;i<speed;i++) {
-        SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect,rains,evaporation,average, renderer, gl, camera);
+        SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect,rains,evaporation,average,thermalterrainflux, thermalapply, maxslippageheight, renderer, gl, camera);
         SimFramecnt++;
     }
 
@@ -1017,7 +1329,18 @@ function main() {
     let fluxUniform = gl.getUniformLocation(lambert.prog, "fluxmap");
     gl.uniform1i(fluxUniform, 4);
 
-    renderer.render(camera, lambert, [
+    gl.activeTexture(gl.TEXTURE5);
+    gl.bindTexture(gl.TEXTURE_2D, read_terrain_flux_tex);
+    let terrainfluxUniform = gl.getUniformLocation(lambert.prog, "terrainfluxmap");
+    gl.uniform1i(terrainfluxUniform, 5);
+
+    gl.activeTexture(gl.TEXTURE6);
+    gl.bindTexture(gl.TEXTURE_2D, read_maxslippage_tex);
+    let terrainslippageUniform = gl.getUniformLocation(lambert.prog, "maxslippagemap");
+    gl.uniform1i(terrainslippageUniform, 6);
+
+
+      renderer.render(camera, lambert, [
       plane,
     ]);
 

@@ -29,7 +29,7 @@ void main()
   float sval = 1.f*texture(sedimap,vs_Uv).x;
   float yval = 1.f*texture(hightmap,vs_Uv).x;
   float wval = 1.f*texture(hightmap,vs_Uv).y;
-  vec4 modelposition = vec4(vs_Pos.x, yval + sval + wval, vs_Pos.z, 1.0);
+  vec4 modelposition = vec4(vs_Pos.x, (yval + sval + wval)/1000.0, vs_Pos.z, 1.0);
   fs_Pos = modelposition.xyz;
 
 
