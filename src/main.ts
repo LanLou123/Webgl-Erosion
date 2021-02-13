@@ -65,9 +65,9 @@ const controls = {
     pipelen:  1.0,//
     Kc : 0.2,
     Ks : 0.025,
-    Kd : 0.006,
+    Kd : 0.002,
     timestep : 0.1,
-    pipeAra :  0.06,
+    pipeAra :  0.008,
     EvaporationDegree : 0.0001,
     RainDegree : 0.5,
     spawnposx : 0.5,
@@ -83,9 +83,9 @@ const controls = {
     TerrainHeight : 1.0,
     TerrainDebug : 0,
     WaterTransparency : 0.50,
-    brushType : 0, // 0 : no brush, 1 : terrain, 2 : water
+    brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 2,
-    brushStrenth : 1,
+    brushStrenth : 0.3,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     talusAngleFallOffCoeff : 0.9,
@@ -208,6 +208,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
 
@@ -266,6 +267,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_flux_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
 
@@ -326,6 +328,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,write_vel_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
     gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1]);
@@ -381,8 +384,8 @@ function SimulatePerStep(renderer:OpenGLRenderer,
 
 
     //////////////////////////////////////////////////////////////////
-    //3---use velocity map, sediment map and hight map to derive sediment map and new hight map :
-    // hight map + velocity map + sediment map -----> sediment map + hight map + terrain normal map
+    //3---use velocity map, sediment map and hight map to derive sediment map and new hight map and velocity map :
+    // hight map + velocity map + sediment map -----> sediment map + hight map + terrain normal map + velocity map
     //////////////////////////////////////////////////////////////////
 
     gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
@@ -393,9 +396,10 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,write_sediment_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,terrain_nor,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,write_vel_tex,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
-    gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1,gl.COLOR_ATTACHMENT2]);
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1,gl.COLOR_ATTACHMENT2, gl.COLOR_ATTACHMENT3]);
 
     status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
@@ -441,6 +445,10 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     read_terrain_tex = write_terrain_tex;
     write_terrain_tex = tmp;
 
+    tmp = read_vel_tex;
+    read_vel_tex = write_vel_tex;
+    write_vel_tex = tmp;
+
     //----------swap terrain and sediment map---------
 
     //////////////////////////////////////////////////////////////////
@@ -457,6 +465,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_sediment_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,write_vel_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
     gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
@@ -518,6 +527,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_maxslippage_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
@@ -570,6 +580,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_flux_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
@@ -624,6 +635,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
@@ -678,6 +690,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
@@ -730,6 +743,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,null,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,null,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
 
     gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
@@ -968,7 +982,7 @@ function main() {
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
-    erosionpara.add(controls,'RainDegree', 0.1,0.9);
+    erosionpara.add(controls,'RainDegree', 0.1,5.0);
     erosionpara.add(controls,'Kc', 0.1,1.0);
     erosionpara.add(controls,'Ks', 0.001,0.1);
     erosionpara.add(controls,'Kd', 0.001,0.1);
@@ -982,7 +996,7 @@ function main() {
     thermalerosionpara.open();
     var terraineditor = gui.addFolder('Terrain Editor');
     terraineditor.add(controls,'brushType',{NoBrush : 0, TerrainBrush : 1, WaterBrush : 2});
-    terraineditor.add(controls,'brushSize',1.0, 5.0);
+    terraineditor.add(controls,'brushSize',0.1, 5.0);
     terraineditor.add(controls,'brushStrenth',0.1,2.0);
     terraineditor.add(controls,'brushOperation', {Add : 0, Subtract : 1});
     terraineditor.open();

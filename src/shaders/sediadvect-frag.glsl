@@ -48,16 +48,23 @@ void main() {
     float div = 1.f/u_SimRes;
     float alpha = 1.0;
 
-    vec2 curvel = (texture(vel,curuv).xy)/u_SimRes;
+    vec4 curvel = (texture(vel,curuv))/u_SimRes;
     vec4 cursedi = texture(sedi,curuv);
 
-    vec4 top = texture(vel,curuv+vec2(0.f,div));
-    vec4 right = texture(vel,curuv+vec2(div,0.f));
-    vec4 bottom = texture(vel,curuv+vec2(0.f,-div));
-    vec4 left = texture(vel,curuv+vec2(-div,0.f));
-    vec4 cur = texture(vel,curuv);
 
-    vec4 newVel = (top + right + bottom + left + alpha * cur)/(4.0 + alpha);
+//    vec4 top = texture(vel,curuv+vec2(0.f,div));
+//    vec4 right = texture(vel,curuv+vec2(div,0.f));
+//    vec4 bottom = texture(vel,curuv+vec2(0.f,-div));
+//    vec4 left = texture(vel,curuv+vec2(-div,0.f));
+//    vec4 cur = texture(vel,curuv);
+//
+//    float sumlen = length(top) + length(right) + length(bottom) + length(left);
+//
+//    if(length(cur) > (sumlen/4.0)){ // make sure velocity are not too large
+//        cur *= (sumlen/4.0) / length(cur);
+//    }
+//
+//    vec4 newVel = (top + right + bottom + left + alpha * cur)/(4.0 + alpha);
 
 
 
@@ -67,5 +74,5 @@ void main() {
 
 
     writeSediment = vec4(oldsedi, 0.0, 0.0, 1.0);
-    writeVel = newVel;
+    writeVel = curvel*u_SimRes;
 }

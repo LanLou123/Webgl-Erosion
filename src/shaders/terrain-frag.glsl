@@ -139,14 +139,14 @@ void main()
     }else if(u_TerrainDebug == 1){
         fcol = texture(sedimap,fs_Uv).xyz * 2.0;
     }else if(u_TerrainDebug == 2){
-        fcol = abs(texture(velmap,fs_Uv).xyz/10.0);
+        fcol = abs(texture(velmap,fs_Uv).xyz/2.0);
         //fcol = nor1;
         //fcol.xy = fcol.xy / 2.0 + vec2(0.5);
     }else if(u_TerrainDebug == 3){
         fcol = texture(hightmap,fs_Uv).xyz;
-        fcol.y *= 5.0;
+        fcol.xy /= 200.0;
     }else if(u_TerrainDebug == 4){
-        fcol = texture(fluxmap,fs_Uv).xyz / 13.0;
+        fcol = texture(fluxmap,fs_Uv).xyz / 3.0;
     }else if(u_TerrainDebug == 5){
         fcol = texture(terrainfluxmap, fs_Uv).xyz * 10.0;
     }else if(u_TerrainDebug == 6){

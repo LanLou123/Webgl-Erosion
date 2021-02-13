@@ -8,6 +8,7 @@ uniform vec2 u_PlanePos; // Our location in the virtual world displayed by the p
 
 uniform sampler2D hightmap;
 uniform sampler2D sedimap;
+uniform float u_SimRes;
 
 in vec4 vs_Pos;
 in vec4 vs_Nor;
@@ -29,7 +30,7 @@ void main()
   float sval = 1.f*texture(sedimap,vs_Uv).x;
   float yval = 1.f*texture(hightmap,vs_Uv).x;
   float wval = 1.f*texture(hightmap,vs_Uv).y;
-  vec4 modelposition = vec4(vs_Pos.x, (yval + sval)/1000.0 , vs_Pos.z, 1.0);
+  vec4 modelposition = vec4(vs_Pos.x, (yval )/u_SimRes , vs_Pos.z, 1.0);
   fs_Pos = modelposition.xyz;
 
 

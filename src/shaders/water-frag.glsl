@@ -54,11 +54,11 @@ void main()
 
     float yval = texture(hightmap,fs_Uv).x * 4.0;
     float wval = texture(hightmap,fs_Uv).y;
-    wval *= 3.0;
+    wval /= 1.0;
 
-    wval = wval < 0.1 ? 0.0 : wval - 0.1;
 
-    vec3 watercolor = mix(vec3(0.0,0.3,0.8), vec3(0.0,0.0,0.9), pow(wval,0.4));
+
+    vec3 watercolor = mix(vec3(0.0,0.6,0.8), vec3(0.0,0.0,0.8), pow(wval,1.0));
     vec3 watercolorspec = vec3(1.0);
     watercolorspec *= spec;
 

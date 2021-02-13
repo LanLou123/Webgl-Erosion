@@ -96,9 +96,9 @@ void main() {
 
 
       float epsilon = 0.000001f;
-      float nrain = noise(vec3(curuv * 1.0, u_Time));
+      float nrain = noise(vec3(curuv * 10000.0, u_Time));
       //nrain = 1.0f;
-      rain = nrain/5000.0;
+      rain = nrain/1500.0;
 
 
 

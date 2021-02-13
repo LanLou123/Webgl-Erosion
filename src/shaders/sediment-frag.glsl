@@ -15,8 +15,7 @@ uniform float u_timestep;
 layout (location = 0) out vec4 writeTerrain;
 layout (location = 1) out vec4 writeSediment;
 layout (location = 2) out vec4 writeTerrainNormal;
-
-
+layout (location = 3) out vec4 writeVelocity;
 
 
 
@@ -45,6 +44,7 @@ void main() {
   float Kc = u_Kc;
   float Ks = u_Ks;
   float Kd = u_Kd;
+  float alpha = 1.0;
 
 
   vec4 top = texture(readSediment,curuv+vec2(0.f,div));
@@ -52,8 +52,26 @@ void main() {
   vec4 bottom = texture(readSediment,curuv+vec2(0.f,-div));
   vec4 left = texture(readSediment,curuv+vec2(-div,0.f));
 
+  vec3 nor = calnor(curuv);
+  float slopeSin = abs(sqrt(1.0 - nor.y*nor.y));
+
+  vec4 topvel = texture(readVelocity,curuv+vec2(0.f,div));
+  vec4 rightvel = texture(readVelocity,curuv+vec2(div,0.f));
+  vec4 bottomvel = texture(readVelocity,curuv+vec2(0.f,-div));
+  vec4 leftvel = texture(readVelocity,curuv+vec2(-div,0.f));
+  vec4 curvel = texture(readVelocity,curuv);
+
+  float sumlen = length(topvel) + length(rightvel) + length(bottomvel) + length(leftvel);
 
 
+//  if(length(curvel) > (sumlen/4.0)){ // make sure velocity are not too large
+//      curvel *= (sumlen/4.0) / length(curvel);
+//  }
+
+  vec4 newVel = (topvel + rightvel + bottomvel + leftvel + alpha * curvel)/(4.0 + alpha);
+
+  newVel = mix(newVel,curvel,slopeSin);
+  newVel = curvel;
 
   vec4 curSediment = texture(readSediment,curuv);
   vec4 curTerrain = texture(readTerrain,curuv);
@@ -74,18 +92,16 @@ void main() {
 //
 //  vec3 nor = normalize(cross(dx,dy));
 
-  vec3 nor = calnor(curuv);
-  float slopeSin = abs(sqrt(1.0 - nor.y*nor.y));
+
 
 
   float velo = length(texture(readVelocity,curuv).xy);
-  float veloepsilon = 0.00f;
-  velo = max(veloepsilon, velo);
+  velo = length(newVel.xy);
   float slope = max(0.00001f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo;//*curTerrain.y*100.0;
 
   float lmax = 0.0f;
-  float maxdepth = 0.005;
+  float maxdepth = 0.1;
   if(curTerrain.y > maxdepth){ // max river bed depth
     lmax = 0.0f;
   }else{
@@ -120,5 +136,5 @@ void main() {
   writeTerrainNormal = vec4(nor,1.f);
   writeSediment = vec4(outsedi,0.0f,0.0f,1.0f);
   writeTerrain = vec4(hight,curTerrain.y,curTerrain.z,curTerrain.w);
-
+  writeVelocity = newVel;
 }

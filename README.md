@@ -19,7 +19,15 @@
 - press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
 - press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
 
+### some screenshots
+
+#### Maintain and swamp scene
+
 ![](screenshot/mountainandswamp.PNG)
+
+#### Multiple rivers Forming scene
+
+![](screenshot/riverforming.PNG)
 
 ![](screenshot/thumb.PNG)
 
@@ -27,31 +35,28 @@
 
 ![](screenshot/editor.PNG)
 
-### Results after longer period of time
-
-![](screenshot/long.PNG)
 
 ## Debug view images
 
 ### Sediment map
 
-- ![](screenshot/esediment.PNG)
+- ![](screenshot/placeholder.PNG)
 
 ### Velocity map
 
-- ![](screenshot/evel.PNG)
+- ![](screenshot/placeholder.PNG)
 
 ### Water coverage map
 
-- ![](screenshot/ewater.PNG)
+- ![](screenshot/placeholder.PNG)
 
 ### Flux map
 
-- ![](screenshot/eflux.PNG)
+- ![](screenshot/placeholder.PNG)
 
-### Delta like features on near flat terrain
 
-- ![](screenshot/delta.PNG)
+
+
 
 
 ### Base terrain generation:
