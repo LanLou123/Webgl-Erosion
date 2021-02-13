@@ -59,6 +59,7 @@ class ShaderProgram {
 
   unifBrushType : WebGLUniformLocation;
   unifBrushSize : WebGLUniformLocation;
+  unifBrushStrength : WebGLUniformLocation;
   unifBrushOperation : WebGLUniformLocation;
   unifBrushPressed : WebGLUniformLocation;
   unifBrusPos : WebGLUniformLocation;
@@ -110,6 +111,7 @@ class ShaderProgram {
 
     this.unifBrushSize = gl.getUniformLocation(this.prog,"u_BrushSize");
     this.unifBrushType = gl.getUniformLocation(this.prog,"u_BrushType");
+    this.unifBrushStrength = gl.getUniformLocation(this.prog,"u_BrushStrength");
     this.unifBrushOperation = gl.getUniformLocation(this.prog,"u_BrushOperation");
     this.unifBrushPressed = gl.getUniformLocation(this.prog,"u_BrushPressed");
     this.unifBrusPos = gl.getUniformLocation(this.prog,"u_BrushPos");
@@ -184,6 +186,13 @@ class ShaderProgram {
       gl.uniform1f(this.unifBrushSize, t);
     }
     }
+
+  setBrushStrength(t:number){
+    this.use();
+    if(this.unifBrushStrength !== -1){
+      gl.uniform1f(this.unifBrushStrength, t);
+    }
+  }
 
     setBrushOperation(t :number){
       this.use();

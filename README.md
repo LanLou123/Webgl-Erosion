@@ -1,7 +1,7 @@
 ﻿## Terrain hydraulic erosion simulation in WebGl
 
 
-## [**Youtube Link**](https://www.youtube.com/watch?v=mHNzvRx9i_A)
+## [**Youtube Link**](https://www.youtube.com/watch?v=Vt40p8syB6w&t=2s)
 
 ## [**DEMO** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
@@ -18,6 +18,8 @@
 - use the dropdown to check the debug views
 - press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
 - press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
+
+![](screenshot/mountainandswamp.PNG)
 
 ![](screenshot/thumb.PNG)
 

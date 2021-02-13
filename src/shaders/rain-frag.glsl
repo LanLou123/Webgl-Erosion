@@ -9,6 +9,7 @@ uniform float raindeg;
 uniform vec4 u_MouseWorldPos;
 uniform vec3 u_MouseWorldDir;
 uniform float u_BrushSize;
+uniform float u_BrushStrength;
 uniform int u_BrushType;
 uniform int u_BrushPressed;
 uniform vec2 u_BrushPos;
@@ -65,7 +66,7 @@ void main() {
 
       float addterrain = 0.0;
       float addwater = 0.0;
-      float amount = 0.0006;
+      float amount = 0.0006 * u_BrushStrength;
       if(u_BrushType != 0){
             vec3 ro = u_MouseWorldPos.xyz;
             vec3 rd = u_MouseWorldDir;
@@ -95,8 +96,8 @@ void main() {
 
 
       float epsilon = 0.000001f;
-      float nrain = noise(vec3(curuv * 100.0, u_Time));
-      nrain = 1.0f;
+      float nrain = noise(vec3(curuv * 1.0, u_Time));
+      //nrain = 1.0f;
       rain = nrain/5000.0;
 
 

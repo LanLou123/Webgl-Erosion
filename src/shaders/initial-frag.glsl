@@ -111,6 +111,13 @@ float fbm (in vec2 st) {
     return value;
 }
 
+float teR(float h) {
+    float W = 0.1; // width of terracing bands
+    float k = floor(h / W);
+    float f = (h - k*W) / W;
+    float s = min(2.0 * f, 1.0);
+    return (k+s) * W;
+}
 
 float domainwarp(vec2 p){
     return fbm(p+fbm(p+fbm(p)));
@@ -133,8 +140,9 @@ void main() {
 
   vec2 cpos = 0.5 * uv * u_TerrainScale;
   cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 2.0,mod(u_Time,100.f)+10.f);
-  float terrain_hight = pow(fbm(cpos*2.0),3.0) * 1.00;
-    //terrain_hight = test(uv);
+  float terrain_hight = fbm(cpos*2.0);
+    terrain_hight = teR(terrain_hight);
+    terrain_hight = pow(terrain_hight,3.0);
     terrain_hight *= u_TerrainHeight*500.0;
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;

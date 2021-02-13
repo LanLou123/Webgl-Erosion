@@ -25,6 +25,7 @@ void main(){
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float div = 1.f/u_SimRes;
   float pipelen = u_PipeLen;
+  float damping = 0.99999;
 
   vec4 topflux = texture(readFlux,curuv+vec2(0.f,div));
   vec4 rightflux = texture(readFlux,curuv+vec2(div,0.f));
@@ -63,7 +64,7 @@ void main(){
 
   //veloci *= 100000.0;
     if(da <= 1e-5) {
-      //veloci = vec2(0.0);
+      veloci = vec2(0.0);
     }else{
       veloci = veloci/(da * u_PipeLen);
     }
@@ -72,6 +73,9 @@ void main(){
   if(curuv.x>=1.f - 2.0 *div) {deltavol = 0.f; veloci.x = 0.0;}
   if(curuv.y<=div) {deltavol = 0.f;veloci.y = 0.0;}
   if(curuv.y>=1.f - 2.0 * div) {deltavol = 0.f;veloci.y = 0.0;}
+
+
+  veloci *= damping;
 
   writeVel = vec4(veloci,0.f,1.f);
   writeTerrain = vec4(cur.x,max(cur.y+deltavol, 0.0),cur.z,cur.w);

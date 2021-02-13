@@ -79,10 +79,10 @@ void main() {
   fleftout *= k;
 
   //boundary conditions
-  if(curuv.x<=0.f) fleftout = 0.f;
-  if(curuv.x>=1.f) frightout = 0.f;
-  if(curuv.y<=0.f) ftopout = 0.f;
-  if(curuv.y>=1.f) fbottomout = 0.f;
+  if(curuv.x<=div) fleftout = 0.f;
+  if(curuv.x>=1.f - 2.0 * div) frightout = 0.f;
+  if(curuv.y<=div) ftopout = 0.f;
+  if(curuv.y>=1.f - 2.0 * div) fbottomout = 0.f;
 
 
 

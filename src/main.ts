@@ -49,7 +49,7 @@ const controlscomp = {
     'Pause' : Pause,
     TerrainBaseMap : 0,
     TerrainBiomeType : 1,
-    TerrainScale : 4.0,
+    TerrainScale : 0.1,
     TerrainHeight : 1.0,
     TerrainDebug : 0,
     WaterTransparency : 0.50,
@@ -64,11 +64,11 @@ const controls = {
   tesselations: 5,
     pipelen:  1.0,//
     Kc : 0.2,
-    Ks : 0.015,
-    Kd : 0.01,
+    Ks : 0.025,
+    Kd : 0.006,
     timestep : 0.1,
-    pipeAra :  0.02,
-    EvaporationDegree : 0.002,
+    pipeAra :  0.06,
+    EvaporationDegree : 0.0001,
     RainDegree : 0.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
@@ -79,12 +79,13 @@ const controls = {
     'Pause' : Pause,
     TerrainBaseMap : 0,
     TerrainBiomeType : 1,
-    TerrainScale : 4.0,
+    TerrainScale : 1.0,
     TerrainHeight : 1.0,
     TerrainDebug : 0,
     WaterTransparency : 0.50,
     brushType : 0, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 2,
+    brushStrenth : 1,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     talusAngleFallOffCoeff : 0.9,
@@ -969,8 +970,8 @@ function main() {
     erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
     erosionpara.add(controls,'RainDegree', 0.1,0.9);
     erosionpara.add(controls,'Kc', 0.1,1.0);
-    erosionpara.add(controls,'Ks', 0.01,0.1);
-    erosionpara.add(controls,'Kd', 0.01,0.1);
+    erosionpara.add(controls,'Ks', 0.001,0.1);
+    erosionpara.add(controls,'Kd', 0.001,0.1);
     erosionpara.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6});
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
@@ -982,6 +983,7 @@ function main() {
     var terraineditor = gui.addFolder('Terrain Editor');
     terraineditor.add(controls,'brushType',{NoBrush : 0, TerrainBrush : 1, WaterBrush : 2});
     terraineditor.add(controls,'brushSize',1.0, 5.0);
+    terraineditor.add(controls,'brushStrenth',0.1,2.0);
     terraineditor.add(controls,'brushOperation', {Add : 0, Subtract : 1});
     terraineditor.open();
     var renderingpara = gui.addFolder('Rendering Parameters');
@@ -1237,6 +1239,7 @@ function main() {
     rains.setMouseWorldPos(mousePoint);
     rains.setMouseWorldDir(dir);
     rains.setBrushSize(controls.brushSize);
+    rains.setBrushStrength(controls.brushStrenth);
     rains.setBrushType(controls.brushType);
     rains.setBrushPressed(controls.brushPressed);
     rains.setBrushPos(pos);
