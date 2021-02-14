@@ -6,13 +6,12 @@
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/bundle.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bundle.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/bundle.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bundle.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/lonemountain.PNG" beforeDir="false" afterPath="$PROJECT_DIR$/screenshot/lonemountain.PNG" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/rendering/gl/ShaderProgram.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/average-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/average-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/rain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/rain-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/maxslippageheight-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/maxslippageheight-frag.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/sediadvect-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/thermalapply-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/thermalapply-frag.glsl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -129,7 +128,7 @@
       <workItem from="1612769658913" duration="36873000" />
       <workItem from="1613026766766" duration="6206000" />
       <workItem from="1613066181540" duration="28420000" />
-      <workItem from="1613109942599" duration="95932000" />
+      <workItem from="1613109942599" duration="102476000" />
     </task>
     <servers />
   </component>

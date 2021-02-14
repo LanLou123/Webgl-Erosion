@@ -1,14 +1,17 @@
-﻿## Terrain hydraulic erosion simulation in WebGl
+﻿## Terrain erosion sandbox in WebGl
 
 
 ## [**Youtube Link**](https://www.youtube.com/watch?v=Vt40p8syB6w&t=2s)
 
 ## [**DEMO** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
+
 ### controls : 
-- press button ```Start/Resume``` to the right top corner to start or resume the erosion sim, the simulation will happen in realtime
+
+- press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
+- press button ```Start/Resume``` to the right top corner to start or resume the erosion sim
 - press button ```Pause``` to pause the simulation
-- press button ```Reset``` to reset simulation and start with a randomly generated base terrain
+- press button ```Reset``` to reset simulation and start with a new randomly generated base terrain
 - use ```WaterTrabsparancy``` slider to control alpha of water
 - use ```EvaporationDegree``` slider to control anomunt of evaporation you want each simulation step
 - use ```RainDegree``` slider to control anomunt of Rain you want each simulation step
@@ -17,9 +20,12 @@
 - use ```Kd``` slider to control Kc (erosion deposition constant)
 - use the dropdown to check the debug views
 - press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
-- press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
+
 
 ### some screenshots
+
+#### a lonely mountain
+![](screenshot/lonemountain.PNG)
 
 #### Maintain and swamp scene
 
@@ -31,10 +37,8 @@
 
 ![](screenshot/thumb.PNG)
 
-#### a lonely mountain
-![](screenshot/lonemountain.PNG)
 
-#### rain erosion option
+#### rain erosion option (not stable yet, in progress)
 ![](screenshot/rainexample.PNG)
 
 ### Terrain editor support
@@ -67,13 +71,13 @@
 
 ### Base terrain generation:
 
-- The initial terrain was generated using FBM and domain warping as an option, you can choose randomrized base terrain by clicking "Reset" botton
+- The initial terrain was generated using FBM and domain warping/terrace as an option, you can randomrize base terrain by clicking "Reset" botton
 
 ### Erosion
 
-#### In short, erosion sim is mainly based on ***Shallow water equation*** which is just the depth integration form of the famous viscous fluid equation Navier–Stokes equations, the major algorithm are based on paper [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf) (erosion)
+#### Two erosion process is applied here : hydraulic erosion sim is mainly based on ***Shallow water equation*** which is just the depth integration form of the famous viscous fluid equation Navier–Stokes equations, it's major algorithms are based on paper [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf) (erosion), thermal erosion is using simmilar pipe model as hydraulic erosion to move slippage material depending on the ```Talus Angle```, major algorithm based on paper [Interactive Terrain Modeling Using Hydraulic Erosion](https://cgg.mff.cuni.cz/~jaroslav/papers/2008-sca-erosim/2008-sca-erosiom-fin.pdf)
 
--  **Main theory** : following are some steps need to be followed sequentially according to the paper.
+-  **method overview** : following are some steps need to be followed sequentially according to the paper.
 
    - ***Increament water level*** : New water appears on the terrain due to two major effects: rainfall and river sources. For both types, we need tospecify the location, the radius and the water intensity (the amount of water arriving during ∆t). For river sources, the
 location of the sources is fixed, for rain fall, all pixel have to be increment with water, the addition is simply : 
@@ -97,6 +101,17 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - ***Sediment transportation*** : 
       semi-lagrangian method (back track in short) is applied to this step, the formula is  ![](img/back.JPG), bilinear interpolation need to be applied to achieve better results.
    
+   - ***Slippage Height approximation*** :
+      the first step in thermal erosion, where we calculate the max height difference allowed when transporting slippage materials, depending on talus angle
+
+   - ***Slippage flux computation*** :
+      the second step in thermal erosion, it's actually simmilar to outflow flux calculation, calculated using previously generated max slippage limit and height differences with neighboring cells
+   
+   - ***Apply Slippage flux*** :
+      the last step in thermal erosion, we simply apply ```inflow material flux``` - ```outflow material flux``` here and apply height change to terrain height map
+
+
+
    - ***Evaporation***:
    a quite straight forward step, water will be evaporated with the increase of simulation time, and the rate of evaporation will gradually slow down as well.
       
@@ -112,18 +127,32 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
      -  **A** chanel : flux toward left direction in current cell (fL)
    - ```read_vel_tex``` and ```write_vel_tex``` : velocity map, simply used two chanels for velocity specification
    - ```read_sediment_tex``` and ```write_sediment_tex``` : sediment map, record the transporation and deposition of sediments, only one chanel is occupied for now
+   - ```read_max_slippage_tex``` and ```write_max_slippage_tex``` : slippage height limit map, store max allowed slippage for height map change
+   - ```read_terrain_flux_tex``` and ```write_terrain_flux_tex``` : slippage material flux map
+
 -  **Implementation** using the above textures, I put all of the major computation in shader to be excuted by GPU, each time the frame buffer will have specific color attachment for writing texture, and also shader will have uniform locations as read texture, after each time I write to a texture, I will swap the two textures inside the pair the written texture belongs to, in general, the texture flow are :  
    - Increament water level : ```hight map -----> hight map```
    - Flux map computation : ```hight map -----> flux map```
    - Water volume change and velocity field update : ```hight map + flux map -----> velocity map + hight map```
    - Deposite and erosion step, extra normal map is exported as well to save future calculation : ```hight map + velocity map + sediment map -----> sediment map + hight map + terrain normal map```
    - Lagrangian advection step : ```velocity map + sediment map -----> sediment map```
+   - maxslippage approximation step : ```terrain map -----> max slippage map```
+   - slippage/terrain flux computation step : ```terrain map + max slippage map -----> terrain/slippage flux map```
+   - thermal appy step : ```terrain/slippage flux map -----> terrain map```
    - Water evaporation step : ```terrain map -----> terrain map```
+  
+-  **Terrain Editor**
+   - Terrain edition is implemented with a ray caster on CPU,
+   - mouse position has to be transfered from screen space to world space first on CPU
+   - terrain height map is passed from GPU to CPU every 5 frames which equals to 80 ms, it's neglectable since terrain chnage from erosion is not much in 80ms, but we can save a lot of performace with this since GPU texture buffer read on CPU can get really expensive
+   - ray cast into the height map buffer to estimate collison location
 
 ### Future Plans:
 - Better GUI & Visulization
-- Thermal & glacial  erosion and muti-layered(rock/sand/etc) erosion
+- muti-layered(rock/sand/etc) erosion
+- Terrain features like instaced tree placements
+- postprocessing effects
 
 ### Reference
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
-
+- [Interactive Terrain Modeling Using Hydraulic Erosion](https://cgg.mff.cuni.cz/~jaroslav/papers/2008-sca-erosim/2008-sca-erosiom-fin.pdf)

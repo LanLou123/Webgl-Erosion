@@ -65,7 +65,7 @@ const controls = {
     pipelen:  1.0,//
     Kc : 0.2,
     Ks : 0.025,
-    Kd : 0.012,
+    Kd : 0.002,
     timestep : 0.1,
     pipeAra :  0.008,
     EvaporationDegree : 0.0001,
@@ -502,6 +502,10 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.bindTexture(gl.TEXTURE_2D,read_sediment_blend);
     gl.uniform1i(gl.getUniformLocation(advect.prog,"sediBlend"),2);
 
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
+    gl.uniform1i(gl.getUniformLocation(advect.prog,"terrain"),3);
+
     renderer.render(camera,advect,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
@@ -524,7 +528,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     //////////////////////////////////////////////////////////////////
     // maxslippage map generation
     // 4.5---use terrain map to derive new maxslippage map :
-    // hight map -----> terrain flux map
+    // hight map -----> max slippage  map
     //////////////////////////////////////////////////////////////////
 
     gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);

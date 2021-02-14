@@ -53,10 +53,10 @@ vec3 calnor(vec2 uv){
 void main()
 {
 
-    vec3 forestcol = vec3(0.1,0.6f,0.1f);
+    vec3 forestcol = vec3(143.0/255.0,255.0/255.0,7.0/255.0)*0.6;
     vec3 mtncolor = vec3(0.99,0.99,0.99);
     vec3 dirtcol = vec3(0.21,0.2,0.2);
-    vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);
+    vec3 grass = vec3(193.0/255.0,235.0/255.0,27.0/255.0);
     vec3 sand = vec3(214.f/255.f,184.f/255.f,96.f/255.f);
     vec3 watercol = vec3(0.1,0.3,0.8);
     vec3 obsidian = vec3(0.2);
@@ -106,9 +106,9 @@ void main()
 
 
     if(yval<=100.0){
-        finalcol = grass;
+        finalcol = forestcol;
     }else if(yval>100.0&&yval<=150.0){
-        finalcol = mix(grass,forestcol,(yval-100.0)/50.0);
+        finalcol = mix(forestcol,forestcol,(yval-100.0)/50.0);
     }else if(yval>150.0){
         if(yval<300.0f ){
             finalcol = mix(forestcol, mtncolor, (yval-150.0)/150.0);
@@ -127,7 +127,7 @@ void main()
    // finalcol = obsidian;
 
     //finalcol = mix(finalcol, sand, clamp( pow( sval, 3.0) * 8.0, 0.0, 4.0) );
-    finalcol = mix(finalcol,pow( sval, 1.0) * 100.0 * vec3(1.0,1.0,1.0),pow( sval,1.0) * 100.0 );
+    //finalcol = mix(finalcol,pow( sval, 1.0) * 100.0 * vec3(1.0,1.0,1.0),pow( sval,1.0) * 100.0 );
 
     //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));
 

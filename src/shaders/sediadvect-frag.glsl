@@ -4,6 +4,7 @@ precision highp float;
 uniform sampler2D vel;
 uniform sampler2D sedi;
 uniform sampler2D sediBlend;
+uniform sampler2D terrain;
 
 uniform float u_SimRes;
 uniform float u_timestep;
@@ -52,6 +53,7 @@ void main() {
 
     vec4 curvel = (texture(vel,curuv))/u_SimRes;
     vec4 cursedi = texture(sedi,curuv);
+    vec4 curterrain = texture(terrain,curuv);
 
 
 //    vec4 top = texture(vel,curuv+vec2(0.f,div));
@@ -74,7 +76,7 @@ void main() {
     float oldsedi = texture(sedi, oldloc).x;
     oldsedi = samplebilinear(oldloc,u_SimRes );
 
-    float curSediVal = length(curvel.xy);
+    float curSediVal = length(curvel.xy) * curterrain.y;
     float sediBlendVal = texture(sediBlend, oldloc).x;
     if(sediBlendVal < curSediVal){
         sediBlendVal = (sediBlendVal + curSediVal) / 2.0;
