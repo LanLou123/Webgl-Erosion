@@ -31,6 +31,12 @@
 
 ![](screenshot/thumb.PNG)
 
+#### a lonely mountain
+![](screenshot/lonemountain.PNG)
+
+#### rain erosion option
+![](screenshot/rainexample.PNG)
+
 ### Terrain editor support
 
 ![](screenshot/editor.PNG)

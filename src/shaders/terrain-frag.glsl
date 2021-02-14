@@ -16,6 +16,7 @@ uniform sampler2D velmap;
 uniform sampler2D fluxmap;
 uniform sampler2D terrainfluxmap;
 uniform sampler2D maxslippagemap;
+uniform sampler2D sediBlend;
 
 
 in float fs_Sine;
@@ -32,18 +33,18 @@ uniform float u_BrushSize;
 uniform int u_BrushType;
 uniform vec2 u_BrushPos;
 uniform float u_SimRes;
+uniform float u_SnowRange;
 
 vec3 calnor(vec2 uv){
-    float eps = 1.0 / u_SimRes;
+    float eps = 1.f/u_SimRes;
     vec4 cur = texture(hightmap,uv);
     vec4 r = texture(hightmap,uv+vec2(eps,0.f));
     vec4 t = texture(hightmap,uv+vec2(0.f,eps));
+    vec4 b = texture(hightmap,uv+vec2(0.f,-eps));
+    vec4 l = texture(hightmap,uv+vec2(-eps,0.f));
 
-    vec3 n1 = normalize(vec3(-1.0, cur.x - r.x, 0.f));
-    vec3 n2 = normalize(vec3(-1.0, t.x - r.x, 1.0));
-
-    vec3 nor = -cross(n1,n2);
-    nor = normalize(nor);
+    vec3 nor = vec3(l.x - r.x, 2.0, t.x - b.x);
+    nor = -normalize(nor);
     return nor;
 }
 
@@ -54,7 +55,7 @@ void main()
 
     vec3 forestcol = vec3(0.1,0.6f,0.1f);
     vec3 mtncolor = vec3(0.99,0.99,0.99);
-    vec3 dirtcol = vec3(0.27,0.2,0.1);
+    vec3 dirtcol = vec3(0.21,0.2,0.2);
     vec3 grass = vec3(173.0/255.0,235.0/255.0,27.0/255.0);
     vec3 sand = vec3(214.f/255.f,184.f/255.f,96.f/255.f);
     vec3 watercol = vec3(0.1,0.3,0.8);
@@ -89,7 +90,7 @@ void main()
     sundir2 = normalize(sundir2);
     sundir = normalize(sundir);
 
-    vec3 nor1 = -texture(normap,fs_Uv).xyz;
+    vec3 slopesin = texture(normap,fs_Uv).xyz;
     vec3 nor = -calnor(fs_Uv);
 
     float lamb = dot(nor,sundir);
@@ -99,7 +100,7 @@ void main()
 
     float yval = texture(hightmap,fs_Uv).x * 4.0;
     float wval = texture(hightmap,fs_Uv).y;
-    float sval = texture(sedimap, fs_Uv).x;
+    float sval = texture(sediBlend, fs_Uv).x;
 
     vec3 finalcol = vec3(0);
 
@@ -119,14 +120,14 @@ void main()
     }
 
 
-    if(abs(nor.y)<0.5){
-        finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.5,15.0));
+    if(abs(nor.y)<0.8){
+        finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.8,u_SnowRange));
     }
 
    // finalcol = obsidian;
 
-    //finalcol = mix(finalcol, sand, clamp(sval*150.0, 0.0, 1.0) );
-
+    //finalcol = mix(finalcol, sand, clamp( pow( sval, 3.0) * 8.0, 0.0, 4.0) );
+    finalcol = mix(finalcol,pow( sval, 1.0) * 100.0 * vec3(1.0,1.0,1.0),pow( sval,1.0) * 100.0 );
 
     //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));
 
@@ -151,6 +152,10 @@ void main()
         fcol = texture(terrainfluxmap, fs_Uv).xyz * 10.0;
     }else if(u_TerrainDebug == 6){
         fcol = texture(maxslippagemap, fs_Uv).xyz / 3.0;
+    }else if(u_TerrainDebug == 7){
+        fcol = vec3(sval * 100.0);
+    }else if(u_TerrainDebug == 8){
+        fcol = slopesin;
     }
 
 

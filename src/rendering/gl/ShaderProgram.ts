@@ -145,6 +145,12 @@ class ShaderProgram {
     }
   }
 
+  setFloat(f : number, name : string){
+    this.use();
+    let newf = gl.getUniformLocation(this.prog,name);
+    gl.uniform1f(newf,f);
+  }
+
   setTime(t:number){
     this.use();
     if(this.unifTime!==-1){

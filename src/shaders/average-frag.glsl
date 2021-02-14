@@ -7,6 +7,7 @@ uniform sampler2D readTerrain;
 // thanks to the references https://github.com/Huw-man/Interactive-Erosion-Simulator-on-GPU & https://github.com/karhu/terrain-erosion
 
 layout (location = 0) out vec4 writeTerrain;
+layout (location = 1) out vec4 writeAvg;
 
 uniform float u_SimRes;
 in vec2 fs_Pos;
@@ -38,12 +39,24 @@ void main() {
     float tl_d = cur.x - topleft.x;
 
     float cur_h = cur.x;
+    float col = 0.0;
+
+    //eight dir average
+//    if(((abs(r_d) > threathhold || abs(l_d) > threathhold)&& r_d*l_d > 0.0)||
+//    ((abs(t_d) > threathhold || abs(b_d) > threathhold) && t_d * b_d > 0.0)||
+//    ((abs(tr_d) > threathhold || abs(bl_d) > threathhold) && tr_d * bl_d > 0.0)||
+//    ((abs(tl_d) > threathhold || abs(br_d) > threathhold) && tl_d * br_d > 0.0)){
+//        cur_h = (cur.x + top.x + right.x + bottom.x + left.x + topright.x + topleft.x + bottomleft.x + bottomright.x)/9.0;
+//        col = 1.0;
+//    }
+
+    //four dir average
     if(((abs(r_d) > threathhold || abs(l_d) > threathhold)&& r_d*l_d > 0.0)||
-    ((abs(t_d) > threathhold || abs(b_d) > threathhold) && t_d * b_d > 0.0)||
-    ((abs(tr_d) > threathhold || abs(bl_d) > threathhold) && tr_d * bl_d > 0.0)||
-    ((abs(tl_d) > threathhold || abs(br_d) > threathhold) && tl_d * br_d > 0.0)){
-        cur_h = (cur.x + top.x + right.x + bottom.x + left.x + topright.x + topleft.x + bottomleft.x + bottomright.x)/9.0;
+    ((abs(t_d) > threathhold || abs(b_d) > threathhold) && t_d * b_d > 0.0)){
+        cur_h = (cur.x + top.x + right.x + bottom.x + left.x )/5.0;
+        col = 1.0;
     }
 
     writeTerrain = vec4(cur_h,cur.y,cur.z,cur.w);
+    writeAvg = vec4(vec3(col), 1.0);
 }

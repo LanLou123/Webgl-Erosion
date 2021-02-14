@@ -3,6 +3,7 @@ precision highp float;
 
 uniform sampler2D vel;
 uniform sampler2D sedi;
+uniform sampler2D sediBlend;
 
 uniform float u_SimRes;
 uniform float u_timestep;
@@ -10,7 +11,7 @@ uniform float u_timestep;
 
 layout (location = 0) out vec4 writeSediment;
 layout (location = 1) out vec4 writeVel;
-
+layout (location = 2) out vec4 writeSediBlend;
 
 // The fragment shader used to render the background of the scene
 // Modify this to make your background more interesting
@@ -47,6 +48,7 @@ void main() {
     vec2 curuv = 0.5f*fs_Pos+0.5f;
     float div = 1.f/u_SimRes;
     float alpha = 1.0;
+    float velscale = 1.0;
 
     vec4 curvel = (texture(vel,curuv))/u_SimRes;
     vec4 cursedi = texture(sedi,curuv);
@@ -68,11 +70,19 @@ void main() {
 
 
 
-    vec2 oldloc = vec2(curuv.x-curvel.x*u_timestep,curuv.y-curvel.y*u_timestep);
+    vec2 oldloc = vec2(curuv.x-curvel.x*velscale*u_timestep,curuv.y-curvel.y*velscale*u_timestep);
     float oldsedi = texture(sedi, oldloc).x;
     oldsedi = samplebilinear(oldloc,u_SimRes );
+
+    float curSediVal = length(curvel.xy);
+    float sediBlendVal = texture(sediBlend, oldloc).x;
+    if(sediBlendVal < curSediVal){
+        sediBlendVal = (sediBlendVal + curSediVal) / 2.0;
+    }
+
 
 
     writeSediment = vec4(oldsedi, 0.0, 0.0, 1.0);
     writeVel = curvel*u_SimRes;
+    writeSediBlend = vec4(sediBlendVal, 0.0, 0.0, 1.0);
 }
