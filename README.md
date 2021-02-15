@@ -4,7 +4,7 @@
 
 ## [**Video How 2 create A mountain with simulator**](https://www.youtube.com/watch?v=U2Vd-0TF4ks&feature=youtu.be)
 
-## [**DEMO** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
+## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
 
 ### controls : 
