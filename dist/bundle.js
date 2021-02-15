@@ -6215,6 +6215,7 @@ var clientHeight;
 var lastX = 0;
 var lastY = 0;
 const simresolution = 1024;
+const shadowMapResolution = 4096;
 let erosioninterations = 68000;
 let speed = 3;
 const div = 1 / simresolution;
@@ -6256,7 +6257,7 @@ const controlscomp = {
 const controls = {
     tesselations: 5,
     pipelen: 1.0,
-    Kc: 0.2,
+    Kc: 0.4,
     Ks: 0.025,
     Kd: 0.002,
     timestep: 0.1,
@@ -6272,12 +6273,12 @@ const controls = {
     'Pause': Pause,
     TerrainBaseMap: 0,
     TerrainBiomeType: 1,
-    TerrainScale: 1.0,
-    TerrainHeight: 1.0,
+    TerrainScale: 6.0,
+    TerrainHeight: 1.5,
     TerrainDebug: 0,
     WaterTransparency: 0.50,
-    SnowRange: 15,
-    brushType: 2,
+    SnowRange: 50,
+    brushType: 1,
     brushSize: 2,
     brushStrenth: 0.3,
     brushOperation: 0,
@@ -6286,6 +6287,9 @@ const controls = {
     talusAngleTangentBias: 0.0,
     thermalRate: 0.5,
     thermalErosionScale: 1.0,
+    lightPosX: 1.0,
+    lightPosY: 0.5,
+    lightPosZ: -1.0,
 };
 function StartGeneration() {
     PauseGeneration = false;
@@ -6298,6 +6302,10 @@ let waterPlane;
 // texture structure : R : terrain hight map, G : water carrying, B : sediment carrying
 let simres = simresolution;
 let frame_buffer;
+let render_buffer;
+let shadowMap_frame_buffer;
+let shadowMap_render_buffer;
+let shadowMap_tex;
 let read_terrain_tex;
 let write_terrain_tex;
 let read_flux_tex;
@@ -6310,7 +6318,6 @@ let read_vel_tex;
 let write_vel_tex;
 let read_sediment_tex;
 let write_sediment_tex;
-let render_buffer;
 let terrain_nor;
 let read_sediment_blend;
 let write_sediment_blend;
@@ -6364,8 +6371,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     //rain precipitation
     //0---use hight map to derive hight map : hight map -----> hight map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
@@ -6386,10 +6391,8 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     rains.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readUnifr = gl.getUniformLocation(rains.prog, "readTerrain");
-    gl.uniform1i(readUnifr, 0);
-    let raind = gl.getUniformLocation(rains.prog, 'raindeg');
-    gl.uniform1f(raind, controls.RainDegree);
+    gl.uniform1i(gl.getUniformLocation(rains.prog, "readTerrain"), 0);
+    gl.uniform1f(gl.getUniformLocation(rains.prog, 'raindeg'), controls.RainDegree);
     renderer.render(camera, rains, [square]);
     if (HightMapBufCounter % MaxHightMapBufCounter == 0) {
         gl.readPixels(0, 0, simres, simres, gl.RGBA, gl.FLOAT, HightMapCpuBuf);
@@ -6404,8 +6407,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     //////////////////////////////////////////////////////////////////
     //1---use hight map to derive flux map : hight map -----> flux map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_flux_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
@@ -6426,16 +6427,13 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     shader.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readUnif = gl.getUniformLocation(shader.prog, "readTerrain");
-    gl.uniform1i(readUnif, 0);
+    gl.uniform1i(gl.getUniformLocation(shader.prog, "readTerrain"), 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, read_flux_tex);
-    let readfluxUniff = gl.getUniformLocation(shader.prog, "readFlux");
-    gl.uniform1i(readfluxUniff, 1);
+    gl.uniform1i(gl.getUniformLocation(shader.prog, "readFlux"), 1);
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
-    let readsediUniff = gl.getUniformLocation(shader.prog, "readSedi");
-    gl.uniform1i(readsediUniff, 2);
+    gl.uniform1i(gl.getUniformLocation(shader.prog, "readSedi"), 2);
     renderer.render(camera, shader, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //-----swap flux ping and pong
@@ -6447,8 +6445,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     //2---use flux map and hight map to derive velocity map and new hight map :
     // hight map + flux map -----> velocity map + hight map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, write_vel_tex, 0);
@@ -6469,16 +6465,13 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     waterhight.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readterrainUnifw = gl.getUniformLocation(waterhight.prog, "readTerrain");
-    gl.uniform1i(readterrainUnifw, 0);
+    gl.uniform1i(gl.getUniformLocation(waterhight.prog, "readTerrain"), 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, read_flux_tex);
-    let readfluxUnifw = gl.getUniformLocation(waterhight.prog, "readFlux");
-    gl.uniform1i(readfluxUnifw, 1);
+    gl.uniform1i(gl.getUniformLocation(waterhight.prog, "readFlux"), 1);
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
-    let readsediUnifw = gl.getUniformLocation(waterhight.prog, "readSedi");
-    gl.uniform1i(readsediUnifw, 2);
+    gl.uniform1i(gl.getUniformLocation(waterhight.prog, "readSedi"), 2);
     renderer.render(camera, waterhight, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //-----swap terrain ping and pong and velocity ping pong
@@ -6493,8 +6486,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     //3---use velocity map, sediment map and hight map to derive sediment map and new hight map and velocity map :
     // hight map + velocity map + sediment map -----> sediment map + hight map + terrain normal map + velocity map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, write_sediment_tex, 0);
@@ -6515,16 +6506,13 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     sedi.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readterrainUnifs = gl.getUniformLocation(sedi.prog, "readTerrain");
-    gl.uniform1i(readterrainUnifs, 0);
+    gl.uniform1i(gl.getUniformLocation(sedi.prog, "readTerrain"), 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
-    let readvelUnifs = gl.getUniformLocation(sedi.prog, "readVelocity");
-    gl.uniform1i(readvelUnifs, 1);
+    gl.uniform1i(gl.getUniformLocation(sedi.prog, "readVelocity"), 1);
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
-    let readsediUnifs = gl.getUniformLocation(sedi.prog, "readSediment");
-    gl.uniform1i(readsediUnifs, 2);
+    gl.uniform1i(gl.getUniformLocation(sedi.prog, "readSediment"), 2);
     renderer.render(camera, sedi, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //----------swap terrain and sediment map---------
@@ -6543,8 +6531,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     // 4---use velocity map, sediment map to derive new sediment map :
     // velocity map + sediment map -----> sediment map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_sediment_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, write_vel_tex, 0);
@@ -6565,12 +6551,10 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     advect.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
-    let readvelUnifa = gl.getUniformLocation(advect.prog, "vel");
-    gl.uniform1i(readvelUnifa, 0);
+    gl.uniform1i(gl.getUniformLocation(advect.prog, "vel"), 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
-    let readsediUnifa = gl.getUniformLocation(advect.prog, "sedi");
-    gl.uniform1i(readsediUnifa, 1);
+    gl.uniform1i(gl.getUniformLocation(advect.prog, "sedi"), 1);
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_blend);
     gl.uniform1i(gl.getUniformLocation(advect.prog, "sediBlend"), 2);
@@ -6595,8 +6579,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     // 4.5---use terrain map to derive new maxslippage map :
     // hight map -----> max slippage  map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_maxslippage_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
@@ -6617,8 +6599,7 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     maxslippageheight.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readvelUnifm = gl.getUniformLocation(maxslippageheight.prog, "readTerrain");
-    gl.uniform1i(readvelUnifm, 0);
+    gl.uniform1i(gl.getUniformLocation(maxslippageheight.prog, "readTerrain"), 0);
     renderer.render(camera, maxslippageheight, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //---------------------------------
@@ -6632,8 +6613,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     // 5---use velocity map, sediment map to derive new sediment map :
     // hight map -----> terrain flux map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_flux_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
@@ -6654,12 +6633,10 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     thermalterrainflux.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readvelUnift = gl.getUniformLocation(thermalterrainflux.prog, "readTerrain");
-    gl.uniform1i(readvelUnift, 0);
+    gl.uniform1i(gl.getUniformLocation(thermalterrainflux.prog, "readTerrain"), 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, read_maxslippage_tex);
-    let readslippageUnift = gl.getUniformLocation(thermalterrainflux.prog, "readMaxSlippage");
-    gl.uniform1i(readslippageUnift, 1);
+    gl.uniform1i(gl.getUniformLocation(thermalterrainflux.prog, "readMaxSlippage"), 1);
     renderer.render(camera, thermalterrainflux, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //---------------------------------
@@ -6672,8 +6649,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     // 6---use terrain flux map to derive new terrain map :
     // terrain flux map -----> terrain map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
@@ -6694,12 +6669,10 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     thermalapply.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_flux_tex);
-    let readvelUnifta = gl.getUniformLocation(thermalapply.prog, "readTerrainFlux");
-    gl.uniform1i(readvelUnifta, 0);
+    gl.uniform1i(gl.getUniformLocation(thermalapply.prog, "readTerrainFlux"), 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readterrainUnifta = gl.getUniformLocation(thermalapply.prog, "readTerrain");
-    gl.uniform1i(readterrainUnifta, 1);
+    gl.uniform1i(gl.getUniformLocation(thermalapply.prog, "readTerrain"), 1);
     renderer.render(camera, thermalapply, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //---------------swap terrain mao----------------------------
@@ -6711,8 +6684,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     // 7---use terrain map to derive new terrain map :
     // terrain map -----> terrain map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
@@ -6733,10 +6704,8 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     eva.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    let readterrainUnife = gl.getUniformLocation(eva.prog, "terrain");
-    gl.uniform1i(readterrainUnife, 0);
-    let erapodegree = gl.getUniformLocation(eva.prog, 'evapod');
-    gl.uniform1f(erapodegree, controls.EvaporationDegree);
+    gl.uniform1i(gl.getUniformLocation(eva.prog, "terrain"), 0);
+    gl.uniform1f(gl.getUniformLocation(eva.prog, 'evapod'), controls.EvaporationDegree);
     renderer.render(camera, eva, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //---------------swap terrain mao----------------------------
@@ -6749,8 +6718,6 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     // 6---use terrain map to derive new terrain map :
     //  terrain map -----> terrain map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_terrain_tex, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, terrain_nor, 0);
@@ -6771,8 +6738,7 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     ave.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    readterrainUnife = gl.getUniformLocation(ave.prog, "readTerrain");
-    gl.uniform1i(readterrainUnife, 0);
+    gl.uniform1i(gl.getUniformLocation(ave.prog, "readTerrain"), 0);
     renderer.render(camera, ave, [square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     //---------------swap terrain mao----------------------------
@@ -6781,115 +6747,39 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     write_terrain_tex = tmp;
     //---------------swap terrain mao----------------------------
 }
+function LE_create_texture(w, h) {
+    let new_tex = __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].createTexture();
+    __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].bindTexture(__WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_2D, new_tex);
+    __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].texImage2D(__WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_2D, 0, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].RGBA32F, w, h, 0, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].RGBA, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].FLOAT, null);
+    __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_MIN_FILTER, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].LINEAR);
+    __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_MAG_FILTER, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].LINEAR);
+    __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_WRAP_S, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].CLAMP_TO_EDGE);
+    __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].TEXTURE_WRAP_T, __WEBPACK_IMPORTED_MODULE_7__globals__["a" /* gl */].CLAMP_TO_EDGE);
+    return new_tex;
+}
 function setupFramebufferandtextures(gl) {
-    frame_buffer = gl.createFramebuffer();
     //Noise generated data from GPU texture, include population density, water distribution, terrain elevation...
-    read_terrain_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    write_terrain_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, write_terrain_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    read_flux_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, read_flux_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    write_flux_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, write_flux_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    read_terrain_flux_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, read_terrain_flux_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    write_terrain_flux_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, write_terrain_flux_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    read_maxslippage_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, read_maxslippage_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    write_maxslippage_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, write_maxslippage_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    read_vel_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    write_vel_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, write_vel_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    read_sediment_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    write_sediment_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, write_sediment_tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    terrain_nor = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, terrain_nor);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    read_sediment_blend = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, read_sediment_blend);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    write_sediment_blend = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, write_sediment_blend);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, simres, simres, 0, gl.RGBA, gl.FLOAT, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    //specify our render buffer here
+    read_terrain_tex = LE_create_texture(simres, simres);
+    write_terrain_tex = LE_create_texture(simres, simres);
+    read_flux_tex = LE_create_texture(simres, simres);
+    write_flux_tex = LE_create_texture(simres, simres);
+    read_terrain_flux_tex = LE_create_texture(simres, simres);
+    write_terrain_flux_tex = LE_create_texture(simres, simres);
+    read_maxslippage_tex = LE_create_texture(simres, simres);
+    write_maxslippage_tex = LE_create_texture(simres, simres);
+    read_vel_tex = LE_create_texture(simres, simres);
+    write_vel_tex = LE_create_texture(simres, simres);
+    read_sediment_tex = LE_create_texture(simres, simres);
+    write_sediment_tex = LE_create_texture(simres, simres);
+    terrain_nor = LE_create_texture(simres, simres);
+    read_sediment_blend = LE_create_texture(simres, simres);
+    write_sediment_blend = LE_create_texture(simres, simres);
+    shadowMap_tex = LE_create_texture(shadowMapResolution, shadowMapResolution);
+    shadowMap_frame_buffer = gl.createFramebuffer();
+    shadowMap_render_buffer = gl.createRenderbuffer();
+    gl.bindRenderbuffer(gl.RENDERBUFFER, shadowMap_render_buffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, shadowMapResolution, shadowMapResolution);
+    frame_buffer = gl.createFramebuffer();
     render_buffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, render_buffer);
     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, simres, simres);
@@ -6966,18 +6856,11 @@ function main() {
     var renderingpara = gui.addFolder('Rendering Parameters');
     renderingpara.add(controls, 'WaterTransparency', 0.0, 1.0);
     renderingpara.add(controls, 'SnowRange', 0.0, 100.0);
+    var renderingparalightpos = renderingpara.addFolder('Shadow map LightPos/Dir');
+    renderingparalightpos.add(controls, 'lightPosX', -1.0, 1.0);
+    renderingparalightpos.add(controls, 'lightPosY', 0.0, 1.0);
+    renderingparalightpos.add(controls, 'lightPosZ', -1.0, 1.0);
     renderingpara.open();
-    // gui.add(controls, 'spawnposx' ,0.0, 1.0);
-    // gui.add(controls, 'spawnposy' ,0.0, 1.0);
-    //gui.add(controls,'setTerrainRandom');
-    /*
-    gui.add(controls,"pipelen",div/20,div*4).step(div/20);
-    gui.add(controls,'Kc',0.0,.1).step(0.0001);
-    gui.add(controls,'Ks',0.0,.1).step(0.0001);
-    gui.add(controls,'Kd',0.0,.1).step(0.0001);
-    gui.add(controls,'timestep',0.0000001,.001).step(0.0000001);
-    gui.add(controls,'pipeAra',0.01*div*div,2*div*div).step(0.01*div*div);
-    */
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
     const gl = canvas.getContext('webgl2');
@@ -7073,6 +6956,10 @@ function main() {
         new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(0)),
         new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(87)),
     ]);
+    const shadowMapShader = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(88)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(89)),
+    ]);
     noiseterrain.setRndTerrain(controls.TerrainBaseMap);
     noiseterrain.setTerrainType(controls.TerrainBiomeType);
     let timer = 0;
@@ -7103,7 +6990,7 @@ function main() {
             __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].floor(scaledTexSpace, scaledTexSpace);
             let hvalcoordinate = scaledTexSpace[1] * simres * 4 + scaledTexSpace[0] * 4 + 0;
             let hval = HightMapCpuBuf[hvalcoordinate];
-            if (cur[1] < hval / 1000.0) {
+            if (cur[1] < hval / simres) {
                 res = curTexSpace;
                 //console.log(curTexSpace);
                 break;
@@ -7159,9 +7046,11 @@ function main() {
         rains.setSpawnPos(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(controls.spawnposx, controls.spawnposy));
         rains.setTime(timer);
         flat.setTime(timer);
-        lambert.setTerrainDebug(controls.TerrainDebug);
+        gl.uniform3fv(gl.getUniformLocation(flat.prog, "unif_LightPos"), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(controls.lightPosX, controls.lightPosY, controls.lightPosZ));
         water.setWaterTransparency(controls.WaterTransparency);
         water.setSimres(simresolution);
+        gl.uniform3fv(gl.getUniformLocation(water.prog, "unif_LightPos"), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(controls.lightPosX, controls.lightPosY, controls.lightPosZ));
+        lambert.setTerrainDebug(controls.TerrainDebug);
         lambert.setMouseWorldPos(mousePoint);
         lambert.setMouseWorldDir(dir);
         lambert.setBrushSize(controls.brushSize);
@@ -7169,6 +7058,7 @@ function main() {
         lambert.setBrushPos(pos);
         lambert.setSimres(simresolution);
         lambert.setFloat(controls.SnowRange, "u_SnowRange");
+        gl.uniform3fv(gl.getUniformLocation(lambert.prog, "unif_LightPos"), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(controls.lightPosX, controls.lightPosY, controls.lightPosZ));
         rains.setMouseWorldPos(mousePoint);
         rains.setMouseWorldDir(dir);
         rains.setBrushSize(controls.brushSize);
@@ -7216,14 +7106,47 @@ function main() {
         average.setSimres(simresolution);
         camera.update();
         stats.begin();
+        //=================== begin simulation ==================
         for (let i = 0; i < speed; i++) {
             SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect, rains, evaporation, average, thermalterrainflux, thermalapply, maxslippageheight, renderer, gl, camera);
             SimFramecnt++;
         }
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         renderer.clear();
-        // render terrain -----------------------------------------
+        //==========================begin render shadow map pass=====================================
+        gl.bindFramebuffer(gl.FRAMEBUFFER, shadowMap_frame_buffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, shadowMap_tex, 0);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, shadowMap_render_buffer);
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+        let status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+            console.log("frame buffer status:" + status.toString());
+        }
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+        gl.viewport(0, 0, shadowMapResolution, shadowMapResolution);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, shadowMap_frame_buffer);
+        renderer.clear();
+        shadowMapShader.use();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
+        gl.uniform1i(gl.getUniformLocation(shadowMapShader.prog, "hightmap"), 0);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
+        gl.uniform1i(gl.getUniformLocation(shadowMapShader.prog, "sedimap"), 1);
+        let lightViewMat = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
+        let lightProjMat = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
+        lightProjMat = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].ortho(lightProjMat, -0.6, 0.6, -0.6, 0.6, 0, 100);
+        lightViewMat = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].lookAt(lightViewMat, [controls.lightPosX, controls.lightPosY, controls.lightPosZ], [0, 0, 0], [0, 1, 0]);
+        gl.uniformMatrix4fv(gl.getUniformLocation(shadowMapShader.prog, 'u_proj'), false, lightProjMat);
+        gl.uniformMatrix4fv(gl.getUniformLocation(shadowMapShader.prog, 'u_view'), false, lightViewMat);
+        shadowMapShader.setSimres(simres);
+        renderer.render(camera, shadowMapShader, [plane]);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        //============================= begin render terrain -----------------------------------------
         lambert.use();
+        gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         //plane.setDrawMode(gl.LINE_STRIP);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
@@ -7256,6 +7179,11 @@ function main() {
         gl.activeTexture(gl.TEXTURE7);
         gl.bindTexture(gl.TEXTURE_2D, read_sediment_blend);
         gl.uniform1i(gl.getUniformLocation(lambert.prog, "sediBlend"), 7);
+        gl.activeTexture(gl.TEXTURE8);
+        gl.bindTexture(gl.TEXTURE_2D, shadowMap_tex);
+        gl.uniform1i(gl.getUniformLocation(lambert.prog, "shadowMap"), 8);
+        gl.uniformMatrix4fv(gl.getUniformLocation(lambert.prog, 'u_sproj'), false, lightProjMat);
+        gl.uniformMatrix4fv(gl.getUniformLocation(lambert.prog, 'u_sview'), false, lightViewMat);
         renderer.render(camera, lambert, [
             plane,
         ]);
@@ -17657,13 +17585,13 @@ class ShaderProgram {
 /* 70 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\n\r\n\r\nuniform mat4 u_Model;\r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj;\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D sedimap;\r\nuniform float u_SimRes;\r\n\r\nin vec4 vs_Pos;\r\nin vec4 vs_Nor;\r\nin vec4 vs_Col;\r\nin vec2 vs_Uv;\r\n\r\nout vec3 fs_Pos;\r\nout vec4 fs_Nor;\r\nout vec4 fs_Col;\r\n\r\nout vec2 fs_Uv;\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n  fs_Uv = vs_Uv;\r\n  float sval = 1.f*texture(sedimap,vs_Uv).x;\r\n  float yval = 1.f*texture(hightmap,vs_Uv).x;\r\n  float wval = 1.f*texture(hightmap,vs_Uv).y;\r\n  vec4 modelposition = vec4(vs_Pos.x, (yval )/u_SimRes , vs_Pos.z, 1.0);\r\n  fs_Pos = modelposition.xyz;\r\n\r\n\r\n  modelposition = u_Model * modelposition;\r\n  gl_Position = u_ViewProj * modelposition;\r\n}\r\n"
+module.exports = "#version 300 es\r\n\r\n\r\nuniform mat4 u_Model;\r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj;\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nuniform mat4 u_sproj;\r\nuniform mat4 u_sview;\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D sedimap;\r\nuniform float u_SimRes;\r\n\r\nin vec4 vs_Pos;\r\nin vec4 vs_Nor;\r\nin vec4 vs_Col;\r\nin vec2 vs_Uv;\r\n\r\nout vec3 fs_Pos;\r\nout vec4 fs_Nor;\r\nout vec4 fs_Col;\r\nout vec2 fs_Uv;\r\nout vec4 fs_shadowPos;\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n  fs_Uv = vs_Uv;\r\n  float sval = 1.f*texture(sedimap,vs_Uv).x;\r\n  float yval = 1.f*texture(hightmap,vs_Uv).x;\r\n  float wval = 1.f*texture(hightmap,vs_Uv).y;\r\n  vec4 modelposition = vec4(vs_Pos.x, (yval )/u_SimRes , vs_Pos.z, 1.0);\r\n  fs_Pos = modelposition.xyz;\r\n\r\n\r\n  modelposition = u_Model * modelposition;\r\n\r\n  fs_shadowPos = u_sproj * u_sview * modelposition;\r\n\r\n  gl_Position = u_ViewProj * modelposition;\r\n}\r\n"
 
 /***/ }),
 /* 71 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\n\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nuniform sampler2D sedimap;\r\nuniform sampler2D velmap;\r\nuniform sampler2D fluxmap;\r\nuniform sampler2D terrainfluxmap;\r\nuniform sampler2D maxslippagemap;\r\nuniform sampler2D sediBlend;\r\n\r\n\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\nuniform vec4 u_MouseWorldPos;\r\nuniform vec3 u_MouseWorldDir;\r\nuniform float u_BrushSize;\r\nuniform int u_BrushType;\r\nuniform vec2 u_BrushPos;\r\nuniform float u_SimRes;\r\nuniform float u_SnowRange;\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 1.f/u_SimRes;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n    vec4 b = texture(hightmap,uv+vec2(0.f,-eps));\r\n    vec4 l = texture(hightmap,uv+vec2(-eps,0.f));\r\n\r\n    vec3 nor = vec3(l.x - r.x, 2.0, t.x - b.x);\r\n    nor = -normalize(nor);\r\n    return nor;\r\n}\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n    vec3 forestcol = vec3(143.0/255.0,255.0/255.0,7.0/255.0)*0.6;\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.21,0.2,0.2);\r\n    vec3 grass = vec3(193.0/255.0,235.0/255.0,27.0/255.0);\r\n    vec3 sand = vec3(214.f/255.f,184.f/255.f,96.f/255.f);\r\n    vec3 watercol = vec3(0.1,0.3,0.8);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n    vec3 rock1 = vec3(0.4,0.4,0.4);\r\n    vec3 rock2 = vec3(0.2,0.2,0.2);\r\n    vec3 rock3 = vec3(0.1,0.1,0.1);\r\n\r\n    vec3 addcol = vec3(0.0);\r\n    if(u_BrushType != 0){\r\n        vec3 ro = u_MouseWorldPos.xyz;\r\n        vec3 rd = u_MouseWorldDir;\r\n        vec2 pointOnPlane = u_BrushPos;\r\n        float pdis2fragment = distance(pointOnPlane, fs_Uv);\r\n        if (pdis2fragment < 0.01 * u_BrushSize){\r\n            float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);\r\n\r\n            if(u_BrushType == 1){\r\n                addcol = sand * 0.8;\r\n            }else if(u_BrushType == 2){\r\n                addcol = watercol * 0.8;\r\n            }\r\n            addcol *= dens;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    vec3 sundir = vec3(1.f,2.f,-1.f);\r\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\r\n    sundir2 = normalize(sundir2);\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 slopesin = texture(normap,fs_Uv).xyz;\r\n    vec3 nor = -calnor(fs_Uv);\r\n\r\n    float lamb = dot(nor,sundir);\r\n    float lamb2 = dot(nor,sundir2);\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    float sval = texture(sediBlend, fs_Uv).x;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n\r\n    forestcol = mtncolor;\r\n    if(yval<=100.0){\r\n        finalcol = forestcol;\r\n    }else if(yval>100.0&&yval<=150.0){\r\n        finalcol = mix(forestcol,forestcol,(yval-100.0)/50.0);\r\n    }else if(yval>150.0){\r\n        if(yval<300.0f ){\r\n            finalcol = mix(forestcol, mtncolor, (yval-150.0)/150.0);\r\n        }\r\n        else if((yval > 300.0f)){\r\n            finalcol = mtncolor;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    if(abs(nor.y)<0.75){\r\n        finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.75,u_SnowRange));\r\n    }\r\n\r\n   // finalcol = obsidian;\r\n\r\n    //finalcol = mix(finalcol, sand, clamp( pow( sval, 3.0) * 8.0, 0.0, 4.0) );\r\n    //finalcol = mix(finalcol,pow( sval, 1.0) * 100.0 * vec3(1.0,1.0,1.0),pow( sval,1.0) * 100.0 );\r\n\r\n    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));\r\n\r\n\r\n    vec3 normal = lamb*(finalcol);\r\n    vec3 fcol = normal;\r\n    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4\r\n    if(u_TerrainDebug == 0){\r\n        fcol = normal;\r\n    }else if(u_TerrainDebug == 1){\r\n        fcol = texture(sedimap,fs_Uv).xyz * 2.0;\r\n    }else if(u_TerrainDebug == 2){\r\n        fcol = abs(texture(velmap,fs_Uv).xyz/2.0);\r\n        //fcol = nor1;\r\n        //fcol.xy = fcol.xy / 2.0 + vec2(0.5);\r\n    }else if(u_TerrainDebug == 3){\r\n        fcol = texture(hightmap,fs_Uv).xyz;\r\n        fcol.xy /= 200.0;\r\n    }else if(u_TerrainDebug == 4){\r\n        fcol = texture(fluxmap,fs_Uv).xyz / 3.0;\r\n    }else if(u_TerrainDebug == 5){\r\n        fcol = texture(terrainfluxmap, fs_Uv).xyz * 10.0;\r\n    }else if(u_TerrainDebug == 6){\r\n        fcol = texture(maxslippagemap, fs_Uv).xyz / 3.0;\r\n    }else if(u_TerrainDebug == 7){\r\n        fcol = vec3(sval * 100.0);\r\n    }else if(u_TerrainDebug == 8){\r\n        fcol = slopesin;\r\n    }\r\n\r\n\r\n\r\n    fcol += addcol;\r\n\r\n    out_Col = vec4(vec3(fcol)*1.0,1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nin vec4 fs_shadowPos;\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nuniform sampler2D sedimap;\r\nuniform sampler2D velmap;\r\nuniform sampler2D fluxmap;\r\nuniform sampler2D terrainfluxmap;\r\nuniform sampler2D maxslippagemap;\r\nuniform sampler2D sediBlend;\r\nuniform sampler2D shadowMap;\r\n\r\n#define PI 3.1415926\r\n\r\n\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\nuniform vec4 u_MouseWorldPos;\r\nuniform vec3 u_MouseWorldDir;\r\nuniform float u_BrushSize;\r\nuniform int u_BrushType;\r\nuniform vec2 u_BrushPos;\r\nuniform float u_SimRes;\r\nuniform float u_SnowRange;\r\nuniform vec3 unif_LightPos;\r\n\r\nuniform mat4 u_sproj;\r\nuniform mat4 u_sview;\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 1.f/u_SimRes;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n    vec4 b = texture(hightmap,uv+vec2(0.f,-eps));\r\n    vec4 l = texture(hightmap,uv+vec2(-eps,0.f));\r\n\r\n    vec3 nor = vec3(l.x - r.x, 2.0, t.x - b.x);\r\n    nor = -normalize(nor);\r\n    return nor;\r\n}\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n    float shadowVal = 1.0f;\r\n    vec3 shadowCol = vec3(1.0);\r\n    vec3 ambientCol = vec3(0.01);\r\n    vec3 shadowMapLoc = fs_shadowPos.xyz / fs_shadowPos.w;\r\n    shadowMapLoc = shadowMapLoc*0.5+0.5;\r\n    float texsize = 1.0/4096.0f;\r\n    for(int x = -1; x <= 1; ++x)\r\n    {\r\n        for(int y = -1; y <= 1; ++y)\r\n        {\r\n            float pcfDepth = texture(shadowMap, shadowMapLoc.xy + vec2(x, y) * texsize).r;\r\n            shadowVal += shadowMapLoc.z - 0.0001 > pcfDepth ? .1 : 1.;\r\n            shadowCol += shadowMapLoc.z - 0.0001 > pcfDepth ? vec3(0.02,0.01,0.09) : vec3(1.0);\r\n        }\r\n    }\r\n    shadowVal/=9.0;\r\n    shadowCol/=9.0;\r\n    //shadowVal = texture(shadowMap, shadowMapLoc.xy).x;\r\n\r\n    vec3 forestcol = vec3(143.0/255.0,255.0/255.0,7.0/255.0)*0.6;\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.21,0.2,0.2);\r\n    vec3 grass = vec3(193.0/255.0,235.0/255.0,27.0/255.0);\r\n    vec3 sand = vec3(214.f/255.f,184.f/255.f,96.f/255.f);\r\n    vec3 watercol = vec3(0.1,0.3,0.8);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n    vec3 rock1 = vec3(0.4,0.4,0.4);\r\n    vec3 rock2 = vec3(0.2,0.2,0.2);\r\n    vec3 rock3 = vec3(0.1,0.1,0.1);\r\n\r\n    vec3 addcol = vec3(0.0);\r\n    if(u_BrushType != 0){\r\n        vec3 ro = u_MouseWorldPos.xyz;\r\n        vec3 rd = u_MouseWorldDir;\r\n        vec2 pointOnPlane = u_BrushPos;\r\n        float pdis2fragment = distance(pointOnPlane, fs_Uv);\r\n        if (pdis2fragment < 0.01 * u_BrushSize){\r\n            float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);\r\n\r\n            if(u_BrushType == 1){\r\n                addcol = sand * 0.8;\r\n            }else if(u_BrushType == 2){\r\n                addcol = watercol * 0.8;\r\n            }\r\n            addcol *= dens;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    vec3 sundir = unif_LightPos;\r\n\r\n    sundir = normalize(sundir);\r\n\r\n\r\n    vec3 slopesin = texture(normap,fs_Uv).xyz;\r\n    vec3 nor = -calnor(fs_Uv);\r\n\r\n    float angle = dot(sundir,vec3(0.0,1.0,0.0));\r\n    vec3 hue = mix(vec3(255.0,255.0,220.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);\r\n\r\n\r\n    float lamb = dot(nor,vec3(sundir.x,sundir.y,-sundir.z));\r\n\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    float sval = texture(sediBlend, fs_Uv).x;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n\r\n    forestcol = mtncolor;\r\n    if(yval<=100.0){\r\n        finalcol = forestcol;\r\n    }else if(yval>100.0&&yval<=150.0){\r\n        finalcol = mix(forestcol,forestcol,(yval-100.0)/50.0);\r\n    }else if(yval>150.0){\r\n        if(yval<300.0f ){\r\n            finalcol = mix(forestcol, mtncolor, (yval-150.0)/150.0);\r\n        }\r\n        else if((yval > 300.0f)){\r\n            finalcol = mtncolor;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    if(abs(nor.y)<0.75){\r\n        finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.75,u_SnowRange));\r\n    }\r\n\r\n   // finalcol = obsidian;\r\n\r\n    //finalcol = mix(finalcol, sand, clamp( pow( sval, 3.0) * 8.0, 0.0, 4.0) );\r\n    //finalcol = mix(finalcol,pow( sval, 1.0) * 100.0 * vec3(1.0,1.0,1.0),pow( sval,1.0) * 100.0 );\r\n\r\n    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));\r\n\r\n\r\n    vec3 normal = lamb*(finalcol) + ambientCol;\r\n    vec3 fcol = normal;\r\n    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4\r\n    if(u_TerrainDebug == 0){\r\n        fcol = normal;\r\n    }else if(u_TerrainDebug == 1){\r\n        fcol = texture(sedimap,fs_Uv).xyz * 2.0;\r\n    }else if(u_TerrainDebug == 2){\r\n        fcol = abs(texture(velmap,fs_Uv).xyz/2.0);\r\n        //fcol = nor1;\r\n        //fcol.xy = fcol.xy / 2.0 + vec2(0.5);\r\n    }else if(u_TerrainDebug == 3){\r\n        fcol = texture(hightmap,fs_Uv).xyz;\r\n        fcol.xy /= 200.0;\r\n    }else if(u_TerrainDebug == 4){\r\n        fcol = texture(fluxmap,fs_Uv).xyz / 3.0;\r\n    }else if(u_TerrainDebug == 5){\r\n        fcol = texture(terrainfluxmap, fs_Uv).xyz * 10.0;\r\n    }else if(u_TerrainDebug == 6){\r\n        fcol = texture(maxslippagemap, fs_Uv).xyz / 3.0;\r\n    }else if(u_TerrainDebug == 7){\r\n        fcol = vec3(sval * 100.0);\r\n    }else if(u_TerrainDebug == 8){\r\n        fcol = slopesin;\r\n    }\r\n\r\n\r\n\r\n    fcol += addcol;\r\n\r\n\r\n\r\n    out_Col = vec4(hue*vec3(fcol)*1.0*shadowCol,1.f);\r\n}\r\n"
 
 /***/ }),
 /* 72 */
@@ -17675,7 +17603,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex
 /* 73 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D hightmap;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform float u_Time;\r\n\r\nin vec2 fs_Pos;\r\nout vec4 out_Col;\r\n\r\n\r\n#define FOV 45.f\r\nvec3 sky(in vec3 rd){\r\n    return mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));\r\n}\r\n\r\n\r\n// ====================== iq cloud ========================\r\n\r\n\r\n\r\nvec3 sundir = normalize(vec3(1.f,2.f,-1.f));\r\n\r\n\r\nvec4 render( in vec3 ro, in vec3 rd)\r\n{\r\n    // background sky\r\n    float sun = clamp( dot(sundir,rd), 0.0, 1.0 );\r\n    vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;\r\n    col += 0.2*vec3(1.0,.6,0.1)*pow( sun, 8.0 );\r\n\r\n    // sun glare\r\n    col += 0.2*vec3(1.0,0.4,0.2)*pow( sun, 3.0 );\r\n\r\n    return vec4( col, 1.0 );\r\n}\r\n\r\n\r\nvoid main() {\r\n  //vec2 uv = 0.5*fs_Pos+0.5;\r\n\r\n   vec4 col = texture(hightmap,0.5f*fs_Pos+.5f);\r\n\r\n  //vec4 fcol =  vec4(vec3(col.xyz/500.f),1.f);\r\n  //out_Col = fcol;\r\n\r\n   float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;\r\n    float sy = 1.f-(2.f*gl_FragCoord.y/u_Dimensions.y);\r\n    float len = length(u_Ref - u_Eye);\r\n    vec3 forward = normalize(u_Ref - u_Eye);\r\n    vec3 right = cross(forward,u_Up);\r\n    vec3 V = u_Up * len * tan(FOV/2.f);\r\n    vec3 H = right * len * (u_Dimensions.x/u_Dimensions.y) * tan(FOV/2.f);\r\n    vec3 p = u_Ref + sx * H - sy * V;\r\n\r\n    vec3 rd = normalize(p - u_Eye);\r\n    vec3 ro = u_Eye;\r\n    //gl_FragDepth = 0.998;\r\n\r\n    vec4 cloudCol = render(ro,rd);\r\n    //cloudCol.xyz += sky(rd);\r\n\r\n   //out_Col = vec4((col.xyz * 100.0), 1.0);\r\n    out_Col = vec4(cloudCol);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D hightmap;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform float u_Time;\r\nuniform vec3  unif_LightPos;\r\n\r\nin vec2 fs_Pos;\r\nout vec4 out_Col;\r\n\r\n\r\n#define FOV 45.f\r\nvec3 sky(in vec3 rd){\r\n    return mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));\r\n}\r\n\r\n\r\n// ====================== Raleigh scattering ========================\r\n\r\n#define PI 3.141592\r\n#define iSteps 16\r\n#define jSteps 8\r\n\r\nvec2 rsi(vec3 r0, vec3 rd, float sr) {\r\n    // ray-sphere intersection that assumes\r\n    // the sphere is centered at the origin.\r\n    // No intersection when result.x > result.y\r\n    float a = dot(rd, rd);\r\n    float b = 2.0 * dot(rd, r0);\r\n    float c = dot(r0, r0) - (sr * sr);\r\n    float d = (b*b) - 4.0*a*c;\r\n    if (d < 0.0) return vec2(1e5,-1e5);\r\n    return vec2(\r\n    (-b - sqrt(d))/(2.0*a),\r\n    (-b + sqrt(d))/(2.0*a)\r\n    );\r\n}\r\n\r\nvec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAtmos, vec3 kRlh, float kMie, float shRlh, float shMie, float g) {\r\n    // Normalize the sun and view directions.\r\n    pSun = normalize(pSun);\r\n    r = normalize(r);\r\n\r\n    // Calculate the step size of the primary ray.\r\n    vec2 p = rsi(r0, r, rAtmos);\r\n    if (p.x > p.y) return vec3(0,0,0);\r\n    p.y = min(p.y, rsi(r0, r, rPlanet).x);\r\n    float iStepSize = (p.y - p.x) / float(iSteps);\r\n\r\n    // Initialize the primary ray time.\r\n    float iTime = 0.0;\r\n\r\n    // Initialize accumulators for Rayleigh and Mie scattering.\r\n    vec3 totalRlh = vec3(0,0,0);\r\n    vec3 totalMie = vec3(0,0,0);\r\n\r\n    // Initialize optical depth accumulators for the primary ray.\r\n    float iOdRlh = 0.0;\r\n    float iOdMie = 0.0;\r\n\r\n    // Calculate the Rayleigh and Mie phases.\r\n    float mu = dot(r, pSun);\r\n    float mumu = mu * mu;\r\n    float gg = g * g;\r\n    float pRlh = 3.0 / (16.0 * PI) * (1.0 + mumu);\r\n    float pMie = 3.0 / (8.0 * PI) * ((1.0 - gg) * (mumu + 1.0)) / (pow(1.0 + gg - 2.0 * mu * g, 1.5) * (2.0 + gg));\r\n\r\n    // Sample the primary ray.\r\n    for (int i = 0; i < iSteps; i++) {\r\n\r\n        // Calculate the primary ray sample position.\r\n        vec3 iPos = r0 + r * (iTime + iStepSize * 0.5);\r\n\r\n        // Calculate the height of the sample.\r\n        float iHeight = length(iPos) - rPlanet;\r\n\r\n        // Calculate the optical depth of the Rayleigh and Mie scattering for this step.\r\n        float odStepRlh = exp(-iHeight / shRlh) * iStepSize;\r\n        float odStepMie = exp(-iHeight / shMie) * iStepSize;\r\n\r\n        // Accumulate optical depth.\r\n        iOdRlh += odStepRlh;\r\n        iOdMie += odStepMie;\r\n\r\n        // Calculate the step size of the secondary ray.\r\n        float jStepSize = rsi(iPos, pSun, rAtmos).y / float(jSteps);\r\n\r\n        // Initialize the secondary ray time.\r\n        float jTime = 0.0;\r\n\r\n        // Initialize optical depth accumulators for the secondary ray.\r\n        float jOdRlh = 0.0;\r\n        float jOdMie = 0.0;\r\n\r\n        // Sample the secondary ray.\r\n        for (int j = 0; j < jSteps; j++) {\r\n\r\n            // Calculate the secondary ray sample position.\r\n            vec3 jPos = iPos + pSun * (jTime + jStepSize * 0.5);\r\n\r\n            // Calculate the height of the sample.\r\n            float jHeight = length(jPos) - rPlanet;\r\n\r\n            // Accumulate the optical depth.\r\n            jOdRlh += exp(-jHeight / shRlh) * jStepSize;\r\n            jOdMie += exp(-jHeight / shMie) * jStepSize;\r\n\r\n            // Increment the secondary ray time.\r\n            jTime += jStepSize;\r\n        }\r\n\r\n        // Calculate attenuation.\r\n        vec3 attn = exp(-(kMie * (iOdMie + jOdMie) + kRlh * (iOdRlh + jOdRlh)));\r\n\r\n        // Accumulate scattering.\r\n        totalRlh += odStepRlh * attn;\r\n        totalMie += odStepMie * attn;\r\n\r\n        // Increment the primary ray time.\r\n        iTime += iStepSize;\r\n\r\n    }\r\n\r\n    // Calculate and return the final color.\r\n    return iSun * (pRlh * kRlh * totalRlh + pMie * kMie * totalMie);\r\n}\r\n\r\n\r\n\r\n\r\n\r\nvec4 render( in vec3 ro, in vec3 rd)\r\n{\r\n\r\n\r\n    // background sky\r\n    vec3 sundir = normalize(unif_LightPos);\r\n\r\n    float angle = dot(sundir,vec3(0.0,1.0,0.0));\r\n    vec3 hue = mix(vec3(255.0,255.0,220.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);\r\n\r\n    float sun = clamp( dot(sundir,rd), 0.0, 1.0 );\r\n    vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;\r\n    col += 0.2*vec3(1.0,.6,0.1)*pow( sun, 8.0 );\r\n\r\n    // sun glare\r\n    col += 0.4*vec3(1.0,0.4,0.2)*pow( sun, 33.0 );\r\n\r\n    return vec4( col*hue, 1.0 );\r\n}\r\n\r\n\r\nvoid main() {\r\n  //vec2 uv = 0.5*fs_Pos+0.5;\r\n\r\n\r\n\r\n\r\n   float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;\r\n    float sy = 1.f-(2.f*gl_FragCoord.y/u_Dimensions.y);\r\n    float len = length(u_Ref - u_Eye);\r\n    vec3 forward = normalize(u_Ref - u_Eye);\r\n    vec3 right = cross(forward,u_Up);\r\n    vec3 V = u_Up * len * tan(FOV/2.f);\r\n    vec3 H = right * len * (u_Dimensions.x/u_Dimensions.y) * tan(FOV/2.f);\r\n    vec3 p = u_Ref + sx * H - sy * V;\r\n    float FovTan = tan(radians(FOV));\r\n\r\n    vec3 rd = normalize(p - u_Eye);\r\n    vec3 ro = u_Eye;\r\n    //gl_FragDepth = 0.998;\r\n\r\n    vec4 cloudCol = render(ro,rd);\r\n\r\n    vec3 color = atmosphere(\r\n    normalize(rd),           // normalized ray direction\r\n    vec3(0,6372e3,0),               // ray origin\r\n    unif_LightPos,                        // position of the sun\r\n    22.0,                           // intensity of the sun\r\n    6371e3,                         // radius of the planet in meters\r\n    6471e3,                         // radius of the atmosphere in meters\r\n    vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient\r\n    21e-6,                          // Mie scattering coefficient\r\n    8e3,                            // Rayleigh scale height\r\n    1.2e3,                          // Mie scale height\r\n    0.758                           // Mie preferred scattering direction\r\n    );\r\n\r\n    out_Col = vec4(color,1.0);\r\n}\r\n"
 
 /***/ }),
 /* 74 */
@@ -17699,7 +17627,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampl
 /* 77 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D readVelocity;\r\nuniform sampler2D readSediment;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_Ks;\r\nuniform float u_Kc;\r\nuniform float u_Kd;\r\nuniform float u_timestep;\r\n\r\nlayout (location = 0) out vec4 writeTerrain;\r\nlayout (location = 1) out vec4 writeSediment;\r\nlayout (location = 2) out vec4 writeTerrainNormal;\r\nlayout (location = 3) out vec4 writeVelocity;\r\n\r\n\r\n\r\n\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nvec3 calnor(vec2 uv){\r\n  float eps = 1.f/u_SimRes;\r\n  vec4 cur = texture(readTerrain,uv);\r\n  vec4 r = texture(readTerrain,uv+vec2(eps,0.f));\r\n  vec4 t = texture(readTerrain,uv+vec2(0.f,eps));\r\n  vec4 b = texture(readTerrain,uv+vec2(0.f,-eps));\r\n  vec4 l = texture(readTerrain,uv+vec2(-eps,0.f));\r\n\r\n  vec3 nor = vec3(l.x - r.x, 2.0, t.x - b.x);\r\n  nor = normalize(nor);\r\n  return nor;\r\n}\r\n\r\nvoid main() {\r\n\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float div = 1.f/u_SimRes;\r\n  float Kc = u_Kc;\r\n  float Ks = u_Ks;\r\n  float Kd = u_Kd;\r\n  float alpha = 1.0;\r\n\r\n\r\n  vec4 top = texture(readSediment,curuv+vec2(0.f,div));\r\n  vec4 right = texture(readSediment,curuv+vec2(div,0.f));\r\n  vec4 bottom = texture(readSediment,curuv+vec2(0.f,-div));\r\n  vec4 left = texture(readSediment,curuv+vec2(-div,0.f));\r\n\r\n  vec3 nor = calnor(curuv);\r\n  float slopeSin;\r\n  slopeSin = abs(sqrt(1.0 - nor.y*nor.y));\r\n  //slopeSin = abs(sin(acos(dot(nor, vec3(0.0, 1.0, 0.0)))));\r\n\r\n\r\n  vec4 topvel = texture(readVelocity,curuv+vec2(0.f,div));\r\n  vec4 rightvel = texture(readVelocity,curuv+vec2(div,0.f));\r\n  vec4 bottomvel = texture(readVelocity,curuv+vec2(0.f,-div));\r\n  vec4 leftvel = texture(readVelocity,curuv+vec2(-div,0.f));\r\n  vec4 curvel = texture(readVelocity,curuv);\r\n\r\n  float sumlen = length(topvel) + length(rightvel) + length(bottomvel) + length(leftvel);\r\n\r\n\r\n//  if(length(curvel) > (sumlen/4.0)){ // make sure velocity are not too large\r\n//      curvel *= (sumlen/4.0) / length(curvel);\r\n//  }\r\n\r\n  vec4 newVel = (topvel + rightvel + bottomvel + leftvel + alpha * curvel)/(4.0 + alpha);\r\n\r\n  //newVel = mix(newVel,curvel,slopeSin);\r\n  newVel = curvel;\r\n\r\n  vec4 curSediment = texture(readSediment,curuv);\r\n  vec4 curTerrain = texture(readTerrain,curuv);\r\n\r\n  //    t\r\n  //\r\n  // l  c--r\r\n  //    | /\r\n  //    b\r\n//  float nordis = div*1.f;\r\n//  vec4 nort = texture(readTerrain,curuv+vec2(0.f,nordis));\r\n//  vec4 norr = texture(readTerrain,curuv+vec2(nordis,0.f));\r\n//  vec4 norb = texture(readTerrain,curuv+vec2(0.f,-nordis));\r\n//  vec4 norl = texture(readTerrain,curuv+vec2(-nordis,0.f));\r\n//\r\n//  vec3 dx = vec3(1.f,(norr.x + right.x - curTerrain.x - curSediment.x),0.f);\r\n//  vec3 dy = vec3(1.f,(norr.x + right.x - norb.x - bottom.x),1.f);\r\n//\r\n//  vec3 nor = normalize(cross(dx,dy));\r\n\r\n\r\n\r\n\r\n  float velo = length(texture(readVelocity,curuv).xy);\r\n  velo = length(newVel.xy);\r\n  float slope = max(0.00f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));\r\n  float sedicap = Kc*slope*velo ;// * pow(curTerrain.y,0.2) ;\r\n\r\n  float lmax = 0.0f;\r\n  float maxdepth = 0.5;\r\n  if(curTerrain.y > maxdepth){ // max river bed depth\r\n    lmax = 0.0f;\r\n  }else{\r\n    lmax = 1.0 - ((maxdepth - curTerrain.y)/maxdepth);\r\n  }\r\n\r\n\r\n  //sedicap *= lmax;\r\n\r\n\r\n  float cursedi = curSediment.x;\r\n  float hight = curTerrain.x;\r\n  float outsedi = curSediment.x;\r\n\r\n  float water = curTerrain.y;\r\n\r\n  if(sedicap>cursedi){\r\n    float changesedi = (sedicap-cursedi)*Ks;\r\n    //changesedi = min(changesedi, curTerrain.y);\r\n    hight = hight - changesedi;\r\n   // water = water + (sedicap-cursedi)*Ks;\r\n    outsedi = outsedi + changesedi;\r\n  }else {\r\n    float changesedi = (cursedi-sedicap)*Kd;\r\n    //changesedi = min(changesedi, curTerrain.y);\r\n    hight = hight + changesedi;\r\n    //water = water - (cursedi-sedicap)*Kd;\r\n    outsedi = outsedi - changesedi;\r\n  }\r\n\r\n\r\n  writeTerrainNormal = vec4(vec3(slopeSin),1.f);\r\n  writeSediment = vec4(outsedi,0.0f,0.0f,1.0f);\r\n  writeTerrain = vec4(hight,curTerrain.y,curTerrain.z,curTerrain.w);\r\n  writeVelocity = newVel;\r\n}"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:\r\nuniform sampler2D readVelocity;\r\nuniform sampler2D readSediment;\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_Ks;\r\nuniform float u_Kc;\r\nuniform float u_Kd;\r\nuniform float u_timestep;\r\n\r\nlayout (location = 0) out vec4 writeTerrain;\r\nlayout (location = 1) out vec4 writeSediment;\r\nlayout (location = 2) out vec4 writeTerrainNormal;\r\nlayout (location = 3) out vec4 writeVelocity;\r\n\r\n\r\n\r\n\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\nvec3 calnor(vec2 uv){\r\n  float eps = 1.f/u_SimRes;\r\n  vec4 cur = texture(readTerrain,uv);\r\n  vec4 r = texture(readTerrain,uv+vec2(eps,0.f));\r\n  vec4 t = texture(readTerrain,uv+vec2(0.f,eps));\r\n  vec4 b = texture(readTerrain,uv+vec2(0.f,-eps));\r\n  vec4 l = texture(readTerrain,uv+vec2(-eps,0.f));\r\n\r\n  vec3 nor = vec3(l.x - r.x, 2.0, t.x - b.x);\r\n  nor = normalize(nor);\r\n  return nor;\r\n}\r\n\r\nvoid main() {\r\n\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float div = 1.f/u_SimRes;\r\n  float Kc = u_Kc;\r\n  float Ks = u_Ks;\r\n  float Kd = u_Kd;\r\n  float alpha = 1.0;\r\n\r\n\r\n  vec4 top = texture(readSediment,curuv+vec2(0.f,div));\r\n  vec4 right = texture(readSediment,curuv+vec2(div,0.f));\r\n  vec4 bottom = texture(readSediment,curuv+vec2(0.f,-div));\r\n  vec4 left = texture(readSediment,curuv+vec2(-div,0.f));\r\n\r\n  vec3 nor = calnor(curuv);\r\n  float slopeSin;\r\n  slopeSin = abs(sqrt(1.0 - nor.y*nor.y));\r\n  //slopeSin = abs(sin(acos(dot(nor, vec3(0.0, 1.0, 0.0)))));\r\n\r\n\r\n  vec4 topvel = texture(readVelocity,curuv+vec2(0.f,div));\r\n  vec4 rightvel = texture(readVelocity,curuv+vec2(div,0.f));\r\n  vec4 bottomvel = texture(readVelocity,curuv+vec2(0.f,-div));\r\n  vec4 leftvel = texture(readVelocity,curuv+vec2(-div,0.f));\r\n  vec4 curvel = texture(readVelocity,curuv);\r\n\r\n  float sumlen = length(topvel) + length(rightvel) + length(bottomvel) + length(leftvel);\r\n\r\n\r\n//  if(length(curvel) > (sumlen/4.0)){ // make sure velocity are not too large\r\n//      curvel *= (sumlen/4.0) / length(curvel);\r\n//  }\r\n\r\n  vec4 newVel = (topvel + rightvel + bottomvel + leftvel + alpha * curvel)/(4.0 + alpha);\r\n\r\n  //newVel = mix(newVel,curvel,slopeSin);\r\n  newVel = curvel;\r\n\r\n  vec4 curSediment = texture(readSediment,curuv);\r\n  vec4 curTerrain = texture(readTerrain,curuv);\r\n\r\n  //    t\r\n  //\r\n  // l  c--r\r\n  //    | /\r\n  //    b\r\n//  float nordis = div*1.f;\r\n//  vec4 nort = texture(readTerrain,curuv+vec2(0.f,nordis));\r\n//  vec4 norr = texture(readTerrain,curuv+vec2(nordis,0.f));\r\n//  vec4 norb = texture(readTerrain,curuv+vec2(0.f,-nordis));\r\n//  vec4 norl = texture(readTerrain,curuv+vec2(-nordis,0.f));\r\n//\r\n//  vec3 dx = vec3(1.f,(norr.x + right.x - curTerrain.x - curSediment.x),0.f);\r\n//  vec3 dy = vec3(1.f,(norr.x + right.x - norb.x - bottom.x),1.f);\r\n//\r\n//  vec3 nor = normalize(cross(dx,dy));\r\n\r\n\r\n\r\n\r\n  float velo = length(texture(readVelocity,curuv).xy);\r\n  velo = length(newVel.xy);\r\n  float slope = max(0.001f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));\r\n  float sedicap = Kc*slope*velo ;// * pow(curTerrain.y,0.2) ;\r\n\r\n  float lmax = 0.0f;\r\n  float maxdepth = 0.5;\r\n  if(curTerrain.y > maxdepth){ // max river bed depth\r\n    lmax = 0.0f;\r\n  }else{\r\n    lmax = 1.0 - ((maxdepth - curTerrain.y)/maxdepth);\r\n  }\r\n\r\n\r\n  //sedicap *= lmax;\r\n\r\n\r\n  float cursedi = curSediment.x;\r\n  float hight = curTerrain.x;\r\n  float outsedi = curSediment.x;\r\n\r\n  float water = curTerrain.y;\r\n\r\n  if(sedicap>cursedi){\r\n    float changesedi = (sedicap-cursedi)*Ks;\r\n    //changesedi = min(changesedi, curTerrain.y);\r\n    hight = hight - changesedi;\r\n   // water = water + (sedicap-cursedi)*Ks;\r\n    outsedi = outsedi + changesedi;\r\n  }else {\r\n    float changesedi = (cursedi-sedicap)*Kd;\r\n    //changesedi = min(changesedi, curTerrain.y);\r\n    hight = hight + changesedi;\r\n    //water = water - (cursedi-sedicap)*Kd;\r\n    outsedi = outsedi - changesedi;\r\n  }\r\n\r\n\r\n  writeTerrainNormal = vec4(vec3(slopeSin),1.f);\r\n  writeSediment = vec4(outsedi,0.0f,0.0f,1.0f);\r\n  writeTerrain = vec4(hight,curTerrain.y,curTerrain.z,curTerrain.w);\r\n  writeVelocity = newVel;\r\n}"
 
 /***/ }),
 /* 78 */
@@ -17741,7 +17669,7 @@ module.exports = "#version 300 es\r\n\r\n\r\nuniform mat4 u_Model;\r\nuniform ma
 /* 84 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\n\r\nuniform int u_TerrainType;\r\nuniform float u_WaterTransparency;\r\nuniform float u_SimRes;\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 1.0/u_SimRes;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n\r\n    vec3 n1 = normalize(vec3(-1.0, cur.y + cur.x - r.y - r.x, 0.f));\r\n    vec3 n2 = normalize(vec3(-1.0, t.x + t.y - r.y - r.x, 1.0));\r\n\r\n    vec3 nor = -cross(n1,n2);\r\n    nor = normalize(nor);\r\n    return nor;\r\n}\r\n\r\nvoid main()\r\n{\r\n\r\n\r\n    vec3 sundir = vec3(1.f,2.f,-1.f);\r\n    vec3 sundir2 = vec3(-1.f,2.f,1.f);\r\n    sundir2 = normalize(sundir2);\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 nor = -calnor(fs_Uv);\r\n    vec3 viewdir = normalize(u_Eye - fs_Pos);\r\n    vec3 lightdir = normalize(sundir);\r\n    vec3 halfway = normalize(lightdir + viewdir);\r\n    float spec = pow(max(dot(nor, halfway), 0.0), 333.0);\r\n\r\n\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    wval /= 1.0;\r\n\r\n\r\n\r\n    vec3 watercolor = mix(vec3(0.0,0.6,0.8), vec3(0.0,0.0,0.8), pow(wval,1.0));\r\n    vec3 watercolorspec = vec3(1.0);\r\n    watercolorspec *= spec;\r\n\r\n    out_Col = vec4(watercolor + watercolorspec,u_WaterTransparency * (wval + 0.0));\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\n\r\nuniform int u_TerrainType;\r\nuniform float u_WaterTransparency;\r\nuniform float u_SimRes;\r\nuniform vec3 unif_LightPos;\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 1.0/u_SimRes;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n\r\n    vec3 n1 = normalize(vec3(-1.0, cur.y + cur.x - r.y - r.x, 0.f));\r\n    vec3 n2 = normalize(vec3(-1.0, t.x + t.y - r.y - r.x, 1.0));\r\n\r\n    vec3 nor = -cross(n1,n2);\r\n    nor = normalize(nor);\r\n    return nor;\r\n}\r\n\r\nvoid main()\r\n{\r\n\r\n    float fbias = 0.1;\r\n    float fscale = 0.2;\r\n    float fpow = 10.0;\r\n    vec3 sundir = unif_LightPos;\r\n\r\n    sundir = normalize(sundir);\r\n\r\n    vec3 nor = -calnor(fs_Uv);\r\n    vec3 viewdir = normalize(u_Eye - fs_Pos);\r\n    vec3 lightdir = normalize(sundir);\r\n    vec3 halfway = normalize(lightdir + viewdir);\r\n    float spec = pow(max(dot(nor, halfway), 0.0), 333.0);\r\n\r\n\r\n    float R = max(0.0, min(1.0, fbias + fscale * pow(1.0 + dot(viewdir, nor), fpow)));\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    wval /= 1.0;\r\n\r\n\r\n\r\n    vec3 watercolor = mix(vec3(0.0,0.6,0.8), vec3(0.0,0.0,0.8), pow(wval,1.0));\r\n    vec3 watercolorspec = vec3(1.0);\r\n    watercolorspec *= spec;\r\n\r\n    out_Col = vec4(watercolor + watercolorspec ,u_WaterTransparency * (wval ));\r\n}\r\n"
 
 /***/ }),
 /* 85 */
@@ -17760,6 +17688,18 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampl
 /***/ (function(module, exports) {
 
 module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:\r\n\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_timestep;\r\nuniform float u_PipeArea;\r\nuniform float unif_thermalErosionScale;\r\n\r\nlayout (location = 0) out vec4 writeMaxslippage;\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n//\r\n//      x\r\n//  w   c   y\r\n//      z\r\n//\r\n\r\n\r\nvoid main() {\r\n\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float div = 1.f/u_SimRes;\r\n  float _maxHeightDiff = 2.0;\r\n\r\n  vec4 terraintop = texture(readTerrain,curuv+vec2(0.f,div));\r\n  vec4 terrainright = texture(readTerrain,curuv+vec2(div,0.f));\r\n  vec4 terrainbottom = texture(readTerrain,curuv+vec2(0.f,-div));\r\n  vec4 terrainleft = texture(readTerrain,curuv+vec2(-div,0.f));\r\n  vec4 terraincur = texture(readTerrain,curuv);\r\n\r\n  float maxLocalDiff = _maxHeightDiff * 0.01;\r\n  float avgDiff = (terraintop.x + terrainright.x + terrainbottom.x + terrainleft.x) * 0.25 - terraincur.x;\r\n  avgDiff = 1.0 * max(abs(avgDiff) - maxLocalDiff,0.0);\r\n\r\n  writeMaxslippage = vec4(max(_maxHeightDiff - avgDiff,0.0),0.0,0.0,1.0);\r\n\r\n}\r\n"
+
+/***/ }),
+/* 88 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\n\r\n\r\n\r\nuniform mat4 u_view;\r\nuniform mat4 u_proj;\r\nuniform mat4 u_Model;\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D sedimap;\r\nuniform float u_SimRes;\r\n\r\nin vec4 vs_Pos;\r\nin vec4 vs_Nor;\r\nin vec4 vs_Col;\r\nin vec2 vs_Uv;\r\n\r\nout vec3 fs_Pos;\r\nout vec4 fs_Nor;\r\nout vec4 fs_Col;\r\n\r\nout vec2 fs_Uv;\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n  fs_Uv = vs_Uv;\r\n  float sval = 1.f*texture(sedimap,vs_Uv).x;\r\n  float yval = 1.f*texture(hightmap,vs_Uv).x;\r\n  float wval = 1.f*texture(hightmap,vs_Uv).y;\r\n  vec4 modelposition = vec4(vs_Pos.x, (yval )/u_SimRes , vs_Pos.z, 1.0);\r\n  fs_Pos = modelposition.xyz;\r\n\r\n\r\n  modelposition = u_Model * modelposition;\r\n  gl_Position = u_proj * u_view * modelposition;\r\n}\r\n"
+
+/***/ }),
+/* 89 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\n\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\n\r\n\r\nuniform sampler2D hightmap;\r\n\r\nuniform sampler2D sedimap;\r\n\r\nlayout (location = 0) out vec4 shadowtex;\r\n\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\n\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\nuniform vec4 u_MouseWorldPos;\r\nuniform vec3 u_MouseWorldDir;\r\nuniform float u_BrushSize;\r\nuniform int u_BrushType;\r\nuniform vec2 u_BrushPos;\r\nuniform float u_SimRes;\r\nuniform float u_SnowRange;\r\n\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n    shadowtex = vec4(vec3(gl_FragCoord.z),1.f);\r\n}\r\n"
 
 /***/ })
 /******/ ]);

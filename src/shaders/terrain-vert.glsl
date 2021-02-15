@@ -6,6 +6,9 @@ uniform mat4 u_ModelInvTr;
 uniform mat4 u_ViewProj;
 uniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane
 
+uniform mat4 u_sproj;
+uniform mat4 u_sview;
+
 uniform sampler2D hightmap;
 uniform sampler2D sedimap;
 uniform float u_SimRes;
@@ -18,8 +21,8 @@ in vec2 vs_Uv;
 out vec3 fs_Pos;
 out vec4 fs_Nor;
 out vec4 fs_Col;
-
 out vec2 fs_Uv;
+out vec4 fs_shadowPos;
 
 
 
@@ -35,5 +38,8 @@ void main()
 
 
   modelposition = u_Model * modelposition;
+
+  fs_shadowPos = u_sproj * u_sview * modelposition;
+
   gl_Position = u_ViewProj * modelposition;
 }

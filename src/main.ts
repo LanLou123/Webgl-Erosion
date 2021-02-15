@@ -18,6 +18,7 @@ var lastX = 0;
 var lastY = 0;
 
 const simresolution = 1024;
+const shadowMapResolution = 4096;
 let erosioninterations = 68000;
 let speed = 3;
 const div = 1/simresolution;
@@ -57,13 +58,14 @@ const controlscomp = {
     brushSize : 2,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
+
 };
 
 
 const controls = {
   tesselations: 5,
     pipelen:  1.0,//
-    Kc : 0.2,
+    Kc : 0.4,
     Ks : 0.025,
     Kd : 0.002,
     timestep : 0.1,
@@ -79,12 +81,12 @@ const controls = {
     'Pause' : Pause,
     TerrainBaseMap : 0,
     TerrainBiomeType : 1,
-    TerrainScale : 1.0,
-    TerrainHeight : 1.0,
+    TerrainScale : 6.0,
+    TerrainHeight : 1.5,
     TerrainDebug : 0,
     WaterTransparency : 0.50,
-    SnowRange : 15,
-    brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
+    SnowRange : 50,
+    brushType : 1, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 2,
     brushStrenth : 0.3,
     brushOperation : 0, // 0 : add, 1 : subtract
@@ -93,6 +95,9 @@ const controls = {
     talusAngleTangentBias : 0.0,
     thermalRate : 0.5,
     thermalErosionScale : 1.0,
+    lightPosX : 1.0,
+    lightPosY : 0.5,
+    lightPosZ : -1.0,
 };
 
 
@@ -107,6 +112,12 @@ let waterPlane : Plane;
 // texture structure : R : terrain hight map, G : water carrying, B : sediment carrying
 let simres : number = simresolution;
 let frame_buffer : WebGLFramebuffer;
+let render_buffer : WebGLRenderbuffer;
+
+let shadowMap_frame_buffer : WebGLFramebuffer;
+let shadowMap_render_buffer : WebGLRenderbuffer;
+let shadowMap_tex : WebGLTexture;
+
 let read_terrain_tex : WebGLTexture;
 let write_terrain_tex : WebGLTexture;
 let read_flux_tex : WebGLTexture;
@@ -119,7 +130,6 @@ let read_vel_tex : WebGLTexture;
 let write_vel_tex : WebGLTexture;
 let read_sediment_tex : WebGLTexture;
 let write_sediment_tex : WebGLTexture;
-let render_buffer : WebGLRenderbuffer;
 let terrain_nor : WebGLTexture;
 let read_sediment_blend : WebGLTexture;
 let write_sediment_blend : WebGLTexture;
@@ -202,10 +212,6 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     //0---use hight map to derive hight map : hight map -----> hight map
     //////////////////////////////////////////////////////////////////
 
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
-
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
@@ -232,11 +238,8 @@ function SimulatePerStep(renderer:OpenGLRenderer,
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    let readUnifr = gl.getUniformLocation(rains.prog,"readTerrain");
-    gl.uniform1i(readUnifr,0);
-
-    let raind = gl.getUniformLocation(rains.prog,'raindeg');
-    gl.uniform1f(raind,controls.RainDegree);
+    gl.uniform1i(gl.getUniformLocation(rains.prog,"readTerrain"),0);
+    gl.uniform1f(gl.getUniformLocation(rains.prog,'raindeg'),controls.RainDegree);
 
     renderer.render(camera,rains,[square]);
 
@@ -261,10 +264,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     //////////////////////////////////////////////////////////////////
     //1---use hight map to derive flux map : hight map -----> flux map
     //////////////////////////////////////////////////////////////////
-    
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
+
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_flux_tex,0);
@@ -291,18 +291,15 @@ function SimulatePerStep(renderer:OpenGLRenderer,
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    let readUnif = gl.getUniformLocation(shader.prog,"readTerrain");
-    gl.uniform1i(readUnif,0);
+    gl.uniform1i(gl.getUniformLocation(shader.prog,"readTerrain"),0);
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D,read_flux_tex);
-    let readfluxUniff = gl.getUniformLocation(shader.prog,"readFlux");
-    gl.uniform1i(readfluxUniff,1);
+    gl.uniform1i(gl.getUniformLocation(shader.prog,"readFlux"),1);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
-    let readsediUniff = gl.getUniformLocation(shader.prog,"readSedi");
-    gl.uniform1i(readsediUniff,2);
+    gl.uniform1i(gl.getUniformLocation(shader.prog,"readSedi"),2);
 
     renderer.render(camera,shader,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -322,10 +319,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     //2---use flux map and hight map to derive velocity map and new hight map :
     // hight map + flux map -----> velocity map + hight map
     //////////////////////////////////////////////////////////////////
-    
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
+
     
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
@@ -353,18 +347,15 @@ function SimulatePerStep(renderer:OpenGLRenderer,
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    let readterrainUnifw = gl.getUniformLocation(waterhight.prog,"readTerrain");
-    gl.uniform1i(readterrainUnifw,0);
+    gl.uniform1i(gl.getUniformLocation(waterhight.prog,"readTerrain"),0);
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D,read_flux_tex);
-    let readfluxUnifw = gl.getUniformLocation(waterhight.prog,"readFlux");
-    gl.uniform1i(readfluxUnifw,1);
+    gl.uniform1i(gl.getUniformLocation(waterhight.prog,"readFlux"),1);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
-    let readsediUnifw = gl.getUniformLocation(waterhight.prog,"readSedi");
-    gl.uniform1i(readsediUnifw,2);
+    gl.uniform1i(gl.getUniformLocation(waterhight.prog,"readSedi"),2);
 
 
     renderer.render(camera,waterhight,[square]);
@@ -390,10 +381,6 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     //3---use velocity map, sediment map and hight map to derive sediment map and new hight map and velocity map :
     // hight map + velocity map + sediment map -----> sediment map + hight map + terrain normal map + velocity map
     //////////////////////////////////////////////////////////////////
-
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
@@ -421,18 +408,15 @@ function SimulatePerStep(renderer:OpenGLRenderer,
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    let readterrainUnifs = gl.getUniformLocation(sedi.prog,"readTerrain");
-    gl.uniform1i(readterrainUnifs,0);
+    gl.uniform1i(gl.getUniformLocation(sedi.prog,"readTerrain"),0);
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D,read_vel_tex);
-    let readvelUnifs = gl.getUniformLocation(sedi.prog,"readVelocity");
-    gl.uniform1i(readvelUnifs,1);
+    gl.uniform1i(gl.getUniformLocation(sedi.prog,"readVelocity"),1);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
-    let readsediUnifs = gl.getUniformLocation(sedi.prog,"readSediment");
-    gl.uniform1i(readsediUnifs,2);
+    gl.uniform1i(gl.getUniformLocation(sedi.prog,"readSediment"),2);
 
     renderer.render(camera,sedi,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -460,10 +444,6 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     // velocity map + sediment map -----> sediment map
     //////////////////////////////////////////////////////////////////
 
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
-
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_sediment_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,write_vel_tex,0);
@@ -490,13 +470,11 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     advect.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_vel_tex);
-    let readvelUnifa = gl.getUniformLocation(advect.prog,"vel");
-    gl.uniform1i(readvelUnifa,0);
+    gl.uniform1i(gl.getUniformLocation(advect.prog,"vel"),0);
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
-    let readsediUnifa = gl.getUniformLocation(advect.prog,"sedi");
-    gl.uniform1i(readsediUnifa,1);
+    gl.uniform1i(gl.getUniformLocation(advect.prog,"sedi"),1);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D,read_sediment_blend);
@@ -531,9 +509,6 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     // hight map -----> max slippage  map
     //////////////////////////////////////////////////////////////////
 
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_maxslippage_tex,0);
@@ -561,8 +536,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     maxslippageheight.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    let readvelUnifm = gl.getUniformLocation(maxslippageheight.prog,"readTerrain");
-    gl.uniform1i(readvelUnifm,0);
+    gl.uniform1i(gl.getUniformLocation(maxslippageheight.prog,"readTerrain"),0);
 
 
 
@@ -583,10 +557,6 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     // 5---use velocity map, sediment map to derive new sediment map :
     // hight map -----> terrain flux map
     //////////////////////////////////////////////////////////////////
-
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_flux_tex,0);
@@ -614,13 +584,11 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     thermalterrainflux.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    let readvelUnift = gl.getUniformLocation(thermalterrainflux.prog,"readTerrain");
-    gl.uniform1i(readvelUnift,0);
+    gl.uniform1i( gl.getUniformLocation(thermalterrainflux.prog,"readTerrain"),0);
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D,read_maxslippage_tex);
-    let readslippageUnift = gl.getUniformLocation(thermalterrainflux.prog,"readMaxSlippage");
-    gl.uniform1i(readslippageUnift,1);
+    gl.uniform1i(gl.getUniformLocation(thermalterrainflux.prog,"readMaxSlippage"),1);
 
 
     renderer.render(camera,thermalterrainflux,[square]);
@@ -638,10 +606,6 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     // 6---use terrain flux map to derive new terrain map :
     // terrain flux map -----> terrain map
     //////////////////////////////////////////////////////////////////
-
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
@@ -669,13 +633,11 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     thermalapply.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_flux_tex);
-    let readvelUnifta = gl.getUniformLocation(thermalapply.prog,"readTerrainFlux");
-    gl.uniform1i(readvelUnifta,0);
+    gl.uniform1i(gl.getUniformLocation(thermalapply.prog,"readTerrainFlux"),0);
 
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    let readterrainUnifta = gl.getUniformLocation(thermalapply.prog,"readTerrain");
-    gl.uniform1i(readterrainUnifta,1);
+    gl.uniform1i(gl.getUniformLocation(thermalapply.prog,"readTerrain"),1);
 
 
     renderer.render(camera,thermalapply,[square]);
@@ -693,10 +655,6 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     // 7---use terrain map to derive new terrain map :
     // terrain map -----> terrain map
     //////////////////////////////////////////////////////////////////
-
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
@@ -724,11 +682,8 @@ function SimulatePerStep(renderer:OpenGLRenderer,
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    let readterrainUnife = gl.getUniformLocation(eva.prog,"terrain");
-    gl.uniform1i(readterrainUnife,0);
-
-    let erapodegree = gl.getUniformLocation(eva.prog,'evapod');
-    gl.uniform1f(erapodegree,controls.EvaporationDegree);
+    gl.uniform1i(gl.getUniformLocation(eva.prog,"terrain"),0);
+    gl.uniform1f(gl.getUniformLocation(eva.prog,'evapod'),controls.EvaporationDegree);
 
     renderer.render(camera,eva,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -747,10 +702,6 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     // 6---use terrain map to derive new terrain map :
     //  terrain map -----> terrain map
     //////////////////////////////////////////////////////////////////
-    gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
-        simres,simres);
-
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,terrain_nor,0);
@@ -774,8 +725,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     ave.use();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    readterrainUnife = gl.getUniformLocation(ave.prog,"readTerrain");
-    gl.uniform1i(readterrainUnife,0);
+    gl.uniform1i(gl.getUniformLocation(ave.prog,"readTerrain"),0);
     renderer.render(camera,ave,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
     //---------------swap terrain mao----------------------------
@@ -787,152 +737,54 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     //---------------swap terrain mao----------------------------
 }
 
-
+function LE_create_texture(w : number, h : number){
+    let new_tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,new_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,w,h,0,
+        gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return new_tex;
+}
 
 function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
-    frame_buffer = gl.createFramebuffer();
+
 
     //Noise generated data from GPU texture, include population density, water distribution, terrain elevation...
-    read_terrain_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    read_terrain_tex = LE_create_texture(simres,simres);
+    write_terrain_tex = LE_create_texture(simres,simres);
 
-    write_terrain_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,write_terrain_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    read_flux_tex = LE_create_texture(simres,simres);
+    write_flux_tex = LE_create_texture(simres,simres);
 
-    read_flux_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,read_flux_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    read_terrain_flux_tex = LE_create_texture(simres,simres);
+    write_terrain_flux_tex = LE_create_texture(simres,simres);
 
+    read_maxslippage_tex = LE_create_texture(simres,simres);
+    write_maxslippage_tex = LE_create_texture(simres,simres);
 
-    write_flux_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,write_flux_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    read_vel_tex = LE_create_texture(simres,simres);
+    write_vel_tex = LE_create_texture(simres,simres);
 
-    read_terrain_flux_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,read_terrain_flux_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    read_sediment_tex = LE_create_texture(simres,simres);
+    write_sediment_tex = LE_create_texture(simres,simres);
 
+    terrain_nor = LE_create_texture(simres,simres);
 
-    write_terrain_flux_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,write_terrain_flux_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    read_sediment_blend = LE_create_texture(simres,simres);
+    write_sediment_blend = LE_create_texture(simres,simres);
 
-    read_maxslippage_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,read_maxslippage_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    shadowMap_tex = LE_create_texture(shadowMapResolution, shadowMapResolution);
 
-    write_maxslippage_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,write_maxslippage_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    shadowMap_frame_buffer = gl.createFramebuffer();
+    shadowMap_render_buffer = gl.createRenderbuffer();
+    gl.bindRenderbuffer(gl.RENDERBUFFER,shadowMap_render_buffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
+        shadowMapResolution,shadowMapResolution);
 
-    read_vel_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,read_vel_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    write_vel_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,write_vel_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-
-    read_sediment_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-
-    write_sediment_tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,write_sediment_tex);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    terrain_nor = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,terrain_nor);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    read_sediment_blend = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,read_sediment_blend);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    write_sediment_blend = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,write_sediment_blend);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,simres,simres,0,
-        gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    //specify our render buffer here
+    frame_buffer = gl.createFramebuffer();
     render_buffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
     gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
@@ -1031,19 +883,11 @@ function main() {
     var renderingpara = gui.addFolder('Rendering Parameters');
     renderingpara.add(controls, 'WaterTransparency', 0.0, 1.0);
     renderingpara.add(controls,'SnowRange',0.0,100.0);
+    var renderingparalightpos = renderingpara.addFolder('Shadow map LightPos/Dir');
+    renderingparalightpos.add(controls,'lightPosX',-1.0,1.0);
+    renderingparalightpos.add(controls,'lightPosY',0.0,1.0);
+    renderingparalightpos.add(controls,'lightPosZ',-1.0,1.0);
     renderingpara.open();
-  // gui.add(controls, 'spawnposx' ,0.0, 1.0);
-  // gui.add(controls, 'spawnposy' ,0.0, 1.0);
-  //gui.add(controls,'setTerrainRandom');
-
-  /*
-  gui.add(controls,"pipelen",div/20,div*4).step(div/20);
-  gui.add(controls,'Kc',0.0,.1).step(0.0001);
-  gui.add(controls,'Ks',0.0,.1).step(0.0001);
-  gui.add(controls,'Kd',0.0,.1).step(0.0001);
-  gui.add(controls,'timestep',0.0000001,.001).step(0.0000001);
-  gui.add(controls,'pipeAra',0.01*div*div,2*div*div).step(0.01*div*div);
-  */
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -1164,6 +1008,11 @@ function main() {
         new Shader(gl.FRAGMENT_SHADER, require('./shaders/maxslippageheight-frag.glsl')),
     ]);
 
+    const shadowMapShader = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/shadowmap-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/shadowmap-frag.glsl')),
+    ]);
+
     noiseterrain.setRndTerrain(controls.TerrainBaseMap);
     noiseterrain.setTerrainType(controls.TerrainBiomeType);
 
@@ -1197,7 +1046,7 @@ function main() {
             vec2.floor(scaledTexSpace,scaledTexSpace);
             let hvalcoordinate = scaledTexSpace[1] * simres * 4 + scaledTexSpace[0] * 4 + 0;
             let hval = HightMapCpuBuf[hvalcoordinate];
-            if(cur[1] <  hval/1000.0){
+            if(cur[1] <  hval/simres){
                 res = curTexSpace;
                 //console.log(curTexSpace);
                 break;
@@ -1270,9 +1119,13 @@ function main() {
     rains.setSpawnPos(vec2.fromValues(controls.spawnposx, controls.spawnposy));
     rains.setTime(timer);
     flat.setTime(timer);
-    lambert.setTerrainDebug(controls.TerrainDebug);
+    gl.uniform3fv(gl.getUniformLocation(flat.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
+
     water.setWaterTransparency(controls.WaterTransparency);
     water.setSimres(simresolution);
+    gl.uniform3fv(gl.getUniformLocation(water.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
+
+    lambert.setTerrainDebug(controls.TerrainDebug);
     lambert.setMouseWorldPos(mousePoint);
     lambert.setMouseWorldDir(dir);
     lambert.setBrushSize(controls.brushSize);
@@ -1280,6 +1133,8 @@ function main() {
     lambert.setBrushPos(pos);
     lambert.setSimres(simresolution);
     lambert.setFloat(controls.SnowRange, "u_SnowRange");
+    gl.uniform3fv(gl.getUniformLocation(lambert.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
+
 
     rains.setMouseWorldPos(mousePoint);
     rains.setMouseWorldDir(dir);
@@ -1339,6 +1194,8 @@ function main() {
     camera.update();
     stats.begin();
 
+      //=================== begin simulation ==================
+
     for(let i = 0;i<speed;i++) {
         SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect,rains,evaporation,average,thermalterrainflux, thermalapply, maxslippageheight, renderer, gl, camera);
         SimFramecnt++;
@@ -1347,10 +1204,53 @@ function main() {
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
 
+    //==========================begin render shadow map pass=====================================
 
 
-    // render terrain -----------------------------------------
+      gl.bindFramebuffer(gl.FRAMEBUFFER,shadowMap_frame_buffer);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,shadowMap_tex,0);
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,shadowMap_render_buffer);
+
+      gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+      let status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+      if (status !== gl.FRAMEBUFFER_COMPLETE) {
+          console.log( "frame buffer status:" + status.toString());
+      }
+
+      gl.bindTexture(gl.TEXTURE_2D,null);
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+      gl.bindRenderbuffer(gl.RENDERBUFFER,null);
+
+      gl.viewport(0,0,shadowMapResolution,shadowMapResolution);
+      gl.bindFramebuffer(gl.FRAMEBUFFER,shadowMap_frame_buffer);
+      renderer.clear();
+      shadowMapShader.use();
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
+      gl.uniform1i(gl.getUniformLocation(shadowMapShader.prog,"hightmap"),0);
+
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
+      gl.uniform1i(gl.getUniformLocation(shadowMapShader.prog, "sedimap"), 1);
+
+      let lightViewMat = mat4.create();
+      let lightProjMat = mat4.create();
+      lightProjMat = mat4.ortho(lightProjMat,-0.6,0.6,-0.6,0.6,0,100);
+      lightViewMat = mat4.lookAt(lightViewMat, [controls.lightPosX,controls.lightPosY,controls.lightPosZ],[0,0,0],[0,1,0]);
+
+      gl.uniformMatrix4fv(gl.getUniformLocation(shadowMapShader.prog,'u_proj'),false,lightProjMat);
+      gl.uniformMatrix4fv(gl.getUniformLocation(shadowMapShader.prog,'u_view'),false,lightViewMat);
+      shadowMapShader.setSimres(simres);
+
+      renderer.render(camera,shadowMapShader,[plane]);
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+
+
+    //============================= begin render terrain -----------------------------------------
     lambert.use();
+    gl.viewport(0,0,window.innerWidth, window.innerHeight);
     //plane.setDrawMode(gl.LINE_STRIP);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
@@ -1391,6 +1291,13 @@ function main() {
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_blend);
     gl.uniform1i(gl.getUniformLocation(lambert.prog, "sediBlend"), 7);
 
+
+    gl.activeTexture(gl.TEXTURE8);
+    gl.bindTexture(gl.TEXTURE_2D, shadowMap_tex);
+    gl.uniform1i(gl.getUniformLocation(lambert.prog, "shadowMap"), 8);
+
+    gl.uniformMatrix4fv(gl.getUniformLocation(lambert.prog,'u_sproj'),false,lightProjMat);
+    gl.uniformMatrix4fv(gl.getUniformLocation(lambert.prog,'u_sview'),false,lightViewMat);
 
       renderer.render(camera, lambert, [
       plane,

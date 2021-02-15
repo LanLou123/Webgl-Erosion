@@ -25,6 +25,9 @@
 
 ### some screenshots
 
+#### added Raleigh scattering & shadow map
+![](screenshot/raleigh.PNG)
+
 #### a lonely mountain
 ![](screenshot/lonemountain.PNG)
 

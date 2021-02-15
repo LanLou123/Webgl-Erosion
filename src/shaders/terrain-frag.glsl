@@ -7,7 +7,9 @@ uniform vec2 u_PlanePos; // Our location in the virtual world displayed by the p
 in vec3 fs_Pos;
 in vec4 fs_Nor;
 in vec4 fs_Col;
-
+in float fs_Sine;
+in vec2 fs_Uv;
+in vec4 fs_shadowPos;
 
 uniform sampler2D hightmap;
 uniform sampler2D normap;
@@ -17,10 +19,11 @@ uniform sampler2D fluxmap;
 uniform sampler2D terrainfluxmap;
 uniform sampler2D maxslippagemap;
 uniform sampler2D sediBlend;
+uniform sampler2D shadowMap;
+
+#define PI 3.1415926
 
 
-in float fs_Sine;
-in vec2 fs_Uv;
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
 uniform vec3 u_Eye, u_Ref, u_Up;
@@ -34,6 +37,10 @@ uniform int u_BrushType;
 uniform vec2 u_BrushPos;
 uniform float u_SimRes;
 uniform float u_SnowRange;
+uniform vec3 unif_LightPos;
+
+uniform mat4 u_sproj;
+uniform mat4 u_sview;
 
 vec3 calnor(vec2 uv){
     float eps = 1.f/u_SimRes;
@@ -52,6 +59,24 @@ vec3 calnor(vec2 uv){
 
 void main()
 {
+    float shadowVal = 1.0f;
+    vec3 shadowCol = vec3(1.0);
+    vec3 ambientCol = vec3(0.01);
+    vec3 shadowMapLoc = fs_shadowPos.xyz / fs_shadowPos.w;
+    shadowMapLoc = shadowMapLoc*0.5+0.5;
+    float texsize = 1.0/4096.0f;
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, shadowMapLoc.xy + vec2(x, y) * texsize).r;
+            shadowVal += shadowMapLoc.z - 0.0001 > pcfDepth ? .1 : 1.;
+            shadowCol += shadowMapLoc.z - 0.0001 > pcfDepth ? vec3(0.02,0.01,0.09) : vec3(1.0);
+        }
+    }
+    shadowVal/=9.0;
+    shadowCol/=9.0;
+    //shadowVal = texture(shadowMap, shadowMapLoc.xy).x;
 
     vec3 forestcol = vec3(143.0/255.0,255.0/255.0,7.0/255.0)*0.6;
     vec3 mtncolor = vec3(0.99,0.99,0.99);
@@ -85,16 +110,20 @@ void main()
     }
 
 
-    vec3 sundir = vec3(1.f,2.f,-1.f);
-    vec3 sundir2 = vec3(-1.f,2.f,1.f);
-    sundir2 = normalize(sundir2);
+    vec3 sundir = unif_LightPos;
+
     sundir = normalize(sundir);
+
 
     vec3 slopesin = texture(normap,fs_Uv).xyz;
     vec3 nor = -calnor(fs_Uv);
 
-    float lamb = dot(nor,sundir);
-    float lamb2 = dot(nor,sundir2);
+    float angle = dot(sundir,vec3(0.0,1.0,0.0));
+    vec3 hue = mix(vec3(255.0,255.0,220.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
+
+
+    float lamb = dot(nor,vec3(sundir.x,sundir.y,-sundir.z));
+
 
     //lamb =1.f;
 
@@ -133,7 +162,7 @@ void main()
     //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));
 
 
-    vec3 normal = lamb*(finalcol);
+    vec3 normal = lamb*(finalcol) + ambientCol;
     vec3 fcol = normal;
     //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4
     if(u_TerrainDebug == 0){
@@ -163,5 +192,7 @@ void main()
 
     fcol += addcol;
 
-    out_Col = vec4(vec3(fcol)*1.0,1.f);
+
+
+    out_Col = vec4(hue*vec3(fcol)*1.0*shadowCol,1.f);
 }

@@ -18,6 +18,7 @@ uniform vec2 u_Dimensions;
 uniform int u_TerrainType;
 uniform float u_WaterTransparency;
 uniform float u_SimRes;
+uniform vec3 unif_LightPos;
 
 vec3 calnor(vec2 uv){
     float eps = 1.0/u_SimRes;
@@ -36,10 +37,11 @@ vec3 calnor(vec2 uv){
 void main()
 {
 
+    float fbias = 0.1;
+    float fscale = 0.2;
+    float fpow = 10.0;
+    vec3 sundir = unif_LightPos;
 
-    vec3 sundir = vec3(1.f,2.f,-1.f);
-    vec3 sundir2 = vec3(-1.f,2.f,1.f);
-    sundir2 = normalize(sundir2);
     sundir = normalize(sundir);
 
     vec3 nor = -calnor(fs_Uv);
@@ -49,6 +51,7 @@ void main()
     float spec = pow(max(dot(nor, halfway), 0.0), 333.0);
 
 
+    float R = max(0.0, min(1.0, fbias + fscale * pow(1.0 + dot(viewdir, nor), fpow)));
 
     //lamb =1.f;
 
@@ -62,5 +65,5 @@ void main()
     vec3 watercolorspec = vec3(1.0);
     watercolorspec *= spec;
 
-    out_Col = vec4(watercolor + watercolorspec,u_WaterTransparency * (wval + 0.0));
+    out_Col = vec4(watercolor + watercolorspec ,u_WaterTransparency * (wval ));
 }
