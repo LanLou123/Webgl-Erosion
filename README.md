@@ -1,5 +1,6 @@
 ﻿## Terrain erosion sandbox in WebGl
 
+![](screenshot/snowMt.PNG)
 
 ## [**Youtube Link**](https://www.youtube.com/watch?v=Vt40p8syB6w&t=2s)
 
@@ -152,6 +153,7 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
 - muti-layered(rock/sand/etc) erosion
 - Terrain features like instaced tree placements
 - postprocessing effects
+- muti-tiled based simulation (webgl might not be the best choice here)
 
 ### Reference
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)

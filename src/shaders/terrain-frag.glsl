@@ -105,6 +105,7 @@ void main()
     vec3 finalcol = vec3(0);
 
 
+    forestcol = mtncolor;
     if(yval<=100.0){
         finalcol = forestcol;
     }else if(yval>100.0&&yval<=150.0){
@@ -120,8 +121,8 @@ void main()
     }
 
 
-    if(abs(nor.y)<0.8){
-        finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.8,u_SnowRange));
+    if(abs(nor.y)<0.75){
+        finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.75,u_SnowRange));
     }
 
    // finalcol = obsidian;
