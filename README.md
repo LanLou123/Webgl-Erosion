@@ -2,7 +2,7 @@
 
 ![](screenshot/snowMt.PNG)
 
-## [**Youtube Link**](https://www.youtube.com/watch?v=Vt40p8syB6w&t=2s)
+## [**Video How 2 create A mountain with simulator**](https://www.youtube.com/watch?v=U2Vd-0TF4ks&feature=youtu.be)
 
 ## [**DEMO** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
