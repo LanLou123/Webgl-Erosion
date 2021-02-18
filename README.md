@@ -162,6 +162,10 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - Background Raleigh & Mie scattering atmosphere scattering based on scientific approximation and this [amazing example](https://github.com/wwwtyro/glsl-atmosphere)
    - another Close range Mie atmosphere scattering was also added since I feel Raleigh scattering cannot show good enough results if we choose sample points too close to camera, this one is a bit trickyer than previous, since it involves accessing depth buffers from previous render passes(shadow map) and current pass(scene depth buffer) to compare, raymarching&sampling methods is similar to previous Raleigh scattering steps, the difference here is that we also need to do depth comparision between sample point (scene depth map for in scattering and shadow map for out scattering)
 
+#### atmosphere scattering in action : 
+
+![](screenshot/ady.gif)
+
 ### Future Plans:
 - Better GUI & Visulization
 - muti-layered(rock/sand/etc) erosion

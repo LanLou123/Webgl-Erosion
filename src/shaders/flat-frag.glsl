@@ -250,5 +250,5 @@ void main() {
     float angle = dot(normalize(unif_LightPos),vec3(0.0,1.0,0.0));
     vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
 
-    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/2.0)), pow(finalCol.w, 1.0 / 2.0));
+    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/2.0)), pow(finalCol.w, 1.4 / 1.0));
 }

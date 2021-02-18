@@ -70,7 +70,7 @@ const controls = {
     Kd : 0.005,
     timestep : 0.1,
     pipeAra :  0.008,
-    EvaporationDegree : 0.0001,
+    EvaporationDegree : 0.0008,
     RainDegree : 4.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
