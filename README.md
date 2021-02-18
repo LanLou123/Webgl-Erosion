@@ -8,6 +8,7 @@
 
 ## [**Video How 2 create A mountain with simulator**](https://www.youtube.com/watch?v=U2Vd-0TF4ks&feature=youtu.be)
 
+
 ## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
 
@@ -159,14 +160,15 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
 ### Rendering
    - simple shadowmapping with a small pcf kernel
    - Background Raleigh & Mie scattering atmosphere scattering based on scientific approximation and this [amazing example](https://github.com/wwwtyro/glsl-atmosphere)
-   - another Close range Mie atmosphere scattering was also added since I feel Raleigh scattering cannot show good enough results if we choose sample points too close to camera, this one is a bit trickyer than previous, since it involves accessing depth buffers from previous buffers(shadow map) and current buffers(scene depth buffer) to compare, raymarching&sampling methods is similar to previous Raleigh scattering steps, the difference here is that we also need to do depth comparision between sample point (scene depth map for in scattering and shadow map for out scattering)
+   - another Close range Mie atmosphere scattering was also added since I feel Raleigh scattering cannot show good enough results if we choose sample points too close to camera, this one is a bit trickyer than previous, since it involves accessing depth buffers from previous render passes(shadow map) and current pass(scene depth buffer) to compare, raymarching&sampling methods is similar to previous Raleigh scattering steps, the difference here is that we also need to do depth comparision between sample point (scene depth map for in scattering and shadow map for out scattering)
 
 ### Future Plans:
 - Better GUI & Visulization
 - muti-layered(rock/sand/etc) erosion
 - Terrain features like instaced tree placements
-- postprocessing effects
+- postprocessing effects (ray marched cloud for example, since ray marched Mie scattering is done, cloud should be fairly simple to work based on it)
 - muti-tiled based simulation (webgl might not be the best choice here)
+- Biomes
 
 ### Reference
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
