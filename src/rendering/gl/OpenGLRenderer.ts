@@ -3,10 +3,12 @@ import Drawable from './Drawable';
 import Camera from '../../Camera';
 import {gl} from '../../globals';
 import ShaderProgram from './ShaderProgram';
+import {isNumber} from "util";
 
 // In this file, `gl` is accessible because it is imported above
-class OpenGLRenderer {
+class OpenGLRenderer {    counter : number;
   constructor(public canvas: HTMLCanvasElement) {
+  this.counter = 0;
   }
 
   setClearColor(r: number, g: number, b: number, a: number) {
@@ -31,7 +33,7 @@ class OpenGLRenderer {
     mat4.multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
     prog.setModelMatrix(model);
     prog.setViewProjMatrix(viewProj);
-    prog.setEyeRefUp(camera.controls.eye, camera.controls.center, camera.controls.up);
+    prog.setEyeRefUp(camera.position, camera.target, camera.up);
     prog.setDimensions(this.canvas.width,this.canvas.height);
 
     for (let drawable of drawables) {

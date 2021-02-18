@@ -3,19 +3,30 @@
   <component name="ChangeListManager">
     <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/bundle.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bundle.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/bundle.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/dist/bundle.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Camera.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/Camera.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/geometry/Square.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/geometry/Square.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rendering/gl/OpenGLRenderer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/rendering/gl/OpenGLRenderer.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/average-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/average-frag.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/flat-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/flat-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/sediment-frag.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-vert.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/water-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/water-frag.glsl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -43,7 +54,10 @@
     <property name="ts.external.directory.path" value="D:\my_erosion\Webgl-Erosion\node_modules\typescript\lib" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
-  <component name="RunManager" selected="npm.start">
+  <component name="ReaderModeSettings">
+    <option name="enabled" value="false" />
+  </component>
+  <component name="RunManager" selected="npm.build">
     <configuration name="Unnamed" type="js.build_tools.npm">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -127,7 +141,8 @@
       <workItem from="1612769658913" duration="36873000" />
       <workItem from="1613026766766" duration="6206000" />
       <workItem from="1613066181540" duration="28420000" />
-      <workItem from="1613109942599" duration="129443000" />
+      <workItem from="1613109942599" duration="209843000" />
+      <workItem from="1613607474169" duration="8391000" />
     </task>
     <servers />
   </component>

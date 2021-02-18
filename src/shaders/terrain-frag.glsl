@@ -119,7 +119,7 @@ void main()
     vec3 nor = -calnor(fs_Uv);
 
     float angle = dot(sundir,vec3(0.0,1.0,0.0));
-    vec3 hue = mix(vec3(255.0,255.0,220.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
+    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
 
 
     float lamb = dot(nor,vec3(sundir.x,sundir.y,-sundir.z));

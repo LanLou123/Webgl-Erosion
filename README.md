@@ -2,6 +2,10 @@
 
 ![](screenshot/snowMt.PNG)
 
+- Atmosphere scattering working at full scale :
+
+![](screenshot/atmosphere.PNG)
+
 ## [**Video How 2 create A mountain with simulator**](https://www.youtube.com/watch?v=U2Vd-0TF4ks&feature=youtu.be)
 
 ## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
@@ -145,11 +149,17 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - thermal appy step : ```terrain/slippage flux map -----> terrain map```
    - Water evaporation step : ```terrain map -----> terrain map```
   
--  **Terrain Editor**
+### Terrain Editor
    - Terrain edition is implemented with a ray caster on CPU,
    - mouse position has to be transfered from screen space to world space first on CPU
    - terrain height map is passed from GPU to CPU every 5 frames which equals to 80 ms, it's neglectable since terrain chnage from erosion is not much in 80ms, but we can save a lot of performace with this since GPU texture buffer read on CPU can get really expensive
    - ray cast into the height map buffer to estimate collison location
+   - sidenote here : threeJS's orbitcontrol has a function call in it's onMouseDown callback named ```event.preventDefault()`` to disable further mouseMoveEvent callbacks so that only it's own member has access to mouse pos, this happened to make my mousecallback responsible for raycasting ineffective, need to remember comment out that preventdefault thingy when simmilar things happen in the future
+
+### Rendering
+   - simple shadowmapping with a small pcf kernel
+   - Background Raleigh & Mie scattering atmosphere scattering based on scientific approximation and this [amazing example](https://github.com/wwwtyro/glsl-atmosphere)
+   - another Close range Mie atmosphere scattering was also added since I feel Raleigh scattering cannot show good enough results if we choose sample points too close to camera, this one is a bit trickyer than previous, since it involves accessing depth buffers from previous buffers(shadow map) and current buffers(scene depth buffer) to compare, raymarching&sampling methods is similar to previous Raleigh scattering steps, the difference here is that we also need to do depth comparision between sample point (scene depth map for in scattering and shadow map for out scattering)
 
 ### Future Plans:
 - Better GUI & Visulization

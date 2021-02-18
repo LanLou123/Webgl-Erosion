@@ -67,7 +67,7 @@ const controls = {
     pipelen:  1.0,//
     Kc : 0.4,
     Ks : 0.025,
-    Kd : 0.002,
+    Kd : 0.005,
     timestep : 0.1,
     pipeAra :  0.008,
     EvaporationDegree : 0.0001,
@@ -98,7 +98,10 @@ const controls = {
     lightPosX : 1.0,
     lightPosY : 0.5,
     lightPosZ : -1.0,
+    showScattering : true,
 };
+
+
 
 
 function StartGeneration(){
@@ -117,6 +120,10 @@ let render_buffer : WebGLRenderbuffer;
 let shadowMap_frame_buffer : WebGLFramebuffer;
 let shadowMap_render_buffer : WebGLRenderbuffer;
 let shadowMap_tex : WebGLTexture;
+
+let deferred_frame_buffer : WebGLFramebuffer;
+let deferred_render_buffer : WebGLRenderbuffer;
+let scene_depth_tex : WebGLTexture;
 
 let read_terrain_tex : WebGLTexture;
 let write_terrain_tex : WebGLTexture;
@@ -143,6 +150,9 @@ function loadScene() {
   waterPlane = new Plane(vec3.fromValues(0,0,0), vec2.fromValues(1,1), 18);
   waterPlane.create();
 }
+
+
+
 
 function Pause(){
     PauseGeneration = true;
@@ -777,12 +787,19 @@ function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
     write_sediment_blend = LE_create_texture(simres,simres);
 
     shadowMap_tex = LE_create_texture(shadowMapResolution, shadowMapResolution);
+    scene_depth_tex = LE_create_texture(window.innerWidth,window.innerHeight);
 
     shadowMap_frame_buffer = gl.createFramebuffer();
     shadowMap_render_buffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER,shadowMap_render_buffer);
     gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
         shadowMapResolution,shadowMapResolution);
+
+    deferred_frame_buffer = gl.createFramebuffer();
+    deferred_render_buffer = gl.createRenderbuffer();
+    gl.bindRenderbuffer(gl.RENDERBUFFER,deferred_render_buffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
+        window.innerWidth,window.innerHeight);
 
     frame_buffer = gl.createFramebuffer();
     render_buffer = gl.createRenderbuffer();
@@ -821,6 +838,7 @@ function SimulationStep(curstep:number,
 function handleInteraction (buttons : number, x : number, y : number){
     lastX = x;
     lastY = y;
+    //console.log(x + ' ' + y);
 }
 
 function onKeyDown(event : KeyboardEvent){
@@ -847,6 +865,7 @@ function main() {
   stats.domElement.style.top = '0px';
   document.body.appendChild(stats.domElement);
 
+
   // Add controls to the gui
   const gui = new DAT.GUI();
   // gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
@@ -866,7 +885,7 @@ function main() {
     erosionpara.add(controls,'Kc', 0.1,1.0);
     erosionpara.add(controls,'Ks', 0.001,0.1);
     erosionpara.add(controls,'Kd', 0.0001,0.1);
-    erosionpara.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6, sedimentBlend : 7, slopesin : 8});
+    erosionpara.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6, sedimentBlend : 7, spikeDiffusion : 8});
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
     thermalerosionpara.add(controls,'talusAngleFallOffCoeff',0.0, 1.0 );
@@ -883,6 +902,7 @@ function main() {
     var renderingpara = gui.addFolder('Rendering Parameters');
     renderingpara.add(controls, 'WaterTransparency', 0.0, 1.0);
     renderingpara.add(controls,'SnowRange',0.0,100.0);
+    renderingpara.add(controls,'showScattering');
     var renderingparalightpos = renderingpara.addFolder('Shadow map LightPos/Dir');
     renderingparalightpos.add(controls,'lightPosX',-1.0,1.0);
     renderingparalightpos.add(controls,'lightPosY',0.0,1.0);
@@ -895,6 +915,7 @@ function main() {
 
   clientWidth = canvas.clientWidth;
   clientHeight = canvas.clientHeight;
+
 
   mouseChange(canvas, handleInteraction);
   document.addEventListener('keydown', onKeyDown, false);
@@ -1013,6 +1034,11 @@ function main() {
         new Shader(gl.FRAGMENT_SHADER, require('./shaders/shadowmap-frag.glsl')),
     ]);
 
+    const sceneDepthShader = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/terrain-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/sceneDepth-frag.glsl')),
+    ]);
+
     noiseterrain.setRndTerrain(controls.TerrainBaseMap);
     noiseterrain.setTerrainType(controls.TerrainBiomeType);
 
@@ -1065,10 +1091,10 @@ function main() {
 
     // ================ ray casting ===================
     //===================================================
-    clientWidth = canvas.clientWidth;
-    clientHeight = canvas.clientHeight;
-    var screenMouseX = lastX / clientWidth;
-    var screenMouseY = lastY / clientHeight;
+    let iclientWidth = window.innerWidth;
+    let iclientHeight = window.innerHeight;
+    var screenMouseX = lastX / iclientWidth;
+    var screenMouseY = lastY / iclientHeight;
     //console.log(screenMouseX + ' ' + screenMouseY);
 
       //console.log(clientHeight + ' ' + clientWidth);
@@ -1135,6 +1161,9 @@ function main() {
     lambert.setFloat(controls.SnowRange, "u_SnowRange");
     gl.uniform3fv(gl.getUniformLocation(lambert.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
 
+
+
+    sceneDepthShader.setSimres(simresolution);
 
     rains.setMouseWorldPos(mousePoint);
     rains.setMouseWorldDir(dir);
@@ -1224,7 +1253,7 @@ function main() {
 
       gl.viewport(0,0,shadowMapResolution,shadowMapResolution);
       gl.bindFramebuffer(gl.FRAMEBUFFER,shadowMap_frame_buffer);
-      renderer.clear();
+      renderer.clear();// clear when attached to shadow map
       shadowMapShader.use();
 
       gl.activeTexture(gl.TEXTURE0);
@@ -1248,7 +1277,29 @@ function main() {
       gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
 
+      //=========================== begin render scene depth tex ================================
+      sceneDepthShader.use();
+      gl.bindFramebuffer(gl.FRAMEBUFFER,deferred_frame_buffer);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,scene_depth_tex,0);
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,deferred_render_buffer);
+
+      gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+      status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+      if (status !== gl.FRAMEBUFFER_COMPLETE) {
+          console.log( "frame buffer status:" + status.toString());
+      }
+
+      renderer.clear();// clear when attached to scene depth map
+      gl.viewport(0,0,window.innerWidth, window.innerHeight);
+      renderer.render(camera, sceneDepthShader, [
+          plane,
+      ]);
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+
     //============================= begin render terrain -----------------------------------------
+
+
     lambert.use();
     gl.viewport(0,0,window.innerWidth, window.innerHeight);
     //plane.setDrawMode(gl.LINE_STRIP);
@@ -1299,6 +1350,7 @@ function main() {
     gl.uniformMatrix4fv(gl.getUniformLocation(lambert.prog,'u_sproj'),false,lightProjMat);
     gl.uniformMatrix4fv(gl.getUniformLocation(lambert.prog,'u_sview'),false,lightViewMat);
 
+
       renderer.render(camera, lambert, [
       plane,
     ]);
@@ -1324,19 +1376,37 @@ function main() {
     renderer.render(camera, water, [
       plane,
     ]);
-    gl.disable(gl.BLEND);
 
-    // back ground ----------------------------------
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+
+    // back ground & post processing & rayleigh mie scattering ----------------------------------
+
     flat.use();
+
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LESS);
+
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
-    let postUniform = gl.getUniformLocation(flat.prog,"hightmap");
-    gl.uniform1i(postUniform,0);
+    gl.uniform1i(gl.getUniformLocation(flat.prog,"hightmap"),0);
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, scene_depth_tex);
+    gl.uniform1i(gl.getUniformLocation(flat.prog,"sceneDepth"),1);
+
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, shadowMap_tex);
+    gl.uniform1i(gl.getUniformLocation(flat.prog,"shadowMap"),2);
+
+    gl.uniformMatrix4fv(gl.getUniformLocation(flat.prog,'u_sproj'),false,lightProjMat);
+    gl.uniformMatrix4fv(gl.getUniformLocation(flat.prog,'u_sview'),false,lightViewMat);
+    gl.uniform1i(gl.getUniformLocation(flat.prog,"u_showScattering"),controls.showScattering ? 1 : 0);
+
     renderer.render(camera, flat, [
       square,
     ]);
+    gl.disable(gl.BLEND);
     //gl.disable(gl.DEPTH_TEST);
     stats.end();
 
@@ -1345,7 +1415,21 @@ function main() {
   }
 
   window.addEventListener('resize', function() {
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER,deferred_render_buffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
+      window.innerWidth,window.innerHeight);
+
+    gl.bindTexture(gl.TEXTURE_2D,scene_depth_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,window.innerWidth,window.innerHeight,0,
+        gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
     renderer.setSize(window.innerWidth, window.innerHeight);
+
     camera.setAspectRatio(window.innerWidth / window.innerHeight);
     camera.updateProjectionMatrix();
   }, false);

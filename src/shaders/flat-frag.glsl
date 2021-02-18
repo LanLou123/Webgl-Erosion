@@ -2,7 +2,8 @@
 precision highp float;
 
 uniform sampler2D hightmap;
-
+uniform sampler2D sceneDepth;
+uniform sampler2D shadowMap;
 
 // The fragment shader used to render the background of the scene
 // Modify this to make your background more interesting
@@ -11,6 +12,13 @@ uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
 uniform float u_Time;
 uniform vec3  unif_LightPos;
+uniform int u_showScattering;
+
+uniform mat4 u_Model;
+uniform mat4 u_ModelInvTr;
+uniform mat4 u_ViewProj;
+uniform mat4 u_sproj;
+uniform mat4 u_sview;
 
 in vec2 fs_Pos;
 out vec4 out_Col;
@@ -73,11 +81,14 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
     float pRlh = 3.0 / (16.0 * PI) * (1.0 + mumu);
     float pMie = 3.0 / (8.0 * PI) * ((1.0 - gg) * (mumu + 1.0)) / (pow(1.0 + gg - 2.0 * mu * g, 1.5) * (2.0 + gg));
 
+
     // Sample the primary ray.
     for (int i = 0; i < iSteps; i++) {
 
         // Calculate the primary ray sample position.
         vec3 iPos = r0 + r * (iTime + iStepSize * 0.5);
+
+
 
         // Calculate the height of the sample.
         float iHeight = length(iPos) - rPlanet;
@@ -135,36 +146,64 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 
 
 
+// my ray march
+
+#define SCATTER_MARCH_STEPS 194
+#define SCATTER_OUT_MARCH_STEPS 32
+#define SCATTER_MARCH_STEP_SIZE 0.01
+
+vec4 scatter_m(vec3 ro, vec3 rd){
+    vec4 col = vec4(0.0);
+    vec3 fog_col = vec3(0.8,0.8,1.0);
+    float scatter_alpha_acc_all = 1.0 / float(SCATTER_MARCH_STEPS);
+    float scatter_alpha_acc = scatter_alpha_acc_all / 4.0;
+    float scatter_alpha_acc_out = scatter_alpha_acc_all * 3.0/ 4.0;
+
+    vec3 scatter_col_acc_all = fog_col/float(SCATTER_MARCH_STEPS);
+    vec3 scatter_col_acc = scatter_col_acc_all / 4.0;
+    vec3 scatter_col_acc_out = scatter_col_acc_all * 3.0 / 4.0;
+
+    vec2 uv = 0.5*fs_Pos+0.5;
+    vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;
+
+    for(int i = 1;i<SCATTER_MARCH_STEPS; ++i){
+        col += vec4(scatter_col_acc,scatter_alpha_acc);
+        vec3 pos = ro + rd * SCATTER_MARCH_STEP_SIZE * float(i);
+
+        vec4 clipSpacePos =  u_ViewProj * vec4(pos,1.0);
+        clipSpacePos = clipSpacePos/ clipSpacePos.w;
+        clipSpacePos.x = (clipSpacePos.x + 1.0) / 2.0;
+        clipSpacePos.y = (1.0 - clipSpacePos.y) / 2.0;
+        clipSpacePos.z = (clipSpacePos.z + 1.0) / 2.0;// damn dude, this shit easy to neglect
+
+        vec4 lightSpacePos = u_sproj * u_sview * vec4(pos,1.0);
+        lightSpacePos = lightSpacePos / lightSpacePos.w;
+        lightSpacePos = lightSpacePos * 0.5 + 0.5;
+        float texsize = 1.0/4096.0f;
+        float shadowMapDepth = texture(shadowMap, lightSpacePos.xy).x;
+        if(lightSpacePos.x <= 0.0 || lightSpacePos.x >= 1.0 || lightSpacePos.y <= 0.0 || lightSpacePos.y >= 1.0){
+            shadowMapDepth = 0.0f;
+        }
+        if(lightSpacePos.z < shadowMapDepth || shadowMapDepth==0.0){
+            col += vec4(scatter_col_acc_out,scatter_alpha_acc_out);
+        }
 
 
-vec4 render( in vec3 ro, in vec3 rd)
-{
+        if(sceneDepthValue.x < clipSpacePos.z + 0.001 && sceneDepthValue.x != 0.0){
+            break;
+        }
 
-
-    // background sky
-    vec3 sundir = normalize(unif_LightPos);
-
-    float angle = dot(sundir,vec3(0.0,1.0,0.0));
-    vec3 hue = mix(vec3(255.0,255.0,220.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
-
-    float sun = clamp( dot(sundir,rd), 0.0, 1.0 );
-    vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;
-    col += 0.2*vec3(1.0,.6,0.1)*pow( sun, 8.0 );
-
-    // sun glare
-    col += 0.4*vec3(1.0,0.4,0.2)*pow( sun, 33.0 );
-
-    return vec4( col*hue, 1.0 );
+    }
+    return col;
 }
 
 
 void main() {
-  //vec2 uv = 0.5*fs_Pos+0.5;
+    vec2 uv = 0.5*fs_Pos+0.5;
+    vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;
 
 
-
-
-   float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;
+    float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;
     float sy = 1.f-(2.f*gl_FragCoord.y/u_Dimensions.y);
     float len = length(u_Ref - u_Eye);
     vec3 forward = normalize(u_Ref - u_Eye);
@@ -172,27 +211,44 @@ void main() {
     vec3 V = u_Up * len * tan(FOV/2.f);
     vec3 H = right * len * (u_Dimensions.x/u_Dimensions.y) * tan(FOV/2.f);
     vec3 p = u_Ref + sx * H - sy * V;
-    float FovTan = tan(radians(FOV));
+
+
 
     vec3 rd = normalize(p - u_Eye);
     vec3 ro = u_Eye;
-    //gl_FragDepth = 0.998;
 
-    vec4 cloudCol = render(ro,rd);
+
+    float planetScale = 1.0;
 
     vec3 color = atmosphere(
     normalize(rd),           // normalized ray direction
-    vec3(0,6372e3,0),               // ray origin
+    vec3(0,6372e3,0) * planetScale + vec3(0.0,-2.0,0.0) + ro,               // ray origin
     unif_LightPos,                        // position of the sun
-    22.0,                           // intensity of the sun
-    6371e3,                         // radius of the planet in meters
-    6471e3,                         // radius of the atmosphere in meters
+    20.0,                           // intensity of the sun
+    6371e3 * planetScale,                         // radius of the planet in meters
+    6671e3 * planetScale,                         // radius of the atmosphere in meters
     vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
     21e-6,                          // Mie scattering coefficient
-    8e3,                            // Rayleigh scale height
-    1.2e3,                          // Mie scale height
-    0.758                           // Mie preferred scattering direction
+    8e3 * planetScale,                            // Rayleigh scale height
+    1.2e3 * planetScale,                          // Mie scale height
+    0.858                           // Mie preferred scattering direction
     );
 
-    out_Col = vec4(color,1.0);
+    gl_FragDepth = 0.01;
+
+    vec4 rendercol = scatter_m(ro,rd);
+
+    vec4 finalCol = rendercol;//vec4(0.0,0.0,0.0,1.0);
+    if(u_showScattering == 0){
+        finalCol = vec4(0.0,0.0,0.0,1.0);
+        gl_FragDepth = 0.99999;
+    }
+    if(sceneDepthValue.x==0.0){
+        finalCol.xyz  = (max(color,vec3(0.0,0.0,0.0)) + finalCol.xyz)/2.0;
+    }
+
+    float angle = dot(normalize(unif_LightPos),vec3(0.0,1.0,0.0));
+    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
+
+    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/2.0)), pow(finalCol.w, 1.0 / 2.0));
 }
