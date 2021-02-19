@@ -183,6 +183,7 @@ vec4 scatter_m(vec3 ro, vec3 rd){
         lightSpacePos = lightSpacePos * 0.5 + 0.5;
         float texsize = 1.0/4096.0f;
         float shadowMapDepth = texture(shadowMap, lightSpacePos.xy).x;
+
         if(lightSpacePos.x <= 0.0 || lightSpacePos.x >= 1.0 || lightSpacePos.y <= 0.0 || lightSpacePos.y >= 1.0){
             shadowMapDepth = 0.0f;
         }
@@ -194,8 +195,12 @@ vec4 scatter_m(vec3 ro, vec3 rd){
         if(sceneDepthValue.x < clipSpacePos.z + 0.001 && sceneDepthValue.x != 0.0){
             break;
         }
+        //vec3 attn = exp( -)
 
     }
+
+
+
     return col;
 }
 
@@ -224,11 +229,11 @@ void main() {
 
     vec3 color = atmosphere(
     normalize(rd),           // normalized ray direction
-    vec3(0,6372e3,0) * planetScale + vec3(0.0,-2.0,0.0) + ro,               // ray origin
+    vec3(0,6372e3,0) * planetScale + vec3(0.0,0.0,0.0) + ro,               // ray origin
     unif_LightPos,                        // position of the sun
     20.0,                           // intensity of the sun
     6371e3 * planetScale,                         // radius of the planet in meters
-    6671e3 * planetScale,                         // radius of the atmosphere in meters
+    6471e3 * planetScale,                         // radius of the atmosphere in meters
     vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
     21e-6,                          // Mie scattering coefficient
     8e3 * planetScale,                            // Rayleigh scale height
@@ -238,7 +243,8 @@ void main() {
 
     gl_FragDepth = 0.01;
 
-
+    float angle = dot(normalize(unif_LightPos),vec3(0.0,1.0,0.0));
+    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
 
     vec4 finalCol = vec4(0.0,0.0,0.0,1.0);//vec4(0.0,0.0,0.0,1.0);
     if(u_showScattering == 0){
@@ -246,14 +252,14 @@ void main() {
         gl_FragDepth = 0.99999;
     }else{
         finalCol = scatter_m(ro,rd);
+        finalCol.w *=  (1.0 - angle);
     }
     if(sceneDepthValue.x==0.0){
         finalCol.xyz  = (max(color,vec3(0.0,0.0,0.0)) + finalCol.xyz)/2.0;
         finalCol.w = 1.0;
     }
 
-    float angle = dot(normalize(unif_LightPos),vec3(0.0,1.0,0.0));
-    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
 
-    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/2.0)), 1.0 * (1.0 - angle) * pow(finalCol.w, 1.4 / 1.0));
+
+    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/1.0)), 1.0  * pow(finalCol.w, 1.8 / 1.0));
 }

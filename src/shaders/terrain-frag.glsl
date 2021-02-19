@@ -134,7 +134,7 @@ void main()
     vec3 finalcol = vec3(0);
 
 
-    //forestcol = mtncolor;
+    forestcol = mtncolor;
     if(yval<=100.0){
         finalcol = forestcol;
     }else if(yval>100.0&&yval<=150.0){

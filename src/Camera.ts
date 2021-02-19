@@ -45,7 +45,7 @@ class Camera {
 
 
     this.threeCamera = new PerspectiveCamera(this.fovy,this.aspectRatio,this.near,this.far);
-    this.threeCamera.position.set(0,0.6,-0.6);
+    this.threeCamera.position.set(position[0],position[1],position[2]);
     this.threeControls = new OrbitControls(this.threeCamera, document.getElementById('canvas'));
 
     // this.threeControls.enableZoom = true;

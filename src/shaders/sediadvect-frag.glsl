@@ -49,13 +49,14 @@ void main() {
     vec2 curuv = 0.5f*fs_Pos+0.5f;
     float div = 1.f/u_SimRes;
     float alpha = 1.0;
-    float velscale = 1.0;
+    float velscale = 1.0/1.0;
 
-    vec4 curvel = (texture(vel,curuv))/u_SimRes;
+    vec4 curvel = (texture(vel,curuv));
     vec4 cursedi = texture(sedi,curuv);
     vec4 curterrain = texture(terrain,curuv);
 
 
+    vec4 useVel = curvel/u_SimRes;
 //    vec4 top = texture(vel,curuv+vec2(0.f,div));
 //    vec4 right = texture(vel,curuv+vec2(div,0.f));
 //    vec4 bottom = texture(vel,curuv+vec2(0.f,-div));
@@ -72,11 +73,11 @@ void main() {
 
 
 
-    vec2 oldloc = vec2(curuv.x-curvel.x*velscale*u_timestep,curuv.y-curvel.y*velscale*u_timestep);
+    vec2 oldloc = vec2(curuv.x-useVel.x*velscale*u_timestep,curuv.y-useVel.y*velscale*u_timestep);
     float oldsedi = texture(sedi, oldloc).x;
     oldsedi = samplebilinear(oldloc,u_SimRes );
 
-    float curSediVal = length(curvel.xy) * curterrain.y;
+    float curSediVal = length(useVel.xy) * curterrain.y;
     float sediBlendVal = texture(sediBlend, oldloc).x;
     if(sediBlendVal < curSediVal){
         sediBlendVal = (sediBlendVal + curSediVal) / 2.0;
@@ -85,6 +86,6 @@ void main() {
 
 
     writeSediment = vec4(oldsedi, 0.0, 0.0, 1.0);
-    writeVel = curvel*u_SimRes;
+    writeVel = curvel;
     writeSediBlend = vec4(sediBlendVal, 0.0, 0.0, 1.0);
 }

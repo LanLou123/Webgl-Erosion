@@ -44,7 +44,7 @@ void main() {
   float Kc = u_Kc;
   float Ks = u_Ks;
   float Kd = u_Kd;
-  float alpha = 1.0;
+  float alpha = 4.0;
 
 
   vec4 top = texture(readSediment,curuv+vec2(0.f,div));
@@ -100,7 +100,7 @@ void main() {
 
   float velo = length(texture(readVelocity,curuv).xy);
   velo = length(newVel.xy);
-  float slope = max(0.001f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
+  float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo ;// * pow(curTerrain.y,0.2) ;
 
   float lmax = 0.0f;

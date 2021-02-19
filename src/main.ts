@@ -84,7 +84,7 @@ const controls = {
     TerrainScale : 6.0,
     TerrainHeight : 1.5,
     TerrainDebug : 0,
-    WaterTransparency : 0.50,
+    WaterTransparency : 0.050,
     SnowRange : 50,
     brushType : 1, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 2,
@@ -95,8 +95,8 @@ const controls = {
     talusAngleTangentBias : 0.0,
     thermalRate : 0.5,
     thermalErosionScale : 1.0,
-    lightPosX : 1.0,
-    lightPosY : 0.5,
+    lightPosX : 0.4,
+    lightPosY : 0.2,
     lightPosZ : -1.0,
     showScattering : true,
 };
@@ -945,7 +945,7 @@ function main() {
   loadScene();
   num_simsteps = erosioninterations;
 
-  const camera = new Camera(vec3.fromValues(0, 0.6, -0.6), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(0.3, 0.1, 0.6), vec3.fromValues(0, 0, 0));
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.0, 0.0, 0.0, 1);
   gl.enable(gl.DEPTH_TEST);

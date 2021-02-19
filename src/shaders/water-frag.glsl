@@ -33,7 +33,9 @@ vec3 calnor(vec2 uv){
     nor = normalize(nor);
     return nor;
 }
-
+vec3 sky(in vec3 rd){
+    return mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));
+}
 void main()
 {
 
@@ -48,6 +50,7 @@ void main()
     vec3 viewdir = normalize(u_Eye - fs_Pos);
     vec3 lightdir = normalize(sundir);
     vec3 halfway = normalize(lightdir + viewdir);
+    vec3 reflectedSky = sky(halfway);
     float spec = pow(max(dot(nor, halfway), 0.0), 333.0);
 
 
