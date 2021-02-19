@@ -78,7 +78,7 @@ void main()
     shadowCol/=9.0;
     //shadowVal = texture(shadowMap, shadowMapLoc.xy).x;
 
-    vec3 forestcol = vec3(143.0/255.0,255.0/255.0,7.0/255.0)*0.6;
+    vec3 forestcol = vec3(63.0/255.0,155.0/255.0,7.0/255.0)*0.6;
     vec3 mtncolor = vec3(0.99,0.99,0.99);
     vec3 dirtcol = vec3(0.21,0.2,0.2);
     vec3 grass = vec3(193.0/255.0,235.0/255.0,27.0/255.0);
@@ -134,7 +134,7 @@ void main()
     vec3 finalcol = vec3(0);
 
 
-    forestcol = mtncolor;
+    //forestcol = mtncolor;
     if(yval<=100.0){
         finalcol = forestcol;
     }else if(yval>100.0&&yval<=150.0){

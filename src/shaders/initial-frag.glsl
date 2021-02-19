@@ -112,7 +112,7 @@ float fbm (in vec2 st) {
 }
 
 float teR(float h) {
-    float W = 0.1; // width of terracing bands
+    float W = 0.2; // width of terracing bands
     float k = floor(h / W);
     float f = (h - k*W) / W;
     float s = min(2.0 * f, 1.0);

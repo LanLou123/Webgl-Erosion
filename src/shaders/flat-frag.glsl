@@ -148,7 +148,7 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 
 // my ray march
 
-#define SCATTER_MARCH_STEPS 194
+#define SCATTER_MARCH_STEPS 114
 #define SCATTER_OUT_MARCH_STEPS 32
 #define SCATTER_MARCH_STEP_SIZE 0.01
 
@@ -167,7 +167,9 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;
 
     for(int i = 1;i<SCATTER_MARCH_STEPS; ++i){
+
         col += vec4(scatter_col_acc,scatter_alpha_acc);
+
         vec3 pos = ro + rd * SCATTER_MARCH_STEP_SIZE * float(i);
 
         vec4 clipSpacePos =  u_ViewProj * vec4(pos,1.0);
@@ -231,24 +233,27 @@ void main() {
     21e-6,                          // Mie scattering coefficient
     8e3 * planetScale,                            // Rayleigh scale height
     1.2e3 * planetScale,                          // Mie scale height
-    0.858                           // Mie preferred scattering direction
+    0.958                           // Mie preferred scattering direction
     );
 
     gl_FragDepth = 0.01;
 
-    vec4 rendercol = scatter_m(ro,rd);
 
-    vec4 finalCol = rendercol;//vec4(0.0,0.0,0.0,1.0);
+
+    vec4 finalCol = vec4(0.0,0.0,0.0,1.0);//vec4(0.0,0.0,0.0,1.0);
     if(u_showScattering == 0){
-        finalCol = vec4(0.0,0.0,0.0,1.0);
+        finalCol = vec4(0.0,0.0,0.0,0.0);
         gl_FragDepth = 0.99999;
+    }else{
+        finalCol = scatter_m(ro,rd);
     }
     if(sceneDepthValue.x==0.0){
         finalCol.xyz  = (max(color,vec3(0.0,0.0,0.0)) + finalCol.xyz)/2.0;
+        finalCol.w = 1.0;
     }
 
     float angle = dot(normalize(unif_LightPos),vec3(0.0,1.0,0.0));
     vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
 
-    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/2.0)), pow(finalCol.w, 1.4 / 1.0));
+    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/2.0)), 1.0 * (1.0 - angle) * pow(finalCol.w, 1.4 / 1.0));
 }
