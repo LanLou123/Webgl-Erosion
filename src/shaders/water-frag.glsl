@@ -6,19 +6,25 @@ uniform vec2 u_PlanePos; // Our location in the virtual world displayed by the p
 in vec3 fs_Pos;
 in vec4 fs_Nor;
 in vec4 fs_Col;
+
 uniform sampler2D hightmap;
 uniform sampler2D normap;
+uniform sampler2D sceneDepth;
+
 in float fs_Sine;
 in vec2 fs_Uv;
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
 uniform vec3 u_Eye, u_Ref, u_Up;
-uniform vec2 u_Dimensions;
+
 
 uniform int u_TerrainType;
 uniform float u_WaterTransparency;
 uniform float u_SimRes;
+uniform vec2 u_Dimensions;
 uniform vec3 unif_LightPos;
+uniform float u_far;
+uniform float u_near;
 
 vec3 calnor(vec2 uv){
     float eps = 1.0/u_SimRes;
@@ -33,11 +39,31 @@ vec3 calnor(vec2 uv){
     nor = normalize(nor);
     return nor;
 }
+
 vec3 sky(in vec3 rd){
     return mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));
 }
+
+float linearDepth(float depthSample)
+{
+    depthSample = 2.0 * depthSample - 1.0;
+    float zLinear = 2.0 * u_near * u_far / (u_far + u_near - depthSample * (u_far - u_near));
+    return zLinear;
+}
+
 void main()
 {
+
+    vec2 uv = vec2(gl_FragCoord.xy/u_Dimensions);
+    float terrainDepth = texture(sceneDepth,uv).x;
+    float waterDepth = gl_FragCoord.z;
+
+    terrainDepth = linearDepth(terrainDepth);
+    waterDepth = linearDepth(waterDepth);
+
+    float dpVal = 700.0 * max(0.0,terrainDepth - waterDepth);
+    //dpVal = pow(dpVal, 0.1);
+
 
     float fbias = 0.1;
     float fscale = 0.2;
@@ -68,5 +94,5 @@ void main()
     vec3 watercolorspec = vec3(1.0);
     watercolorspec *= spec;
 
-    out_Col = vec4(watercolor + watercolorspec ,u_WaterTransparency * (wval ));
+    out_Col = vec4(watercolor + watercolorspec ,u_WaterTransparency * wval);
 }

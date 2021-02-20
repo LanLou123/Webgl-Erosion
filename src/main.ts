@@ -84,7 +84,7 @@ const controls = {
     TerrainScale : 6.0,
     TerrainHeight : 1.5,
     TerrainDebug : 0,
-    WaterTransparency : 0.050,
+    WaterTransparency : 0.50,
     SnowRange : 50,
     brushType : 1, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 2,
@@ -1149,6 +1149,9 @@ function main() {
 
     water.setWaterTransparency(controls.WaterTransparency);
     water.setSimres(simresolution);
+    gl.uniform1f(gl.getUniformLocation(water.prog,"u_far"),camera.far);
+    gl.uniform1f(gl.getUniformLocation(water.prog,"u_near"),camera.near);
+
     gl.uniform3fv(gl.getUniformLocation(water.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
 
     lambert.setTerrainDebug(controls.TerrainDebug);
@@ -1373,6 +1376,11 @@ function main() {
     gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
     sediUniform = gl.getUniformLocation(water.prog,"sedimap");
     gl.uniform1i(sediUniform,2);
+
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D,scene_depth_tex);
+    gl.uniform1i(gl.getUniformLocation(water.prog,"sceneDepth"),3);
+
     renderer.render(camera, water, [
       plane,
     ]);

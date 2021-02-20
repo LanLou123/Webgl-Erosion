@@ -27,7 +27,7 @@ void main() {
 
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float div = 1.f/u_SimRes;
-  float g = 9.80;
+  float g = 3.80;
   float pipelen = u_PipeLen;
 
 

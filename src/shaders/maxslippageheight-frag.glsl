@@ -27,7 +27,7 @@ void main() {
 
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float div = 1.f/u_SimRes;
-  float _maxHeightDiff = 2.0;
+  float _maxHeightDiff = 4.0;
 
   vec4 terraintop = texture(readTerrain,curuv+vec2(0.f,div));
   vec4 terrainright = texture(readTerrain,curuv+vec2(div,0.f));

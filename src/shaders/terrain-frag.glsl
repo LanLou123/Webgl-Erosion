@@ -178,6 +178,9 @@ void main()
         fcol.xy /= 200.0;
     }else if(u_TerrainDebug == 4){
         fcol = texture(fluxmap,fs_Uv).xyz / 3.0;
+        if(fcol == vec3(0.0)){
+            fcol = vec3(texture(fluxmap,fs_Uv).w)/3.0;
+        }
     }else if(u_TerrainDebug == 5){
         fcol = texture(terrainfluxmap, fs_Uv).xyz * 10.0;
     }else if(u_TerrainDebug == 6){
