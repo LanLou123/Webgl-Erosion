@@ -55,7 +55,11 @@ float random (in vec2 st) {
 in vec2 fs_Pos;
 
 
-
+struct BrushTmp{
+      float bStrength;
+      float bSize;
+      vec2 bPos;
+};
 
 void main() {
 
@@ -98,7 +102,7 @@ void main() {
       float epsilon = 0.000001f;
       float nrain = noise(vec3(curuv * 100.0, u_Time));
       nrain = 1.0f;
-      rain = nrain/450.0;
+      rain = nrain/1450.0;
 
 
 

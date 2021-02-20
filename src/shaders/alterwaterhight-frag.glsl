@@ -17,7 +17,7 @@ layout (location = 1) out vec4 writeVel;
 // Modify this to make your background more interesting
 
 in vec2 fs_Pos;
-
+#define PI 3.1415926
 
 void main(){
 
@@ -25,7 +25,7 @@ void main(){
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float div = 1.f/u_SimRes;
   float pipelen = u_PipeLen;
-  float damping = 0.99999;
+
 
   vec4 topflux = texture(readFlux,curuv+vec2(0.f,div));
   vec4 rightflux = texture(readFlux,curuv+vec2(div,0.f));
@@ -64,7 +64,7 @@ void main(){
 
   //veloci *= 100000.0;
     if(da <= 1e-5) {
-      //veloci = vec2(0.0);
+      veloci = vec2(0.0);
     }else{
       veloci = veloci/(da * u_PipeLen);
     }
@@ -74,8 +74,18 @@ void main(){
   if(curuv.y<=div) {deltavol = 0.f;veloci.y = 0.0;}
   if(curuv.y>=1.f - 2.0 * div) {deltavol = 0.f;veloci.y = 0.0;}
 
+//  float absx = abs(veloci.x);
+//  float absy = abs(veloci.y);
+//  float maxxy = max(absx, absy);
+//  float minxy = min(absx, absy);
+//  float tantheta = minxy / maxxy;
+//  float scale = cos(45.0 * PI / 180.0 - atan(tantheta));
+//  float divtheta = (1.0/sqrt(2.0)) / scale;
+//  float divs = min(abs(veloci.x), abs(veloci.y))/max(abs(veloci.x), abs(veloci.y));
+//  if((divs) > 20.0){
+//    veloci /= 20.0;
+//  }
 
-  veloci *= damping;
 
   writeVel = vec4(veloci,0.f,1.f);
   writeTerrain = vec4(cur.x,max(cur.y+deltavol, 0.0),cur.z,cur.w);

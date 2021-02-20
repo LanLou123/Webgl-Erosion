@@ -27,7 +27,7 @@ void main() {
 
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float div = 1.f/u_SimRes;
-  float _maxHeightDiff = 4.0;
+  float _maxHeightDiff = 2.50;
 
   vec4 terraintop = texture(readTerrain,curuv+vec2(0.f,div));
   vec4 terrainright = texture(readTerrain,curuv+vec2(div,0.f));
@@ -35,7 +35,7 @@ void main() {
   vec4 terrainleft = texture(readTerrain,curuv+vec2(-div,0.f));
   vec4 terraincur = texture(readTerrain,curuv);
 
-  float maxLocalDiff = _maxHeightDiff * 0.01;
+  float maxLocalDiff = _maxHeightDiff * 0.05;
   float avgDiff = (terraintop.x + terrainright.x + terrainbottom.x + terrainleft.x) * 0.25 - terraincur.x;
   avgDiff = 1.0 * max(abs(avgDiff) - maxLocalDiff,0.0);
 

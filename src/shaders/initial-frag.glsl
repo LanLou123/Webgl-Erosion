@@ -124,7 +124,7 @@ float domainwarp(vec2 p){
 }
 
 float test(vec2 p){
-    return abs(pow(2.0,-length(p - vec2(0.5))*5.0));
+    return abs(pow(2.0,-length(p - vec2(0.5))*2.0));
 }
 
 //nice one 5.3f*uv+vec2(178.f,27.f);
@@ -145,6 +145,7 @@ void main() {
     terrain_hight = pow(terrain_hight,3.0);
     //terrain_hight = teR(terrain_hight);
     terrain_hight *= u_TerrainHeight*500.0;
+    //terrain_hight = test(uv) * 500.0;
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.f,1.f);

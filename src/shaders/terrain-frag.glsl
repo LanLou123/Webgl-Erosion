@@ -182,7 +182,7 @@ void main()
             fcol = vec3(texture(fluxmap,fs_Uv).w)/3.0;
         }
     }else if(u_TerrainDebug == 5){
-        fcol = texture(terrainfluxmap, fs_Uv).xyz * 10.0;
+        fcol = texture(terrainfluxmap, fs_Uv).xyz * 100000.0;
     }else if(u_TerrainDebug == 6){
         fcol = texture(maxslippagemap, fs_Uv).xyz / 3.0;
     }else if(u_TerrainDebug == 7){
