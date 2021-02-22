@@ -1,10 +1,12 @@
 ﻿## Terrain erosion sandbox in WebGl
 
+
+## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
+
 ![](screenshot/snowMt.PNG)
 
 ## click on image below to see Video showing river/delta formation on a cliff : 
 [![](screenshot/river.PNG)](https://youtu.be/nyvz7OIhxQ8)
-
 
 
 - Lower spike diffusion threshold & thermal produces more stable results on a fbm noise terrain
@@ -18,9 +20,6 @@
 ![](screenshot/atmosphere.PNG)
 
 ## [**Video How 2 create A mountain with simulator**](https://youtu.be/JeMJDxrr-4g)
-
-
-## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
 
 ### controls : 
@@ -43,6 +42,10 @@
 
 #### a lake in the process of being evaporated, it was originally formed by a river coming downhill
 ![](screenshot/lake.PNG)
+
+#### yet another delta example
+![](screenshot/delta2.PNG)
+
 
 #### added Raleigh scattering & shadow map
 ![](screenshot/raleigh.PNG)
