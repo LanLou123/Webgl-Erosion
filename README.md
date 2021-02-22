@@ -2,7 +2,7 @@
 
 ![](screenshot/snowMt.PNG)
 
-## Video showing river/delta formation on a cliff : 
+## click on image below to see Video showing river/delta formation on a cliff : 
 [![](screenshot/river.PNG)](https://youtu.be/nyvz7OIhxQ8)
 
 - Lower spike diffusion threshold & thermal produces more stable results on a fbm noise terrain
