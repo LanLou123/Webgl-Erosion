@@ -67,10 +67,10 @@ const controls = {
     pipelen:  1.0,//
     Kc : 0.4,
     Ks : 0.025,
-    Kd : 0.002,
+    Kd : 0.01,
     timestep : 0.1,
     pipeAra :  0.8,
-    EvaporationDegree : 0.0008,
+    EvaporationDegree : 0.006,
     RainDegree : 4.5,
     spawnposx : 0.5,
     spawnposy : 0.5,

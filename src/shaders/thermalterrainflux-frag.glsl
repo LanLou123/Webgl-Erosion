@@ -61,7 +61,7 @@ void main() {
 
   float outfactor = (newFlow.x + newFlow.y + newFlow.z + newFlow.w)*u_timestep;
 
-  if(outfactor>1e-15){
+  if(outfactor>1e-5){
     outfactor = terraincur.x / outfactor;
     if(outfactor > 1.0) outfactor = 1.0;
     newFlow = newFlow * outfactor;

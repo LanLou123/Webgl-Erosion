@@ -70,7 +70,7 @@ void main() {
   float fleftout = max(0.f,curFlux.w+(u_timestep*g*u_PipeArea*Hleftout)/pipelen);
 
 
-  float damping = 0.95;
+  float damping = 0.97;
   float k = min(1.f,((curTerrain.y )*u_PipeLen*u_PipeLen)/(u_timestep*(ftopout+frightout+fbottomout+fleftout))) * damping;
   //k = 1.0;
   //rescale outflow readFlux so that outflow don't exceed current water volume

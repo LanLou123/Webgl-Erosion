@@ -2,6 +2,10 @@
 
 ![](screenshot/snowMt.PNG)
 
+- Lower spike diffusion threshold & thermal produces more stable results on a fbm noise terrain
+![](screenshot/lowerspike.PNG)
+
+
 - Atmosphere scattering working at full scale :
 
 ![](screenshot/atmosphere.PNG)
