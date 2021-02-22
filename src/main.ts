@@ -70,7 +70,7 @@ const controls = {
     Kd : 0.004,
     timestep : 0.1,
     pipeAra :  0.8,
-    EvaporationDegree : 0.006,
+    EvaporationDegree : 0.01,
     RainDegree : 4.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
@@ -85,10 +85,10 @@ const controls = {
     TerrainHeight : 1.5,
     TerrainDebug : 0,
     WaterTransparency : 0.50,
-    SnowRange : 50,
-    brushType : 1, // 0 : no brush, 1 : terrain, 2 : water
-    brushSize : 2,
-    brushStrenth : 0.3,
+    SnowRange : 0,
+    brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
+    brushSize : 12,
+    brushStrenth : 1.2,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     talusAngleFallOffCoeff : 0.9,
