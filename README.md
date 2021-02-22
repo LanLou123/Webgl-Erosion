@@ -2,6 +2,9 @@
 
 ![](screenshot/snowMt.PNG)
 
+## Video showing river/delta formation on a cliff : 
+[![](screenshot/river.PNG)](https://youtu.be/nyvz7OIhxQ8)
+
 - Lower spike diffusion threshold & thermal produces more stable results on a fbm noise terrain
 ![](screenshot/lowerspike.PNG)
 
@@ -39,16 +42,6 @@
 
 #### a lonely mountain
 ![](screenshot/lonemountain.PNG)
-
-#### Maintain and swamp scene
-
-![](screenshot/mountainandswamp.PNG)
-
-#### Multiple rivers Forming scene
-
-![](screenshot/riverforming.PNG)
-
-![](screenshot/thumb.PNG)
 
 
 #### rain erosion option (not stable yet, in progress)

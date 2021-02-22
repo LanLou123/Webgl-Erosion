@@ -61,13 +61,13 @@ void main()
     terrainDepth = linearDepth(terrainDepth);
     waterDepth = linearDepth(waterDepth);
 
-    float dpVal = 700.0 * max(0.0,terrainDepth - waterDepth);
+    float dpVal = 180.0 * max(0.0,terrainDepth - waterDepth);
     //dpVal = pow(dpVal, 0.1);
 
 
-    float fbias = 0.1;
+    float fbias = 0.2;
     float fscale = 0.2;
-    float fpow = 10.0;
+    float fpow = 22.0;
     vec3 sundir = unif_LightPos;
 
     sundir = normalize(sundir);
@@ -80,7 +80,7 @@ void main()
     float spec = pow(max(dot(nor, halfway), 0.0), 333.0);
 
 
-    float R = max(0.0, min(1.0, fbias + fscale * pow(1.0 + dot(viewdir, nor), fpow)));
+    float R = max(0.0, min(1.0, fbias + fscale * pow(1.0 + dot(viewdir, -nor), fpow)));
 
     //lamb =1.f;
 
@@ -94,5 +94,7 @@ void main()
     vec3 watercolorspec = vec3(1.0);
     watercolorspec *= spec;
 
-    out_Col = vec4(watercolor + watercolorspec ,u_WaterTransparency * wval);
+
+
+    out_Col = vec4(vec3(0.0,0.3,0.9) + watercolorspec  + R * reflectedSky, (1.0 + spec) * u_WaterTransparency * dpVal);
 }
