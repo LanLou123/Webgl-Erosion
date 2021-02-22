@@ -17,7 +17,7 @@
 
 ![](screenshot/atmosphere.PNG)
 
-## [**Video How 2 create A mountain with simulator**](https://www.youtube.com/watch?v=U2Vd-0TF4ks&feature=youtu.be)
+## [**Video How 2 create A mountain with simulator**](https://youtu.be/JeMJDxrr-4g)
 
 
 ## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
@@ -174,6 +174,7 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
 - postprocessing effects (ray marched cloud for example, since ray marched Mie scattering is done, cloud should be fairly simple to work based on it)
 - muti-tiled based simulation (webgl might not be the best choice here)
 - Biomes
+- Eventual goal : Erosion based games, "FROM DUST" would be a good example
 
 ### Reference
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
