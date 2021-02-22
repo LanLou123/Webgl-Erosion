@@ -5,9 +5,13 @@
 ## click on image below to see Video showing river/delta formation on a cliff : 
 [![](screenshot/river.PNG)](https://youtu.be/nyvz7OIhxQ8)
 
+
+
 - Lower spike diffusion threshold & thermal produces more stable results on a fbm noise terrain
 ![](screenshot/lowerspike.PNG)
 
+
+![](screenshot/river2.PNG)
 
 - Atmosphere scattering working at full scale :
 
