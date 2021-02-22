@@ -41,6 +41,9 @@
 
 ### some screenshots
 
+#### a lake in the process of being evaporated, it was originally formed by a river coming downhill
+![]((screenshot/lake.PNG))
+
 #### added Raleigh scattering & shadow map
 ![](screenshot/raleigh.PNG)
 
