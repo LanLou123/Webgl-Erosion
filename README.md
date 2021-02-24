@@ -5,6 +5,21 @@
 
 ![](screenshot/snowMt.PNG)
 
+### controls : 
+
+- press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
+- press button ```Start/Resume``` to the right top corner to start or resume the erosion sim
+- press button ```Pause``` to pause the simulation
+- press button ```Reset``` to reset simulation and start with a new randomly generated base terrain
+- use ```WaterTrabsparancy``` slider to control alpha of water
+- use ```EvaporationDegree``` slider to control anomunt of evaporation you want each simulation step
+- use ```RainDegree``` slider to control anomunt of Rain you want each simulation step
+- use ```Kc``` slider to control Kc (erosion capacity constant)
+- use ```Ks``` slider to control Ks (erosion dissolvating constant)
+- use ```Kd``` slider to control Kc (erosion deposition constant)
+- use the dropdown to check the debug views
+- press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
+
 ## click on image below to see Video showing river/delta formation on a cliff : 
 [![](screenshot/river.PNG)](https://youtu.be/nyvz7OIhxQ8)
 
@@ -21,21 +36,6 @@
 
 ## [**Video How 2 create A mountain with simulator**](https://youtu.be/JeMJDxrr-4g)
 
-
-### controls : 
-
-- press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
-- press button ```Start/Resume``` to the right top corner to start or resume the erosion sim
-- press button ```Pause``` to pause the simulation
-- press button ```Reset``` to reset simulation and start with a new randomly generated base terrain
-- use ```WaterTrabsparancy``` slider to control alpha of water
-- use ```EvaporationDegree``` slider to control anomunt of evaporation you want each simulation step
-- use ```RainDegree``` slider to control anomunt of Rain you want each simulation step
-- use ```Kc``` slider to control Kc (erosion capacity constant)
-- use ```Ks``` slider to control Ks (erosion dissolvating constant)
-- use ```Kd``` slider to control Kc (erosion deposition constant)
-- use the dropdown to check the debug views
-- press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
 
 
 ### some screenshots

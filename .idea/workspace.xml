@@ -4,6 +4,8 @@
     <list default="true" id="134d8828-143c-46a8-ae67-5fc76fe5e2b1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/flat-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/flat-frag.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/terrain-frag.glsl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,7 +48,7 @@
   <component name="ReaderModeSettings">
     <option name="enabled" value="false" />
   </component>
-  <component name="RunManager" selected="npm.start">
+  <component name="RunManager" selected="npm.build">
     <configuration name="Unnamed" type="js.build_tools.npm">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -131,7 +133,7 @@
       <workItem from="1613026766766" duration="6206000" />
       <workItem from="1613066181540" duration="28420000" />
       <workItem from="1613109942599" duration="209843000" />
-      <workItem from="1613607474169" duration="93268000" />
+      <workItem from="1613607474169" duration="110955000" />
     </task>
     <servers />
   </component>

@@ -1,4 +1,5 @@
 import {mat4, vec2, vec3, vec4} from 'gl-matrix';
+// @ts-ignore
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
@@ -1349,6 +1350,10 @@ function main() {
     gl.activeTexture(gl.TEXTURE8);
     gl.bindTexture(gl.TEXTURE_2D, shadowMap_tex);
     gl.uniform1i(gl.getUniformLocation(lambert.prog, "shadowMap"), 8);
+
+    gl.activeTexture(gl.TEXTURE9);
+    gl.bindTexture(gl.TEXTURE_2D, scene_depth_tex);
+    gl.uniform1i(gl.getUniformLocation(lambert.prog, "sceneDepth"), 9);
 
     gl.uniformMatrix4fv(gl.getUniformLocation(lambert.prog,'u_sproj'),false,lightProjMat);
     gl.uniformMatrix4fv(gl.getUniformLocation(lambert.prog,'u_sview'),false,lightViewMat);

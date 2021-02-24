@@ -26,7 +26,7 @@ out vec4 out_Col;
 
 #define FOV 45.f
 vec3 sky(in vec3 rd){
-    return mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));
+    return 2.0 * mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));
 }
 
 
@@ -148,6 +148,23 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 
 // my ray march
 
+
+vec4 Screen2Clip(vec3 pos){
+    vec4 clipSpacePos =  u_ViewProj * vec4(pos,1.0);
+    clipSpacePos = clipSpacePos/ clipSpacePos.w;
+    clipSpacePos.x = (clipSpacePos.x + 1.0) / 2.0;
+    clipSpacePos.y = (1.0 - clipSpacePos.y) / 2.0;
+    clipSpacePos.z = (clipSpacePos.z + 1.0) / 2.0;// damn dude, this shit easy to neglect
+    return clipSpacePos;
+}
+
+vec4 Screen2Light(vec3 pos){
+    vec4 lightSpacePos = u_sproj * u_sview * vec4(pos,1.0);
+    lightSpacePos = lightSpacePos / lightSpacePos.w;
+    lightSpacePos = lightSpacePos * 0.5 + 0.5;
+    return lightSpacePos;
+}
+
 #define SCATTER_MARCH_STEPS 114
 #define SCATTER_OUT_MARCH_STEPS 32
 #define SCATTER_MARCH_STEP_SIZE 0.01
@@ -172,15 +189,11 @@ vec4 scatter_m(vec3 ro, vec3 rd){
 
         vec3 pos = ro + rd * SCATTER_MARCH_STEP_SIZE * float(i);
 
-        vec4 clipSpacePos =  u_ViewProj * vec4(pos,1.0);
-        clipSpacePos = clipSpacePos/ clipSpacePos.w;
-        clipSpacePos.x = (clipSpacePos.x + 1.0) / 2.0;
-        clipSpacePos.y = (1.0 - clipSpacePos.y) / 2.0;
-        clipSpacePos.z = (clipSpacePos.z + 1.0) / 2.0;// damn dude, this shit easy to neglect
+        vec4 clipSpacePos =  Screen2Clip(pos);
+        vec3 clipSpaceRdVec = Screen2Clip(rd * SCATTER_MARCH_STEP_SIZE).xyz;
+        float clipSpaceStepSize = length(clipSpaceRdVec);
 
-        vec4 lightSpacePos = u_sproj * u_sview * vec4(pos,1.0);
-        lightSpacePos = lightSpacePos / lightSpacePos.w;
-        lightSpacePos = lightSpacePos * 0.5 + 0.5;
+        vec4 lightSpacePos = Screen2Light(pos);
         float texsize = 1.0/4096.0f;
         float shadowMapDepth = texture(shadowMap, lightSpacePos.xy).x;
 
@@ -192,7 +205,9 @@ vec4 scatter_m(vec3 ro, vec3 rd){
         }
 
 
-        if(sceneDepthValue.x < clipSpacePos.z + 0.001 && sceneDepthValue.x != 0.0){
+        if(sceneDepthValue.x < clipSpacePos.z  && sceneDepthValue.x != 0.0){
+            float diff = clipSpacePos.z - sceneDepthValue.x;
+            col -= diff *  vec4(scatter_col_acc,scatter_alpha_acc)/ clipSpaceStepSize; // we want to subtract excessive color
             break;
         }
         //vec3 attn = exp( -)
@@ -227,19 +242,7 @@ void main() {
 
     float planetScale = 1.0;
 
-    vec3 color = atmosphere(
-    normalize(rd),           // normalized ray direction
-    vec3(0,6372e3,0) * planetScale + vec3(0.0,0.0,0.0) + ro,               // ray origin
-    unif_LightPos,                        // position of the sun
-    20.0,                           // intensity of the sun
-    6371e3 * planetScale,                         // radius of the planet in meters
-    6471e3 * planetScale,                         // radius of the atmosphere in meters
-    vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
-    21e-6,                          // Mie scattering coefficient
-    8e3 * planetScale,                            // Rayleigh scale height
-    1.2e3 * planetScale,                          // Mie scale height
-    0.958                           // Mie preferred scattering direction
-    );
+
 
     gl_FragDepth = 0.01;
 
@@ -255,6 +258,22 @@ void main() {
         finalCol.w *=  (1.0 - angle);
     }
     if(sceneDepthValue.x==0.0){
+        vec3 color = sky(rd);
+        if(u_showScattering == 1){
+            color = atmosphere(
+                normalize(rd), // normalized ray direction
+                vec3(0, 6372e3, 0) * planetScale + vec3(0.0, 0.0, 0.0) + ro, // ray origin
+                unif_LightPos, // position of the sun
+                20.0, // intensity of the sun
+                6371e3 * planetScale, // radius of the planet in meters
+                6471e3 * planetScale, // radius of the atmosphere in meters
+                vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
+                21e-6, // Mie scattering coefficient
+                8e3 * planetScale, // Rayleigh scale height
+                1.2e3 * planetScale, // Mie scale height
+                0.958// Mie preferred scattering direction
+                );
+        }
         finalCol.xyz  = (max(color,vec3(0.0,0.0,0.0)) + finalCol.xyz)/2.0;
         finalCol.w = 1.0;
     }

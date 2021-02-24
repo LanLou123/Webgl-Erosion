@@ -20,6 +20,7 @@ uniform sampler2D terrainfluxmap;
 uniform sampler2D maxslippagemap;
 uniform sampler2D sediBlend;
 uniform sampler2D shadowMap;
+uniform sampler2D sceneDepth;
 
 #define PI 3.1415926
 
@@ -77,6 +78,7 @@ void main()
     shadowVal/=9.0;
     shadowCol/=9.0;
     //shadowVal = texture(shadowMap, shadowMapLoc.xy).x;
+    float sceneDepthVal = texture(sceneDepth,shadowMapLoc.xy).x;
 
     vec3 forestcol = vec3(63.0/255.0,155.0/255.0,7.0/255.0)*0.6;
     vec3 mtncolor = vec3(0.99,0.99,0.99);
