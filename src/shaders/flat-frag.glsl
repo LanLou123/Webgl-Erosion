@@ -19,6 +19,9 @@ uniform mat4 u_ModelInvTr;
 uniform mat4 u_ViewProj;
 uniform mat4 u_sproj;
 uniform mat4 u_sview;
+uniform float u_far;
+uniform float u_near;
+
 
 in vec2 fs_Pos;
 out vec4 out_Col;
@@ -29,13 +32,65 @@ vec3 sky(in vec3 rd){
     return 2.0 * mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));
 }
 
+float linearDepth(float depthSample)
+{
+    depthSample = 2.0 * depthSample - 1.0;
+    float zLinear = 2.0 * u_near * u_far / (u_far + u_near - depthSample * (u_far - u_near));
+    return zLinear;
+}
+
+//bayer matrix for dithering
+
+    //maxiterations for bayer matrix, maximum value is number of bits of your data type?
+    //for crepuscular ray dithering [1..3] iterations are enough
+    //because it is basically "noisy scattering" so  any patterns in it are "just fine"
+#define iterBayerMat 1
+#define bayer2x2(a) (4-(a).x-((a).y<<1))%4
+//return bayer matris (bitwise operands for speed over compatibility)
+float GetBayerFromCoordLevel(vec2 pixelpos)
+{   ivec2 p=ivec2(pixelpos);
+    int a=0;
+    for(int i=0; i<iterBayerMat; i++)
+    {
+        a+=bayer2x2(p>>(iterBayerMat-1-i)&1)<<(2*i);
+
+    }
+    return float(a)/float(2<<(iterBayerMat*2-1));
+}
+//https://www.shadertoy.com/view/XtV3RG
+
+//analytic bayer over 2 domains, is unrolled loop of GetBayerFromCoordLevel().
+//but in terms of reusing subroutines, which is faster,while it does not extend as nicely.
+float bayer2  (vec2 a){a=floor(a);return fract(dot(a,vec2(.5, a.y*.75)));}
+float bayer4  (vec2 a){return bayer2 (  .5*a)*.25    +bayer2(a);}
+float bayer8  (vec2 a){return bayer4 (  .5*a)*.25    +bayer2(a);}
+float bayer16 (vec2 a){return bayer4 ( .25*a)*.0625  +bayer4(a);}
+float bayer32 (vec2 a){return bayer8 ( .25*a)*.0625  +bayer4(a);}
+float bayer64 (vec2 a){return bayer8 (.125*a)*.015625+bayer8(a);}
+float bayer128(vec2 a){return bayer16(.125*a)*.015625+bayer8(a);}
+#define dither2(p)   (bayer2(  p)-.375      )
+#define dither4(p)   (bayer4(  p)-.46875    )
+#define dither8(p)   (bayer8(  p)-.4921875  )
+#define dither16(p)  (bayer16( p)-.498046875)
+#define dither32(p)  (bayer32( p)-.499511719)
+#define dither64(p)  (bayer64( p)-.49987793 )
+#define dither128(p) (bayer128(p)-.499969482)
+//https://www.shadertoy.com/view/4ssfWM
+
+//3 ways to approach a bayer matrix for dithering (or for loops within permutations)
+float iib(vec2 u){
+    return dither16(u);//analytic bayer, base2
+    return GetBayerFromCoordLevel(u*999.);//iterative bayer
+    //optionally: instad just use bitmap of a bayer matrix: (LUT approach)
+    //return texture(iChannel1,u/iChannelResolution[1].xy).x;
+}
 
 // ====================== Raleigh scattering ========================
 // reference https://github.com/wwwtyro/glsl-atmosphere
 
 #define PI 3.141592
-#define iSteps 16
-#define jSteps 8
+#define iSteps 8
+#define jSteps 1
 
 vec2 rsi(vec3 r0, vec3 rd, float sr) {
     // ray-sphere intersection that assumes
@@ -165,9 +220,9 @@ vec4 Screen2Light(vec3 pos){
     return lightSpacePos;
 }
 
-#define SCATTER_MARCH_STEPS 114
+#define SCATTER_MARCH_STEPS 50
 #define SCATTER_OUT_MARCH_STEPS 32
-#define SCATTER_MARCH_STEP_SIZE 0.01
+#define SCATTER_MARCH_STEP_SIZE 0.03
 
 vec4 scatter_m(vec3 ro, vec3 rd){
     vec4 col = vec4(0.0);
@@ -183,11 +238,15 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     vec2 uv = 0.5*fs_Pos+0.5;
     vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;
 
+
+    vec3 pos = ro;
+
     for(int i = 1;i<SCATTER_MARCH_STEPS; ++i){
 
         col += vec4(scatter_col_acc,scatter_alpha_acc);
 
-        vec3 pos = ro + rd * SCATTER_MARCH_STEP_SIZE * float(i);
+        float dither = iib(gl_FragCoord.xy);
+        pos += rd * SCATTER_MARCH_STEP_SIZE * dither;
 
         vec4 clipSpacePos =  Screen2Clip(pos);
         vec3 clipSpaceRdVec = Screen2Clip(rd * SCATTER_MARCH_STEP_SIZE).xyz;
@@ -206,8 +265,9 @@ vec4 scatter_m(vec3 ro, vec3 rd){
 
 
         if(sceneDepthValue.x < clipSpacePos.z  && sceneDepthValue.x != 0.0){
-            float diff = clipSpacePos.z - sceneDepthValue.x;
-            col -= diff *  vec4(scatter_col_acc,scatter_alpha_acc)/ clipSpaceStepSize; // we want to subtract excessive color
+            float diff = linearDepth(clipSpacePos.z) - linearDepth(sceneDepthValue.x);
+            //col -= diff * vec4(scatter_col_acc,scatter_alpha_acc) / SCATTER_MARCH_STEP_SIZE;
+            //col -= diff *  vec4(scatter_col_acc,scatter_alpha_acc)/ clipSpaceStepSize; // we want to subtract excessive color
             break;
         }
         //vec3 attn = exp( -)
@@ -223,6 +283,7 @@ vec4 scatter_m(vec3 ro, vec3 rd){
 void main() {
     vec2 uv = 0.5*fs_Pos+0.5;
     vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;
+    float vsceneDepthValue = linearDepth(sceneDepthValue.x);
 
 
     float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;
@@ -280,5 +341,6 @@ void main() {
 
 
 
-    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/1.0)), 1.0  * pow(finalCol.w, 1.8 / 1.0));
+    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/1.0)), 2.0  * pow(finalCol.w, 1.8 / 1.0));
+    //out_Col = vec4(sceneDepthValue,1.0);
 }

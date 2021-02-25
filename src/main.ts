@@ -1145,14 +1145,16 @@ function main() {
 
     rains.setSpawnPos(vec2.fromValues(controls.spawnposx, controls.spawnposy));
     rains.setTime(timer);
+
     flat.setTime(timer);
+    gl.uniform1f(gl.getUniformLocation(flat.prog,"u_far"),camera.far);
+    gl.uniform1f(gl.getUniformLocation(flat.prog,"u_near"),camera.near);
     gl.uniform3fv(gl.getUniformLocation(flat.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
 
     water.setWaterTransparency(controls.WaterTransparency);
     water.setSimres(simresolution);
     gl.uniform1f(gl.getUniformLocation(water.prog,"u_far"),camera.far);
     gl.uniform1f(gl.getUniformLocation(water.prog,"u_near"),camera.near);
-
     gl.uniform3fv(gl.getUniformLocation(water.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
 
     lambert.setTerrainDebug(controls.TerrainDebug);
