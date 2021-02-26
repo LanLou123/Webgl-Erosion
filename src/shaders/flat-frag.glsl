@@ -220,7 +220,7 @@ vec4 Screen2Light(vec3 pos){
     return lightSpacePos;
 }
 
-#define SCATTER_MARCH_STEPS 50
+#define SCATTER_MARCH_STEPS 15
 #define SCATTER_OUT_MARCH_STEPS 32
 #define SCATTER_MARCH_STEP_SIZE 0.1
 
