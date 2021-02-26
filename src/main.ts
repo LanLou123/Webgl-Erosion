@@ -82,6 +82,7 @@ const controls = {
     'setTerrainRandom':setTerrainRandom,
     'Pause' : Pause,
     TerrainBaseMap : 0,
+    TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace
     TerrainBiomeType : 1,
     TerrainScale : 6.0,
     TerrainHeight : 1.5,
@@ -890,6 +891,7 @@ function main() {
     var terrainParameters = gui.addFolder('Terrain Parameters');
     terrainParameters.add(controls,'TerrainScale', 0.1, 10.0);
     terrainParameters.add(controls,'TerrainHeight', 1.0, 2.0);
+    terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2});
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
@@ -897,7 +899,7 @@ function main() {
     erosionpara.add(controls,'Kc', 0.1,1.0);
     erosionpara.add(controls,'Ks', 0.001,0.1);
     erosionpara.add(controls,'Kd', 0.0001,0.1);
-    erosionpara.add(controls, 'TerrainDebug', {normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6, sedimentBlend : 7, spikeDiffusion : 8});
+    erosionpara.add(controls, 'TerrainDebug', {noDebugView : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6, sedimentBlend : 7, spikeDiffusion : 8});
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
     thermalerosionpara.add(controls,'talusAngleFallOffCoeff',0.0, 1.0 );
@@ -1148,6 +1150,7 @@ function main() {
     noiseterrain.setTime(timer);
     noiseterrain.setTerrainHeight(controls.TerrainHeight);
     noiseterrain.setTerrainScale(controls.TerrainScale);
+    gl.uniform1i(gl.getUniformLocation(noiseterrain.prog,"u_terrainBaseType"),controls.TerrainBaseType);
 
 
     if(TerrainGeometryDirty){

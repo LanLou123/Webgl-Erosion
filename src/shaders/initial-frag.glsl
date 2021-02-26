@@ -6,6 +6,7 @@ in vec2 fs_Pos;
 uniform float u_Time;
 uniform float u_TerrainScale;
 uniform float u_TerrainHeight;
+uniform int u_terrainBaseType;
 
 layout (location = 0) out vec4 initial;
 layout (location = 1) out vec4 initial2;
@@ -143,7 +144,12 @@ void main() {
   float terrain_hight = fbm(cpos*2.0);
 
     terrain_hight = pow(terrain_hight,3.0);
-    //terrain_hight = teR(terrain_hight);
+    if(u_terrainBaseType == 2){
+        terrain_hight = teR(terrain_hight);
+    }else if(u_terrainBaseType == 1){
+        terrain_hight = domainwarp(cpos * 2.0)/3.0;
+    }
+
     terrain_hight *= u_TerrainHeight*500.0;
     //terrain_hight = test(uv) * 500.0;
   float rainfall = .0f;
