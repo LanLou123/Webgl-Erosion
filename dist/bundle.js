@@ -64044,7 +64044,7 @@ var OrbitControls = function ( object, domElement ) {
 	function onMouseDown( event ) {
 
 		// Prevent the browser from scrolling.
-		event.preventDefault();
+		//event.preventDefault();
 
 		// Manually set the focus since calling preventDefault above
 		// prevents the browser from setting it automatically.
