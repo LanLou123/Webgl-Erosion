@@ -21,6 +21,7 @@ var lastY = 0;
 const simresolution = 1024;
 const shadowMapResolution = 4096;
 let erosioninterations = 68000;
+const enableBilateralBlur = false;
 let speed = 3;
 const div = 1/simresolution;
 let start = false;
@@ -125,6 +126,10 @@ let shadowMap_tex : WebGLTexture;
 let deferred_frame_buffer : WebGLFramebuffer;
 let deferred_render_buffer : WebGLRenderbuffer;
 let scene_depth_tex : WebGLTexture;
+let bilateral_filter_horizontal_tex : WebGLTexture;
+let bilateral_filter_vertical_tex : WebGLTexture;
+let color_pass_tex : WebGLTexture;
+let scatter_pass_tex : WebGLTexture;
 
 let read_terrain_tex : WebGLTexture;
 let write_terrain_tex : WebGLTexture;
@@ -760,6 +765,8 @@ function LE_create_texture(w : number, h : number){
     return new_tex;
 }
 
+
+
 function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
 
 
@@ -789,6 +796,10 @@ function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
 
     shadowMap_tex = LE_create_texture(shadowMapResolution, shadowMapResolution);
     scene_depth_tex = LE_create_texture(window.innerWidth,window.innerHeight);
+    bilateral_filter_horizontal_tex = LE_create_texture(window.innerWidth,window.innerHeight);
+    bilateral_filter_vertical_tex  = LE_create_texture(window.innerWidth,window.innerHeight);
+    color_pass_tex = LE_create_texture(window.innerWidth,window.innerHeight);
+    scatter_pass_tex = LE_create_texture(window.innerWidth,window.innerHeight);
 
     shadowMap_frame_buffer = gl.createFramebuffer();
     shadowMap_render_buffer = gl.createRenderbuffer();
@@ -948,7 +959,7 @@ function main() {
 
   const camera = new Camera(vec3.fromValues(0.3, 0.1, 0.6), vec3.fromValues(0, 0, 0));
   const renderer = new OpenGLRenderer(canvas);
-  renderer.setClearColor(0.0, 0.0, 0.0, 1);
+  renderer.setClearColor(0.0, 0.0, 0.0, 0);
   gl.enable(gl.DEPTH_TEST);
 
   setupFramebufferandtextures(gl);
@@ -1039,6 +1050,17 @@ function main() {
         new Shader(gl.VERTEX_SHADER, require('./shaders/terrain-vert.glsl')),
         new Shader(gl.FRAGMENT_SHADER, require('./shaders/sceneDepth-frag.glsl')),
     ]);
+
+    const combinedShader = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/combine-frag.glsl')),
+    ]);
+
+    const bilateralBlur = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/bilateralBlur-frag.glsl')),
+    ]);
+
 
     noiseterrain.setRndTerrain(controls.TerrainBaseMap);
     noiseterrain.setTerrainType(controls.TerrainBiomeType);
@@ -1229,7 +1251,7 @@ function main() {
     camera.update();
     stats.begin();
 
-      //=================== begin simulation ==================
+      //==========================  we begin simulation from now ===========================================
 
     for(let i = 0;i<speed;i++) {
         SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect,rains,evaporation,average,thermalterrainflux, thermalapply, maxslippageheight, renderer, gl, camera);
@@ -1239,7 +1261,8 @@ function main() {
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
 
-    //==========================begin render shadow map pass=====================================
+    //========================== we enter a series of render pass from now ================================
+    //========================== pass 1 : render shadow map pass=====================================
 
 
       gl.bindFramebuffer(gl.FRAMEBUFFER,shadowMap_frame_buffer);
@@ -1283,7 +1306,7 @@ function main() {
       gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
 
-      //=========================== begin render scene depth tex ================================
+      //=========================== pass 2 :  render scene depth tex ================================
       sceneDepthShader.use();
       gl.bindFramebuffer(gl.FRAMEBUFFER,deferred_frame_buffer);
       gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,scene_depth_tex,0);
@@ -1303,8 +1326,19 @@ function main() {
       ]);
       gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
-    //============================= begin render terrain -----------------------------------------
+    //============================= pass 3 : render terrain and water geometry ================================================
+    //============ terrain geometry =========
+    gl.bindFramebuffer(gl.FRAMEBUFFER,deferred_frame_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,color_pass_tex,0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,deferred_render_buffer);
 
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      console.log( "frame buffer status:" + status.toString());
+    }
+    renderer.clear();
 
     lambert.use();
     gl.viewport(0,0,window.innerWidth, window.innerHeight);
@@ -1365,7 +1399,7 @@ function main() {
       plane,
     ]);
 
-    // render water -----------------------------------------
+    // =============== water =====================
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     water.use();
@@ -1392,15 +1426,33 @@ function main() {
       plane,
     ]);
 
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 
-    // back ground & post processing & rayleigh mie scattering ----------------------------------
+    // ======================== pass 4 : back ground & post processing & rayleigh mie scattering ==================================
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER,deferred_frame_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,scatter_pass_tex,0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,deferred_render_buffer);
+
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      console.log( "frame buffer status:" + status.toString());
+    }
+
+    renderer.clear();// clear when attached to scene depth map
+    gl.viewport(0,0,window.innerWidth, window.innerHeight);
 
     flat.use();
 
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LESS);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
@@ -1421,6 +1473,74 @@ function main() {
     renderer.render(camera, flat, [
       square,
     ]);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+
+    // ======================== pass 5 : bilateral blurring pass ==================================
+      if(enableBilateralBlur) {
+          let NumBlurPass = 6;
+          for (let i = 0; i < NumBlurPass; ++i) {
+
+              gl.bindFramebuffer(gl.FRAMEBUFFER, deferred_frame_buffer);
+              gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, bilateral_filter_horizontal_tex, 0);
+              gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, deferred_render_buffer);
+
+              gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+              status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+              if (status !== gl.FRAMEBUFFER_COMPLETE) {
+                  console.log("frame buffer status:" + status.toString());
+              }
+
+              renderer.clear();// clear when attached to scene depth map
+
+              bilateralBlur.use();
+              gl.activeTexture(gl.TEXTURE0);
+              if (i == 0) {
+                  gl.bindTexture(gl.TEXTURE_2D, scatter_pass_tex);
+              } else {
+                  gl.bindTexture(gl.TEXTURE_2D, bilateral_filter_vertical_tex);
+              }
+              gl.uniform1i(gl.getUniformLocation(bilateralBlur.prog, "scatter_tex"), 0);
+
+              gl.activeTexture(gl.TEXTURE1);
+              gl.bindTexture(gl.TEXTURE_2D, scene_depth_tex);
+              gl.uniform1i(gl.getUniformLocation(bilateralBlur.prog, "scene_depth"), 1);
+
+              gl.uniform1f(gl.getUniformLocation(bilateralBlur.prog, "u_far"), camera.far);
+              gl.uniform1f(gl.getUniformLocation(bilateralBlur.prog, "u_near"), camera.near);
+
+              gl.uniform1i(gl.getUniformLocation(bilateralBlur.prog, "u_isHorizontal"), i % 2);
+
+
+              renderer.render(camera, bilateralBlur, [
+                  square,
+              ]);
+
+              let tmp = bilateral_filter_horizontal_tex;
+              bilateral_filter_horizontal_tex = bilateral_filter_vertical_tex;
+              bilateral_filter_vertical_tex = tmp;
+
+              gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          }
+      }
+
+    // ===================================== pass 6 : combination pass =====================================================================
+    combinedShader.use();
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, color_pass_tex);
+    gl.uniform1i(gl.getUniformLocation(combinedShader.prog,"color_tex"),0);
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, scatter_pass_tex);
+    gl.uniform1i(gl.getUniformLocation(combinedShader.prog,"bi_tex"),1);
+
+    renderer.clear();
+    renderer.render(camera, combinedShader, [
+      square,
+    ]);
+
     gl.disable(gl.BLEND);
     //gl.disable(gl.DEPTH_TEST);
     stats.end();
@@ -1434,6 +1554,38 @@ function main() {
     gl.bindRenderbuffer(gl.RENDERBUFFER,deferred_render_buffer);
     gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
       window.innerWidth,window.innerHeight);
+
+    gl.bindTexture(gl.TEXTURE_2D,scatter_pass_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,window.innerWidth,window.innerHeight,0,
+      gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.bindTexture(gl.TEXTURE_2D,color_pass_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,window.innerWidth,window.innerHeight,0,
+      gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.bindTexture(gl.TEXTURE_2D,bilateral_filter_vertical_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,window.innerWidth,window.innerHeight,0,
+      gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.bindTexture(gl.TEXTURE_2D,bilateral_filter_horizontal_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,window.innerWidth,window.innerHeight,0,
+      gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     gl.bindTexture(gl.TEXTURE_2D,scene_depth_tex);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,window.innerWidth,window.innerHeight,0,

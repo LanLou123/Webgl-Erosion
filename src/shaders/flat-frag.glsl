@@ -80,7 +80,7 @@ float bayer128(vec2 a){return bayer16(.125*a)*.015625+bayer8(a);}
 //3 ways to approach a bayer matrix for dithering (or for loops within permutations)
 float iib(vec2 u){
     return dither16(u);//analytic bayer, base2
-    return GetBayerFromCoordLevel(u*999.);//iterative bayer
+    //return GetBayerFromCoordLevel(u*999.);//iterative bayer
     //optionally: instad just use bitmap of a bayer matrix: (LUT approach)
     //return texture(iChannel1,u/iChannelResolution[1].xy).x;
 }
@@ -222,34 +222,49 @@ vec4 Screen2Light(vec3 pos){
 
 #define SCATTER_MARCH_STEPS 50
 #define SCATTER_OUT_MARCH_STEPS 32
-#define SCATTER_MARCH_STEP_SIZE 0.03
+#define SCATTER_MARCH_STEP_SIZE 0.1
 
 vec4 scatter_m(vec3 ro, vec3 rd){
-    vec4 col = vec4(0.0);
-    vec3 fog_col = vec3(0.8,0.8,1.0);
-    float scatter_alpha_acc_all = 1.0 / float(SCATTER_MARCH_STEPS);
-    float scatter_alpha_acc = scatter_alpha_acc_all / 4.0;
-    float scatter_alpha_acc_out = scatter_alpha_acc_all * 3.0/ 4.0;
-
-    vec3 scatter_col_acc_all = fog_col/float(SCATTER_MARCH_STEPS);
-    vec3 scatter_col_acc = scatter_col_acc_all / 4.0;
-    vec3 scatter_col_acc_out = scatter_col_acc_all * 3.0 / 4.0;
 
     vec2 uv = 0.5*fs_Pos+0.5;
     vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;
+    float linearSceneDepthVal = linearDepth(sceneDepthValue.x); // max length can travel for this specific ray
+    float rayAttenuation = 1.0 * linearSceneDepthVal;
+
+    float stepSize = ((linearSceneDepthVal ) / float(SCATTER_MARCH_STEPS)) ;
+    if(sceneDepthValue.x == 0.0){
+        stepSize = 0.2;
+        rayAttenuation = 1.0;
+    }
+    //rayAttenuation = clamp(rayAttenuation, 0.0, 1.0);
+
+    vec4 col = vec4(0.0);
+    vec3 fog_col = 0.6 *  vec3(0.8,0.8,1.0) * clamp(rayAttenuation,0.0,1.0);
+    float fog_alpha = 1.0 * rayAttenuation;
+    float scatter_alpha_acc_all = fog_alpha / float(SCATTER_MARCH_STEPS);
+    float scatter_alpha_acc = scatter_alpha_acc_all*1.0/ 4.0;
+    float scatter_alpha_acc_out = scatter_alpha_acc_all * 3.0/ 4.0;
+
+    vec3 scatter_col_acc_all = fog_col/float(SCATTER_MARCH_STEPS);
+    vec3 scatter_col_acc = scatter_col_acc_all*1.0 / 4.0;
+    vec3 scatter_col_acc_out = scatter_col_acc_all * 3.0 / 4.0;
 
 
-    vec3 pos = ro;
+
+    float dither = iib(gl_FragCoord.xy);
+    vec3 pos = ro + rd * stepSize * dither;
+   //pos = ro;
 
     for(int i = 1;i<SCATTER_MARCH_STEPS; ++i){
 
-        col += vec4(scatter_col_acc,scatter_alpha_acc);
+        float heightAtten = 1.0 * exp(-pos.y);
+        col += heightAtten * vec4(scatter_col_acc,scatter_alpha_acc);
 
-        float dither = iib(gl_FragCoord.xy);
-        pos += rd * SCATTER_MARCH_STEP_SIZE * dither;
+
+        pos += rd * stepSize;
 
         vec4 clipSpacePos =  Screen2Clip(pos);
-        vec3 clipSpaceRdVec = Screen2Clip(rd * SCATTER_MARCH_STEP_SIZE).xyz;
+        vec3 clipSpaceRdVec = Screen2Clip(rd * stepSize).xyz;
         float clipSpaceStepSize = length(clipSpaceRdVec);
 
         vec4 lightSpacePos = Screen2Light(pos);
@@ -267,7 +282,6 @@ vec4 scatter_m(vec3 ro, vec3 rd){
         if(sceneDepthValue.x < clipSpacePos.z  && sceneDepthValue.x != 0.0){
             float diff = linearDepth(clipSpacePos.z) - linearDepth(sceneDepthValue.x);
             //col -= diff * vec4(scatter_col_acc,scatter_alpha_acc) / SCATTER_MARCH_STEP_SIZE;
-            //col -= diff *  vec4(scatter_col_acc,scatter_alpha_acc)/ clipSpaceStepSize; // we want to subtract excessive color
             break;
         }
         //vec3 attn = exp( -)
@@ -275,6 +289,8 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     }
 
 
+
+    col = clamp(col, vec4(0.0),vec4(1.0));
 
     return col;
 }
@@ -316,7 +332,11 @@ void main() {
         gl_FragDepth = 0.99999;
     }else{
         finalCol = scatter_m(ro,rd);
-        finalCol.w *=  (1.0 - angle);
+        finalCol.xyz = vec3(1.0) - exp(-finalCol.xyz * 2.0 ); //fog fall off
+        //finalCol.xyz *= (1.0 - angle);
+        finalCol.w *= 1.0;
+        finalCol.w = clamp(finalCol.w, 0.0, 1.0);
+        //finalCol.w *=  1.0 - exp(-finalCol.w * 2.0);
     }
     if(sceneDepthValue.x==0.0){
         vec3 color = sky(rd);
@@ -335,12 +355,12 @@ void main() {
                 0.958// Mie preferred scattering direction
                 );
         }
-        finalCol.xyz  = (max(color,vec3(0.0,0.0,0.0)) + finalCol.xyz)/2.0;
+        finalCol.xyz  = mix(max(color,vec3(0.0,0.0,0.0)) , finalCol.xyz, finalCol.w);
         finalCol.w = 1.0;
     }
 
 
 
-    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/1.0)), 2.0  * pow(finalCol.w, 1.8 / 1.0));
+    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/2.0)), finalCol.w);
     //out_Col = vec4(sceneDepthValue,1.0);
 }

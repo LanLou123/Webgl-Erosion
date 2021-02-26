@@ -54757,6 +54757,7 @@ var lastY = 0;
 const simresolution = 1024;
 const shadowMapResolution = 4096;
 let erosioninterations = 68000;
+const enableBilateralBlur = false;
 let speed = 3;
 const div = 1 / simresolution;
 let start = false;
@@ -54850,6 +54851,10 @@ let shadowMap_tex;
 let deferred_frame_buffer;
 let deferred_render_buffer;
 let scene_depth_tex;
+let bilateral_filter_horizontal_tex;
+let bilateral_filter_vertical_tex;
+let color_pass_tex;
+let scatter_pass_tex;
 let read_terrain_tex;
 let write_terrain_tex;
 let read_flux_tex;
@@ -55320,6 +55325,10 @@ function setupFramebufferandtextures(gl) {
     write_sediment_blend = LE_create_texture(simres, simres);
     shadowMap_tex = LE_create_texture(shadowMapResolution, shadowMapResolution);
     scene_depth_tex = LE_create_texture(window.innerWidth, window.innerHeight);
+    bilateral_filter_horizontal_tex = LE_create_texture(window.innerWidth, window.innerHeight);
+    bilateral_filter_vertical_tex = LE_create_texture(window.innerWidth, window.innerHeight);
+    color_pass_tex = LE_create_texture(window.innerWidth, window.innerHeight);
+    scatter_pass_tex = LE_create_texture(window.innerWidth, window.innerHeight);
     shadowMap_frame_buffer = gl.createFramebuffer();
     shadowMap_render_buffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, shadowMap_render_buffer);
@@ -55444,7 +55453,7 @@ function main() {
     num_simsteps = erosioninterations;
     const camera = new __WEBPACK_IMPORTED_MODULE_6__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.3, 0.1, 0.6), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0));
     const renderer = new __WEBPACK_IMPORTED_MODULE_5__rendering_gl_OpenGLRenderer__["a" /* default */](canvas);
-    renderer.setClearColor(0.0, 0.0, 0.0, 1);
+    renderer.setClearColor(0.0, 0.0, 0.0, 0);
     gl.enable(gl.DEPTH_TEST);
     setupFramebufferandtextures(gl);
     const lambert = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
@@ -55514,6 +55523,14 @@ function main() {
     const sceneDepthShader = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
         new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(11)),
         new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(48)),
+    ]);
+    const combinedShader = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(0)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(49)),
+    ]);
+    const bilateralBlur = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(0)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(50)),
     ]);
     noiseterrain.setRndTerrain(controls.TerrainBaseMap);
     noiseterrain.setTerrainType(controls.TerrainBiomeType);
@@ -55601,6 +55618,8 @@ function main() {
         rains.setSpawnPos(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(controls.spawnposx, controls.spawnposy));
         rains.setTime(timer);
         flat.setTime(timer);
+        gl.uniform1f(gl.getUniformLocation(flat.prog, "u_far"), camera.far);
+        gl.uniform1f(gl.getUniformLocation(flat.prog, "u_near"), camera.near);
         gl.uniform3fv(gl.getUniformLocation(flat.prog, "unif_LightPos"), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(controls.lightPosX, controls.lightPosY, controls.lightPosZ));
         water.setWaterTransparency(controls.WaterTransparency);
         water.setSimres(simresolution);
@@ -55664,14 +55683,15 @@ function main() {
         average.setSimres(simresolution);
         camera.update();
         stats.begin();
-        //=================== begin simulation ==================
+        //==========================  we begin simulation from now ===========================================
         for (let i = 0; i < speed; i++) {
             SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect, rains, evaporation, average, thermalterrainflux, thermalapply, maxslippageheight, renderer, gl, camera);
             SimFramecnt++;
         }
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         renderer.clear();
-        //==========================begin render shadow map pass=====================================
+        //========================== we enter a series of render pass from now ================================
+        //========================== pass 1 : render shadow map pass=====================================
         gl.bindFramebuffer(gl.FRAMEBUFFER, shadowMap_frame_buffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, shadowMap_tex, 0);
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, shadowMap_render_buffer);
@@ -55702,7 +55722,7 @@ function main() {
         shadowMapShader.setSimres(simres);
         renderer.render(camera, shadowMapShader, [plane]);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        //=========================== begin render scene depth tex ================================
+        //=========================== pass 2 :  render scene depth tex ================================
         sceneDepthShader.use();
         gl.bindFramebuffer(gl.FRAMEBUFFER, deferred_frame_buffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, scene_depth_tex, 0);
@@ -55718,7 +55738,17 @@ function main() {
             plane,
         ]);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        //============================= begin render terrain -----------------------------------------
+        //============================= pass 3 : render terrain and water geometry ================================================
+        //============ terrain geometry =========
+        gl.bindFramebuffer(gl.FRAMEBUFFER, deferred_frame_buffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, color_pass_tex, 0);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, deferred_render_buffer);
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+        status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+            console.log("frame buffer status:" + status.toString());
+        }
+        renderer.clear();
         lambert.use();
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         //plane.setDrawMode(gl.LINE_STRIP);
@@ -55764,7 +55794,7 @@ function main() {
         renderer.render(camera, lambert, [
             plane,
         ]);
-        // render water -----------------------------------------
+        // =============== water =====================
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         water.use();
@@ -55786,11 +55816,24 @@ function main() {
         renderer.render(camera, water, [
             plane,
         ]);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        // back ground & post processing & rayleigh mie scattering ----------------------------------
+        // ======================== pass 4 : back ground & post processing & rayleigh mie scattering ==================================
+        gl.bindFramebuffer(gl.FRAMEBUFFER, deferred_frame_buffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, scatter_pass_tex, 0);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, deferred_render_buffer);
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+        status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+            console.log("frame buffer status:" + status.toString());
+        }
+        renderer.clear(); // clear when attached to scene depth map
+        gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         flat.use();
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LESS);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
         gl.uniform1i(gl.getUniformLocation(flat.prog, "hightmap"), 0);
@@ -55806,6 +55849,56 @@ function main() {
         renderer.render(camera, flat, [
             square,
         ]);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        // ======================== pass 5 : bilateral blurring pass ==================================
+        if (enableBilateralBlur) {
+            let NumBlurPass = 6;
+            for (let i = 0; i < NumBlurPass; ++i) {
+                gl.bindFramebuffer(gl.FRAMEBUFFER, deferred_frame_buffer);
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, bilateral_filter_horizontal_tex, 0);
+                gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, deferred_render_buffer);
+                gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+                status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+                if (status !== gl.FRAMEBUFFER_COMPLETE) {
+                    console.log("frame buffer status:" + status.toString());
+                }
+                renderer.clear(); // clear when attached to scene depth map
+                bilateralBlur.use();
+                gl.activeTexture(gl.TEXTURE0);
+                if (i == 0) {
+                    gl.bindTexture(gl.TEXTURE_2D, scatter_pass_tex);
+                }
+                else {
+                    gl.bindTexture(gl.TEXTURE_2D, bilateral_filter_vertical_tex);
+                }
+                gl.uniform1i(gl.getUniformLocation(bilateralBlur.prog, "scatter_tex"), 0);
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, scene_depth_tex);
+                gl.uniform1i(gl.getUniformLocation(bilateralBlur.prog, "scene_depth"), 1);
+                gl.uniform1f(gl.getUniformLocation(bilateralBlur.prog, "u_far"), camera.far);
+                gl.uniform1f(gl.getUniformLocation(bilateralBlur.prog, "u_near"), camera.near);
+                gl.uniform1i(gl.getUniformLocation(bilateralBlur.prog, "u_isHorizontal"), i % 2);
+                renderer.render(camera, bilateralBlur, [
+                    square,
+                ]);
+                let tmp = bilateral_filter_horizontal_tex;
+                bilateral_filter_horizontal_tex = bilateral_filter_vertical_tex;
+                bilateral_filter_vertical_tex = tmp;
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            }
+        }
+        // ===================================== pass 6 : combination pass =====================================================================
+        combinedShader.use();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, color_pass_tex);
+        gl.uniform1i(gl.getUniformLocation(combinedShader.prog, "color_tex"), 0);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, scatter_pass_tex);
+        gl.uniform1i(gl.getUniformLocation(combinedShader.prog, "bi_tex"), 1);
+        renderer.clear();
+        renderer.render(camera, combinedShader, [
+            square,
+        ]);
         gl.disable(gl.BLEND);
         //gl.disable(gl.DEPTH_TEST);
         stats.end();
@@ -55815,6 +55908,30 @@ function main() {
     window.addEventListener('resize', function () {
         gl.bindRenderbuffer(gl.RENDERBUFFER, deferred_render_buffer);
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, window.innerWidth, window.innerHeight);
+        gl.bindTexture(gl.TEXTURE_2D, scatter_pass_tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, window.innerWidth, window.innerHeight, 0, gl.RGBA, gl.FLOAT, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.bindTexture(gl.TEXTURE_2D, color_pass_tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, window.innerWidth, window.innerHeight, 0, gl.RGBA, gl.FLOAT, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.bindTexture(gl.TEXTURE_2D, bilateral_filter_vertical_tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, window.innerWidth, window.innerHeight, 0, gl.RGBA, gl.FLOAT, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.bindTexture(gl.TEXTURE_2D, bilateral_filter_horizontal_tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, window.innerWidth, window.innerHeight, 0, gl.RGBA, gl.FLOAT, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, scene_depth_tex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, window.innerWidth, window.innerHeight, 0, gl.RGBA, gl.FLOAT, null);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -63927,7 +64044,7 @@ var OrbitControls = function ( object, domElement ) {
 	function onMouseDown( event ) {
 
 		// Prevent the browser from scrolling.
-		//event.preventDefault(); stupid
+		event.preventDefault();
 
 		// Manually set the focus since calling preventDefault above
 		// prevents the browser from setting it automatically.
@@ -64889,7 +65006,7 @@ exports.y = mouseRelativeY
 /* 29 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nin vec4 fs_shadowPos;\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nuniform sampler2D sedimap;\r\nuniform sampler2D velmap;\r\nuniform sampler2D fluxmap;\r\nuniform sampler2D terrainfluxmap;\r\nuniform sampler2D maxslippagemap;\r\nuniform sampler2D sediBlend;\r\nuniform sampler2D shadowMap;\r\nuniform sampler2D sceneDepth;\r\n\r\n#define PI 3.1415926\r\n\r\n\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\nuniform vec4 u_MouseWorldPos;\r\nuniform vec3 u_MouseWorldDir;\r\nuniform float u_BrushSize;\r\nuniform int u_BrushType;\r\nuniform vec2 u_BrushPos;\r\nuniform float u_SimRes;\r\nuniform float u_SnowRange;\r\nuniform vec3 unif_LightPos;\r\n\r\nuniform mat4 u_sproj;\r\nuniform mat4 u_sview;\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 1.f/u_SimRes;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n    vec4 b = texture(hightmap,uv+vec2(0.f,-eps));\r\n    vec4 l = texture(hightmap,uv+vec2(-eps,0.f));\r\n\r\n    vec3 nor = vec3(l.x - r.x, 2.0, t.x - b.x);\r\n    nor = -normalize(nor);\r\n    return nor;\r\n}\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n    float shadowVal = 1.0f;\r\n    vec3 shadowCol = vec3(1.0);\r\n    vec3 ambientCol = vec3(0.01);\r\n    vec3 shadowMapLoc = fs_shadowPos.xyz / fs_shadowPos.w;\r\n    shadowMapLoc = shadowMapLoc*0.5+0.5;\r\n    float texsize = 1.0/4096.0f;\r\n    for(int x = -1; x <= 1; ++x)\r\n    {\r\n        for(int y = -1; y <= 1; ++y)\r\n        {\r\n            float pcfDepth = texture(shadowMap, shadowMapLoc.xy + vec2(x, y) * texsize).r;\r\n            shadowVal += shadowMapLoc.z - 0.0001 > pcfDepth ? .1 : 1.;\r\n            shadowCol += shadowMapLoc.z - 0.0001 > pcfDepth ? vec3(0.02,0.01,0.09) : vec3(1.0);\r\n        }\r\n    }\r\n    shadowVal/=9.0;\r\n    shadowCol/=9.0;\r\n    //shadowVal = texture(shadowMap, shadowMapLoc.xy).x;\r\n    float sceneDepthVal = texture(sceneDepth,shadowMapLoc.xy).x;\r\n\r\n    vec3 forestcol = vec3(63.0/255.0,155.0/255.0,7.0/255.0)*0.6;\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.21,0.2,0.2);\r\n    vec3 grass = vec3(193.0/255.0,235.0/255.0,27.0/255.0);\r\n    vec3 sand = vec3(214.f/255.f,184.f/255.f,96.f/255.f);\r\n    vec3 watercol = vec3(0.1,0.3,0.8);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n    vec3 rock1 = vec3(0.4,0.4,0.4);\r\n    vec3 rock2 = vec3(0.2,0.2,0.2);\r\n    vec3 rock3 = vec3(0.1,0.1,0.1);\r\n\r\n    vec3 addcol = vec3(0.0);\r\n    if(u_BrushType != 0){\r\n        vec3 ro = u_MouseWorldPos.xyz;\r\n        vec3 rd = u_MouseWorldDir;\r\n        vec2 pointOnPlane = u_BrushPos;\r\n        float pdis2fragment = distance(pointOnPlane, fs_Uv);\r\n        if (pdis2fragment < 0.01 * u_BrushSize){\r\n            float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);\r\n\r\n            if(u_BrushType == 1){\r\n                addcol = sand * 0.8;\r\n            }else if(u_BrushType == 2){\r\n                addcol = watercol * 0.8;\r\n            }\r\n            addcol *= dens;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    vec3 sundir = unif_LightPos;\r\n\r\n    sundir = normalize(sundir);\r\n\r\n\r\n    vec3 slopesin = texture(normap,fs_Uv).xyz;\r\n    vec3 nor = -calnor(fs_Uv);\r\n\r\n    float angle = dot(sundir,vec3(0.0,1.0,0.0));\r\n    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);\r\n\r\n\r\n    float lamb = dot(nor,vec3(sundir.x,sundir.y,-sundir.z));\r\n\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    float sval = texture(sediBlend, fs_Uv).x;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n\r\n    forestcol = mtncolor;\r\n    if(yval<=100.0){\r\n        finalcol = forestcol;\r\n    }else if(yval>100.0&&yval<=150.0){\r\n        finalcol = mix(forestcol,forestcol,(yval-100.0)/50.0);\r\n    }else if(yval>150.0){\r\n        if(yval<300.0f ){\r\n            finalcol = mix(forestcol, mtncolor, (yval-150.0)/150.0);\r\n        }\r\n        else if((yval > 300.0f)){\r\n            finalcol = mtncolor;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    if(abs(nor.y)<0.75){\r\n        finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.75,u_SnowRange));\r\n    }\r\n\r\n   // finalcol = obsidian;\r\n\r\n    //finalcol = mix(finalcol, sand, clamp( pow( sval, 3.0) * 8.0, 0.0, 4.0) );\r\n    //finalcol = mix(finalcol,pow( sval, 1.0) * 100.0 * vec3(1.0,1.0,1.0),pow( sval,1.0) * 100.0 );\r\n\r\n    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));\r\n\r\n\r\n    vec3 normal = lamb*(finalcol) + ambientCol;\r\n    vec3 fcol = normal;\r\n    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4\r\n    if(u_TerrainDebug == 0){\r\n        fcol = normal;\r\n    }else if(u_TerrainDebug == 1){\r\n        fcol = texture(sedimap,fs_Uv).xyz * 2.0;\r\n    }else if(u_TerrainDebug == 2){\r\n        fcol = abs(texture(velmap,fs_Uv).xyz/2.0);\r\n        //fcol = nor1;\r\n        //fcol.xy = fcol.xy / 2.0 + vec2(0.5);\r\n    }else if(u_TerrainDebug == 3){\r\n        fcol = texture(hightmap,fs_Uv).xyz;\r\n        fcol.xy /= 200.0;\r\n    }else if(u_TerrainDebug == 4){\r\n        fcol = texture(fluxmap,fs_Uv).xyz / 3.0;\r\n        if(fcol == vec3(0.0)){\r\n            fcol = vec3(texture(fluxmap,fs_Uv).w)/3.0;\r\n        }\r\n    }else if(u_TerrainDebug == 5){\r\n        fcol = texture(terrainfluxmap, fs_Uv).xyz * 100000.0;\r\n    }else if(u_TerrainDebug == 6){\r\n        fcol = texture(maxslippagemap, fs_Uv).xyz / 3.0;\r\n    }else if(u_TerrainDebug == 7){\r\n        fcol = vec3(sval * 100.0);\r\n    }else if(u_TerrainDebug == 8){\r\n        fcol = slopesin;\r\n    }\r\n\r\n\r\n\r\n    fcol += addcol;\r\n\r\n\r\n\r\n    out_Col = vec4(hue*vec3(fcol)*1.0*shadowCol,1.f);\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\n\r\nin vec3 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_Col;\r\nin float fs_Sine;\r\nin vec2 fs_Uv;\r\nin vec4 fs_shadowPos;\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D normap;\r\nuniform sampler2D sedimap;\r\nuniform sampler2D velmap;\r\nuniform sampler2D fluxmap;\r\nuniform sampler2D terrainfluxmap;\r\nuniform sampler2D maxslippagemap;\r\nuniform sampler2D sediBlend;\r\nuniform sampler2D shadowMap;\r\nuniform sampler2D sceneDepth;\r\n\r\n#define PI 3.1415926\r\n\r\n\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_TerrainDebug;\r\n\r\nuniform vec4 u_MouseWorldPos;\r\nuniform vec3 u_MouseWorldDir;\r\nuniform float u_BrushSize;\r\nuniform int u_BrushType;\r\nuniform vec2 u_BrushPos;\r\nuniform float u_SimRes;\r\nuniform float u_SnowRange;\r\nuniform vec3 unif_LightPos;\r\n\r\nuniform mat4 u_sproj;\r\nuniform mat4 u_sview;\r\n\r\nvec3 calnor(vec2 uv){\r\n    float eps = 1.f/u_SimRes;\r\n    vec4 cur = texture(hightmap,uv);\r\n    vec4 r = texture(hightmap,uv+vec2(eps,0.f));\r\n    vec4 t = texture(hightmap,uv+vec2(0.f,eps));\r\n    vec4 b = texture(hightmap,uv+vec2(0.f,-eps));\r\n    vec4 l = texture(hightmap,uv+vec2(-eps,0.f));\r\n\r\n    vec3 nor = vec3(l.x - r.x, 2.0, t.x - b.x);\r\n    nor = -normalize(nor);\r\n    return nor;\r\n}\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n    float shadowVal = 1.0f;\r\n    vec3 shadowCol = vec3(1.0);\r\n    vec3 ambientCol = vec3(0.01);\r\n    vec3 shadowMapLoc = fs_shadowPos.xyz / fs_shadowPos.w;\r\n    shadowMapLoc = shadowMapLoc*0.5+0.5;\r\n    float texsize = 1.0/4096.0f;\r\n    for(int x = -1; x <= 1; ++x)\r\n    {\r\n        for(int y = -1; y <= 1; ++y)\r\n        {\r\n            float pcfDepth = texture(shadowMap, shadowMapLoc.xy + vec2(x, y) * texsize).r;\r\n            shadowVal += shadowMapLoc.z - 0.0001 > pcfDepth ? .1 : 1.;\r\n            shadowCol += shadowMapLoc.z - 0.0001 > pcfDepth ? vec3(0.02,0.01,0.09) : vec3(1.0);\r\n        }\r\n    }\r\n    shadowVal/=9.0;\r\n    shadowCol/=9.0;\r\n    float shadowColorVal = texture(shadowMap, fs_Uv.xy).x;\r\n    float sceneDepthVal = texture(sceneDepth,shadowMapLoc.xy).x;\r\n\r\n    vec3 forestcol = vec3(63.0/255.0,155.0/255.0,7.0/255.0)*0.6;\r\n    vec3 mtncolor = vec3(0.99,0.99,0.99);\r\n    vec3 dirtcol = vec3(0.21,0.2,0.2);\r\n    vec3 grass = vec3(193.0/255.0,235.0/255.0,27.0/255.0);\r\n    vec3 sand = vec3(214.f/255.f,184.f/255.f,96.f/255.f);\r\n    vec3 watercol = vec3(0.1,0.3,0.8);\r\n    vec3 obsidian = vec3(0.2);\r\n\r\n    vec3 rock1 = vec3(0.4,0.4,0.4);\r\n    vec3 rock2 = vec3(0.2,0.2,0.2);\r\n    vec3 rock3 = vec3(0.1,0.1,0.1);\r\n\r\n    vec3 addcol = vec3(0.0);\r\n    if(u_BrushType != 0){\r\n        vec3 ro = u_MouseWorldPos.xyz;\r\n        vec3 rd = u_MouseWorldDir;\r\n        vec2 pointOnPlane = u_BrushPos;\r\n        float pdis2fragment = distance(pointOnPlane, fs_Uv);\r\n        if (pdis2fragment < 0.01 * u_BrushSize){\r\n            float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);\r\n\r\n            if(u_BrushType == 1){\r\n                addcol = sand * 0.8;\r\n            }else if(u_BrushType == 2){\r\n                addcol = watercol * 0.8;\r\n            }\r\n            addcol *= dens;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    vec3 sundir = unif_LightPos;\r\n\r\n    sundir = normalize(sundir);\r\n\r\n\r\n    vec3 slopesin = texture(normap,fs_Uv).xyz;\r\n    vec3 nor = -calnor(fs_Uv);\r\n\r\n    float angle = dot(sundir,vec3(0.0,1.0,0.0));\r\n    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);\r\n\r\n\r\n    float lamb = dot(nor,vec3(sundir.x,sundir.y,-sundir.z));\r\n\r\n\r\n    //lamb =1.f;\r\n\r\n    float yval = texture(hightmap,fs_Uv).x * 4.0;\r\n    float wval = texture(hightmap,fs_Uv).y;\r\n    float sval = texture(sediBlend, fs_Uv).x;\r\n\r\n    vec3 finalcol = vec3(0);\r\n\r\n\r\n    forestcol = mtncolor;\r\n    if(yval<=100.0){\r\n        finalcol = forestcol;\r\n    }else if(yval>100.0&&yval<=150.0){\r\n        finalcol = mix(forestcol,forestcol,(yval-100.0)/50.0);\r\n    }else if(yval>150.0){\r\n        if(yval<300.0f ){\r\n            finalcol = mix(forestcol, mtncolor, (yval-150.0)/150.0);\r\n        }\r\n        else if((yval > 300.0f)){\r\n            finalcol = mtncolor;\r\n        }\r\n\r\n    }\r\n\r\n\r\n    if(abs(nor.y)<0.75){\r\n        finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.75,u_SnowRange));\r\n    }\r\n\r\n   // finalcol = obsidian;\r\n\r\n    //finalcol = mix(finalcol, sand, clamp( pow( sval, 3.0) * 8.0, 0.0, 4.0) );\r\n    //finalcol = mix(finalcol,pow( sval, 1.0) * 100.0 * vec3(1.0,1.0,1.0),pow( sval,1.0) * 100.0 );\r\n\r\n    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));\r\n\r\n\r\n    vec3 normal = lamb*(finalcol) + ambientCol;\r\n    vec3 fcol = normal;\r\n    //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4\r\n    if(u_TerrainDebug == 0){\r\n        fcol = normal;\r\n    }else if(u_TerrainDebug == 1){\r\n        fcol = texture(sedimap,fs_Uv).xyz * 2.0;\r\n    }else if(u_TerrainDebug == 2){\r\n        fcol = abs(texture(velmap,fs_Uv).xyz/2.0);\r\n        //fcol = nor1;\r\n        //fcol.xy = fcol.xy / 2.0 + vec2(0.5);\r\n    }else if(u_TerrainDebug == 3){\r\n        fcol = texture(hightmap,fs_Uv).xyz;\r\n        fcol.xy /= 200.0;\r\n    }else if(u_TerrainDebug == 4){\r\n        fcol = texture(fluxmap,fs_Uv).xyz / 3.0;\r\n        if(fcol == vec3(0.0)){\r\n            fcol = vec3(texture(fluxmap,fs_Uv).w)/3.0;\r\n        }\r\n    }else if(u_TerrainDebug == 5){\r\n        fcol = texture(terrainfluxmap, fs_Uv).xyz * 100000.0;\r\n    }else if(u_TerrainDebug == 6){\r\n        fcol = texture(maxslippagemap, fs_Uv).xyz / 3.0;\r\n    }else if(u_TerrainDebug == 7){\r\n        fcol = vec3(sval * 100.0);\r\n    }else if(u_TerrainDebug == 8){\r\n        fcol = slopesin;\r\n    }\r\n\r\n\r\n\r\n    fcol += addcol;\r\n\r\n    fcol = clamp(fcol, vec3(0.0), vec3(1.0));\r\n\r\n\r\n    out_Col = vec4(hue*vec3(fcol)*1.0*shadowCol,1.f);\r\n\r\n    //out_Col = vec4(vec3(shadowColorVal),1.0);\r\n}\r\n"
 
 /***/ }),
 /* 30 */
@@ -64901,7 +65018,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex
 /* 31 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D sceneDepth;\r\nuniform sampler2D shadowMap;\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform float u_Time;\r\nuniform vec3  unif_LightPos;\r\nuniform int u_showScattering;\r\n\r\nuniform mat4 u_Model;\r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj;\r\nuniform mat4 u_sproj;\r\nuniform mat4 u_sview;\r\n\r\nin vec2 fs_Pos;\r\nout vec4 out_Col;\r\n\r\n\r\n#define FOV 45.f\r\nvec3 sky(in vec3 rd){\r\n    return 2.0 * mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));\r\n}\r\n\r\n\r\n// ====================== Raleigh scattering ========================\r\n// reference https://github.com/wwwtyro/glsl-atmosphere\r\n\r\n#define PI 3.141592\r\n#define iSteps 16\r\n#define jSteps 8\r\n\r\nvec2 rsi(vec3 r0, vec3 rd, float sr) {\r\n    // ray-sphere intersection that assumes\r\n    // the sphere is centered at the origin.\r\n    // No intersection when result.x > result.y\r\n    float a = dot(rd, rd);\r\n    float b = 2.0 * dot(rd, r0);\r\n    float c = dot(r0, r0) - (sr * sr);\r\n    float d = (b*b) - 4.0*a*c;\r\n    if (d < 0.0) return vec2(1e5,-1e5);\r\n    return vec2(\r\n    (-b - sqrt(d))/(2.0*a),\r\n    (-b + sqrt(d))/(2.0*a)\r\n    );\r\n}\r\n\r\nvec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAtmos, vec3 kRlh, float kMie, float shRlh, float shMie, float g) {\r\n    // Normalize the sun and view directions.\r\n    pSun = normalize(pSun);\r\n    r = normalize(r);\r\n\r\n    // Calculate the step size of the primary ray.\r\n    vec2 p = rsi(r0, r, rAtmos);\r\n    if (p.x > p.y) return vec3(0,0,0);\r\n    p.y = min(p.y, rsi(r0, r, rPlanet).x);\r\n    float iStepSize = (p.y - p.x) / float(iSteps);\r\n\r\n    // Initialize the primary ray time.\r\n    float iTime = 0.0;\r\n\r\n    // Initialize accumulators for Rayleigh and Mie scattering.\r\n    vec3 totalRlh = vec3(0,0,0);\r\n    vec3 totalMie = vec3(0,0,0);\r\n\r\n    // Initialize optical depth accumulators for the primary ray.\r\n    float iOdRlh = 0.0;\r\n    float iOdMie = 0.0;\r\n\r\n    // Calculate the Rayleigh and Mie phases.\r\n    float mu = dot(r, pSun);\r\n    float mumu = mu * mu;\r\n    float gg = g * g;\r\n    float pRlh = 3.0 / (16.0 * PI) * (1.0 + mumu);\r\n    float pMie = 3.0 / (8.0 * PI) * ((1.0 - gg) * (mumu + 1.0)) / (pow(1.0 + gg - 2.0 * mu * g, 1.5) * (2.0 + gg));\r\n\r\n\r\n    // Sample the primary ray.\r\n    for (int i = 0; i < iSteps; i++) {\r\n\r\n        // Calculate the primary ray sample position.\r\n        vec3 iPos = r0 + r * (iTime + iStepSize * 0.5);\r\n\r\n\r\n\r\n        // Calculate the height of the sample.\r\n        float iHeight = length(iPos) - rPlanet;\r\n\r\n        // Calculate the optical depth of the Rayleigh and Mie scattering for this step.\r\n        float odStepRlh = exp(-iHeight / shRlh) * iStepSize;\r\n        float odStepMie = exp(-iHeight / shMie) * iStepSize;\r\n\r\n        // Accumulate optical depth.\r\n        iOdRlh += odStepRlh;\r\n        iOdMie += odStepMie;\r\n\r\n        // Calculate the step size of the secondary ray.\r\n        float jStepSize = rsi(iPos, pSun, rAtmos).y / float(jSteps);\r\n\r\n        // Initialize the secondary ray time.\r\n        float jTime = 0.0;\r\n\r\n        // Initialize optical depth accumulators for the secondary ray.\r\n        float jOdRlh = 0.0;\r\n        float jOdMie = 0.0;\r\n\r\n        // Sample the secondary ray.\r\n        for (int j = 0; j < jSteps; j++) {\r\n\r\n            // Calculate the secondary ray sample position.\r\n            vec3 jPos = iPos + pSun * (jTime + jStepSize * 0.5);\r\n\r\n            // Calculate the height of the sample.\r\n            float jHeight = length(jPos) - rPlanet;\r\n\r\n            // Accumulate the optical depth.\r\n            jOdRlh += exp(-jHeight / shRlh) * jStepSize;\r\n            jOdMie += exp(-jHeight / shMie) * jStepSize;\r\n\r\n            // Increment the secondary ray time.\r\n            jTime += jStepSize;\r\n        }\r\n\r\n        // Calculate attenuation.\r\n        vec3 attn = exp(-(kMie * (iOdMie + jOdMie) + kRlh * (iOdRlh + jOdRlh)));\r\n\r\n        // Accumulate scattering.\r\n        totalRlh += odStepRlh * attn;\r\n        totalMie += odStepMie * attn;\r\n\r\n        // Increment the primary ray time.\r\n        iTime += iStepSize;\r\n\r\n    }\r\n\r\n    // Calculate and return the final color.\r\n    return iSun * (pRlh * kRlh * totalRlh + pMie * kMie * totalMie);\r\n}\r\n\r\n\r\n\r\n// my ray march\r\n\r\n\r\nvec4 Screen2Clip(vec3 pos){\r\n    vec4 clipSpacePos =  u_ViewProj * vec4(pos,1.0);\r\n    clipSpacePos = clipSpacePos/ clipSpacePos.w;\r\n    clipSpacePos.x = (clipSpacePos.x + 1.0) / 2.0;\r\n    clipSpacePos.y = (1.0 - clipSpacePos.y) / 2.0;\r\n    clipSpacePos.z = (clipSpacePos.z + 1.0) / 2.0;// damn dude, this shit easy to neglect\r\n    return clipSpacePos;\r\n}\r\n\r\nvec4 Screen2Light(vec3 pos){\r\n    vec4 lightSpacePos = u_sproj * u_sview * vec4(pos,1.0);\r\n    lightSpacePos = lightSpacePos / lightSpacePos.w;\r\n    lightSpacePos = lightSpacePos * 0.5 + 0.5;\r\n    return lightSpacePos;\r\n}\r\n\r\n#define SCATTER_MARCH_STEPS 114\r\n#define SCATTER_OUT_MARCH_STEPS 32\r\n#define SCATTER_MARCH_STEP_SIZE 0.01\r\n\r\nvec4 scatter_m(vec3 ro, vec3 rd){\r\n    vec4 col = vec4(0.0);\r\n    vec3 fog_col = vec3(0.8,0.8,1.0);\r\n    float scatter_alpha_acc_all = 1.0 / float(SCATTER_MARCH_STEPS);\r\n    float scatter_alpha_acc = scatter_alpha_acc_all / 4.0;\r\n    float scatter_alpha_acc_out = scatter_alpha_acc_all * 3.0/ 4.0;\r\n\r\n    vec3 scatter_col_acc_all = fog_col/float(SCATTER_MARCH_STEPS);\r\n    vec3 scatter_col_acc = scatter_col_acc_all / 4.0;\r\n    vec3 scatter_col_acc_out = scatter_col_acc_all * 3.0 / 4.0;\r\n\r\n    vec2 uv = 0.5*fs_Pos+0.5;\r\n    vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;\r\n\r\n    for(int i = 1;i<SCATTER_MARCH_STEPS; ++i){\r\n\r\n        col += vec4(scatter_col_acc,scatter_alpha_acc);\r\n\r\n        vec3 pos = ro + rd * SCATTER_MARCH_STEP_SIZE * float(i);\r\n\r\n        vec4 clipSpacePos =  Screen2Clip(pos);\r\n        vec3 clipSpaceRdVec = Screen2Clip(rd * SCATTER_MARCH_STEP_SIZE).xyz;\r\n        float clipSpaceStepSize = length(clipSpaceRdVec);\r\n\r\n        vec4 lightSpacePos = Screen2Light(pos);\r\n        float texsize = 1.0/4096.0f;\r\n        float shadowMapDepth = texture(shadowMap, lightSpacePos.xy).x;\r\n\r\n        if(lightSpacePos.x <= 0.0 || lightSpacePos.x >= 1.0 || lightSpacePos.y <= 0.0 || lightSpacePos.y >= 1.0){\r\n            shadowMapDepth = 0.0f;\r\n        }\r\n        if(lightSpacePos.z < shadowMapDepth || shadowMapDepth==0.0){\r\n            col += vec4(scatter_col_acc_out,scatter_alpha_acc_out);\r\n        }\r\n\r\n\r\n        if(sceneDepthValue.x < clipSpacePos.z  && sceneDepthValue.x != 0.0){\r\n            float diff = clipSpacePos.z - sceneDepthValue.x;\r\n            col -= diff *  vec4(scatter_col_acc,scatter_alpha_acc)/ clipSpaceStepSize; // we want to subtract excessive color\r\n            break;\r\n        }\r\n        //vec3 attn = exp( -)\r\n\r\n    }\r\n\r\n\r\n\r\n    return col;\r\n}\r\n\r\n\r\nvoid main() {\r\n    vec2 uv = 0.5*fs_Pos+0.5;\r\n    vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;\r\n\r\n\r\n    float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;\r\n    float sy = 1.f-(2.f*gl_FragCoord.y/u_Dimensions.y);\r\n    float len = length(u_Ref - u_Eye);\r\n    vec3 forward = normalize(u_Ref - u_Eye);\r\n    vec3 right = cross(forward,u_Up);\r\n    vec3 V = u_Up * len * tan(FOV/2.f);\r\n    vec3 H = right * len * (u_Dimensions.x/u_Dimensions.y) * tan(FOV/2.f);\r\n    vec3 p = u_Ref + sx * H - sy * V;\r\n\r\n\r\n\r\n    vec3 rd = normalize(p - u_Eye);\r\n    vec3 ro = u_Eye;\r\n\r\n\r\n    float planetScale = 1.0;\r\n\r\n\r\n\r\n    gl_FragDepth = 0.01;\r\n\r\n    float angle = dot(normalize(unif_LightPos),vec3(0.0,1.0,0.0));\r\n    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);\r\n\r\n    vec4 finalCol = vec4(0.0,0.0,0.0,1.0);//vec4(0.0,0.0,0.0,1.0);\r\n    if(u_showScattering == 0){\r\n        finalCol = vec4(0.0,0.0,0.0,0.0);\r\n        gl_FragDepth = 0.99999;\r\n    }else{\r\n        finalCol = scatter_m(ro,rd);\r\n        finalCol.w *=  (1.0 - angle);\r\n    }\r\n    if(sceneDepthValue.x==0.0){\r\n        vec3 color = sky(rd);\r\n        if(u_showScattering == 1){\r\n            color = atmosphere(\r\n                normalize(rd), // normalized ray direction\r\n                vec3(0, 6372e3, 0) * planetScale + vec3(0.0, 0.0, 0.0) + ro, // ray origin\r\n                unif_LightPos, // position of the sun\r\n                20.0, // intensity of the sun\r\n                6371e3 * planetScale, // radius of the planet in meters\r\n                6471e3 * planetScale, // radius of the atmosphere in meters\r\n                vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient\r\n                21e-6, // Mie scattering coefficient\r\n                8e3 * planetScale, // Rayleigh scale height\r\n                1.2e3 * planetScale, // Mie scale height\r\n                0.958// Mie preferred scattering direction\r\n                );\r\n        }\r\n        finalCol.xyz  = (max(color,vec3(0.0,0.0,0.0)) + finalCol.xyz)/2.0;\r\n        finalCol.w = 1.0;\r\n    }\r\n\r\n\r\n\r\n    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/1.0)), 1.0  * pow(finalCol.w, 1.8 / 1.0));\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D hightmap;\r\nuniform sampler2D sceneDepth;\r\nuniform sampler2D shadowMap;\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform float u_Time;\r\nuniform vec3  unif_LightPos;\r\nuniform int u_showScattering;\r\n\r\nuniform mat4 u_Model;\r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj;\r\nuniform mat4 u_sproj;\r\nuniform mat4 u_sview;\r\nuniform float u_far;\r\nuniform float u_near;\r\n\r\n\r\nin vec2 fs_Pos;\r\nout vec4 out_Col;\r\n\r\n\r\n#define FOV 45.f\r\nvec3 sky(in vec3 rd){\r\n    return 2.0 * mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));\r\n}\r\n\r\nfloat linearDepth(float depthSample)\r\n{\r\n    depthSample = 2.0 * depthSample - 1.0;\r\n    float zLinear = 2.0 * u_near * u_far / (u_far + u_near - depthSample * (u_far - u_near));\r\n    return zLinear;\r\n}\r\n\r\n//bayer matrix for dithering\r\n\r\n    //maxiterations for bayer matrix, maximum value is number of bits of your data type?\r\n    //for crepuscular ray dithering [1..3] iterations are enough\r\n    //because it is basically \"noisy scattering\" so  any patterns in it are \"just fine\"\r\n#define iterBayerMat 1\r\n#define bayer2x2(a) (4-(a).x-((a).y<<1))%4\r\n//return bayer matris (bitwise operands for speed over compatibility)\r\nfloat GetBayerFromCoordLevel(vec2 pixelpos)\r\n{   ivec2 p=ivec2(pixelpos);\r\n    int a=0;\r\n    for(int i=0; i<iterBayerMat; i++)\r\n    {\r\n        a+=bayer2x2(p>>(iterBayerMat-1-i)&1)<<(2*i);\r\n\r\n    }\r\n    return float(a)/float(2<<(iterBayerMat*2-1));\r\n}\r\n//https://www.shadertoy.com/view/XtV3RG\r\n\r\n//analytic bayer over 2 domains, is unrolled loop of GetBayerFromCoordLevel().\r\n//but in terms of reusing subroutines, which is faster,while it does not extend as nicely.\r\nfloat bayer2  (vec2 a){a=floor(a);return fract(dot(a,vec2(.5, a.y*.75)));}\r\nfloat bayer4  (vec2 a){return bayer2 (  .5*a)*.25    +bayer2(a);}\r\nfloat bayer8  (vec2 a){return bayer4 (  .5*a)*.25    +bayer2(a);}\r\nfloat bayer16 (vec2 a){return bayer4 ( .25*a)*.0625  +bayer4(a);}\r\nfloat bayer32 (vec2 a){return bayer8 ( .25*a)*.0625  +bayer4(a);}\r\nfloat bayer64 (vec2 a){return bayer8 (.125*a)*.015625+bayer8(a);}\r\nfloat bayer128(vec2 a){return bayer16(.125*a)*.015625+bayer8(a);}\r\n#define dither2(p)   (bayer2(  p)-.375      )\r\n#define dither4(p)   (bayer4(  p)-.46875    )\r\n#define dither8(p)   (bayer8(  p)-.4921875  )\r\n#define dither16(p)  (bayer16( p)-.498046875)\r\n#define dither32(p)  (bayer32( p)-.499511719)\r\n#define dither64(p)  (bayer64( p)-.49987793 )\r\n#define dither128(p) (bayer128(p)-.499969482)\r\n//https://www.shadertoy.com/view/4ssfWM\r\n\r\n//3 ways to approach a bayer matrix for dithering (or for loops within permutations)\r\nfloat iib(vec2 u){\r\n    return dither16(u);//analytic bayer, base2\r\n    //return GetBayerFromCoordLevel(u*999.);//iterative bayer\r\n    //optionally: instad just use bitmap of a bayer matrix: (LUT approach)\r\n    //return texture(iChannel1,u/iChannelResolution[1].xy).x;\r\n}\r\n\r\n// ====================== Raleigh scattering ========================\r\n// reference https://github.com/wwwtyro/glsl-atmosphere\r\n\r\n#define PI 3.141592\r\n#define iSteps 8\r\n#define jSteps 1\r\n\r\nvec2 rsi(vec3 r0, vec3 rd, float sr) {\r\n    // ray-sphere intersection that assumes\r\n    // the sphere is centered at the origin.\r\n    // No intersection when result.x > result.y\r\n    float a = dot(rd, rd);\r\n    float b = 2.0 * dot(rd, r0);\r\n    float c = dot(r0, r0) - (sr * sr);\r\n    float d = (b*b) - 4.0*a*c;\r\n    if (d < 0.0) return vec2(1e5,-1e5);\r\n    return vec2(\r\n    (-b - sqrt(d))/(2.0*a),\r\n    (-b + sqrt(d))/(2.0*a)\r\n    );\r\n}\r\n\r\nvec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAtmos, vec3 kRlh, float kMie, float shRlh, float shMie, float g) {\r\n    // Normalize the sun and view directions.\r\n    pSun = normalize(pSun);\r\n    r = normalize(r);\r\n\r\n    // Calculate the step size of the primary ray.\r\n    vec2 p = rsi(r0, r, rAtmos);\r\n    if (p.x > p.y) return vec3(0,0,0);\r\n    p.y = min(p.y, rsi(r0, r, rPlanet).x);\r\n    float iStepSize = (p.y - p.x) / float(iSteps);\r\n\r\n    // Initialize the primary ray time.\r\n    float iTime = 0.0;\r\n\r\n    // Initialize accumulators for Rayleigh and Mie scattering.\r\n    vec3 totalRlh = vec3(0,0,0);\r\n    vec3 totalMie = vec3(0,0,0);\r\n\r\n    // Initialize optical depth accumulators for the primary ray.\r\n    float iOdRlh = 0.0;\r\n    float iOdMie = 0.0;\r\n\r\n    // Calculate the Rayleigh and Mie phases.\r\n    float mu = dot(r, pSun);\r\n    float mumu = mu * mu;\r\n    float gg = g * g;\r\n    float pRlh = 3.0 / (16.0 * PI) * (1.0 + mumu);\r\n    float pMie = 3.0 / (8.0 * PI) * ((1.0 - gg) * (mumu + 1.0)) / (pow(1.0 + gg - 2.0 * mu * g, 1.5) * (2.0 + gg));\r\n\r\n\r\n    // Sample the primary ray.\r\n    for (int i = 0; i < iSteps; i++) {\r\n\r\n        // Calculate the primary ray sample position.\r\n        vec3 iPos = r0 + r * (iTime + iStepSize * 0.5);\r\n\r\n\r\n\r\n        // Calculate the height of the sample.\r\n        float iHeight = length(iPos) - rPlanet;\r\n\r\n        // Calculate the optical depth of the Rayleigh and Mie scattering for this step.\r\n        float odStepRlh = exp(-iHeight / shRlh) * iStepSize;\r\n        float odStepMie = exp(-iHeight / shMie) * iStepSize;\r\n\r\n        // Accumulate optical depth.\r\n        iOdRlh += odStepRlh;\r\n        iOdMie += odStepMie;\r\n\r\n        // Calculate the step size of the secondary ray.\r\n        float jStepSize = rsi(iPos, pSun, rAtmos).y / float(jSteps);\r\n\r\n        // Initialize the secondary ray time.\r\n        float jTime = 0.0;\r\n\r\n        // Initialize optical depth accumulators for the secondary ray.\r\n        float jOdRlh = 0.0;\r\n        float jOdMie = 0.0;\r\n\r\n        // Sample the secondary ray.\r\n        for (int j = 0; j < jSteps; j++) {\r\n\r\n            // Calculate the secondary ray sample position.\r\n            vec3 jPos = iPos + pSun * (jTime + jStepSize * 0.5);\r\n\r\n            // Calculate the height of the sample.\r\n            float jHeight = length(jPos) - rPlanet;\r\n\r\n            // Accumulate the optical depth.\r\n            jOdRlh += exp(-jHeight / shRlh) * jStepSize;\r\n            jOdMie += exp(-jHeight / shMie) * jStepSize;\r\n\r\n            // Increment the secondary ray time.\r\n            jTime += jStepSize;\r\n        }\r\n\r\n        // Calculate attenuation.\r\n        vec3 attn = exp(-(kMie * (iOdMie + jOdMie) + kRlh * (iOdRlh + jOdRlh)));\r\n\r\n        // Accumulate scattering.\r\n        totalRlh += odStepRlh * attn;\r\n        totalMie += odStepMie * attn;\r\n\r\n        // Increment the primary ray time.\r\n        iTime += iStepSize;\r\n\r\n    }\r\n\r\n    // Calculate and return the final color.\r\n    return iSun * (pRlh * kRlh * totalRlh + pMie * kMie * totalMie);\r\n}\r\n\r\n\r\n\r\n// my ray march\r\n\r\n\r\nvec4 Screen2Clip(vec3 pos){\r\n    vec4 clipSpacePos =  u_ViewProj * vec4(pos,1.0);\r\n    clipSpacePos = clipSpacePos/ clipSpacePos.w;\r\n    clipSpacePos.x = (clipSpacePos.x + 1.0) / 2.0;\r\n    clipSpacePos.y = (1.0 - clipSpacePos.y) / 2.0;\r\n    clipSpacePos.z = (clipSpacePos.z + 1.0) / 2.0;// damn dude, this shit easy to neglect\r\n    return clipSpacePos;\r\n}\r\n\r\nvec4 Screen2Light(vec3 pos){\r\n    vec4 lightSpacePos = u_sproj * u_sview * vec4(pos,1.0);\r\n    lightSpacePos = lightSpacePos / lightSpacePos.w;\r\n    lightSpacePos = lightSpacePos * 0.5 + 0.5;\r\n    return lightSpacePos;\r\n}\r\n\r\n#define SCATTER_MARCH_STEPS 50\r\n#define SCATTER_OUT_MARCH_STEPS 32\r\n#define SCATTER_MARCH_STEP_SIZE 0.1\r\n\r\nvec4 scatter_m(vec3 ro, vec3 rd){\r\n\r\n    vec2 uv = 0.5*fs_Pos+0.5;\r\n    vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;\r\n    float linearSceneDepthVal = linearDepth(sceneDepthValue.x); // max length can travel for this specific ray\r\n    float rayAttenuation = 1.0 * linearSceneDepthVal;\r\n\r\n    float stepSize = ((linearSceneDepthVal ) / float(SCATTER_MARCH_STEPS)) ;\r\n    if(sceneDepthValue.x == 0.0){\r\n        stepSize = 0.2;\r\n        rayAttenuation = 1.0;\r\n    }\r\n    //rayAttenuation = clamp(rayAttenuation, 0.0, 1.0);\r\n\r\n    vec4 col = vec4(0.0);\r\n    vec3 fog_col = 0.6 *  vec3(0.8,0.8,1.0) * clamp(rayAttenuation,0.0,1.0);\r\n    float fog_alpha = 1.0 * rayAttenuation;\r\n    float scatter_alpha_acc_all = fog_alpha / float(SCATTER_MARCH_STEPS);\r\n    float scatter_alpha_acc = scatter_alpha_acc_all*1.0/ 4.0;\r\n    float scatter_alpha_acc_out = scatter_alpha_acc_all * 3.0/ 4.0;\r\n\r\n    vec3 scatter_col_acc_all = fog_col/float(SCATTER_MARCH_STEPS);\r\n    vec3 scatter_col_acc = scatter_col_acc_all*1.0 / 4.0;\r\n    vec3 scatter_col_acc_out = scatter_col_acc_all * 3.0 / 4.0;\r\n\r\n\r\n\r\n    float dither = iib(gl_FragCoord.xy);\r\n    vec3 pos = ro + rd * stepSize * dither;\r\n   //pos = ro;\r\n\r\n    for(int i = 1;i<SCATTER_MARCH_STEPS; ++i){\r\n\r\n        float heightAtten = 1.0 * exp(-pos.y);\r\n        col += heightAtten * vec4(scatter_col_acc,scatter_alpha_acc);\r\n\r\n\r\n        pos += rd * stepSize;\r\n\r\n        vec4 clipSpacePos =  Screen2Clip(pos);\r\n        vec3 clipSpaceRdVec = Screen2Clip(rd * stepSize).xyz;\r\n        float clipSpaceStepSize = length(clipSpaceRdVec);\r\n\r\n        vec4 lightSpacePos = Screen2Light(pos);\r\n        float texsize = 1.0/4096.0f;\r\n        float shadowMapDepth = texture(shadowMap, lightSpacePos.xy).x;\r\n\r\n        if(lightSpacePos.x <= 0.0 || lightSpacePos.x >= 1.0 || lightSpacePos.y <= 0.0 || lightSpacePos.y >= 1.0){\r\n            shadowMapDepth = 0.0f;\r\n        }\r\n        if(lightSpacePos.z < shadowMapDepth || shadowMapDepth==0.0){\r\n            col += vec4(scatter_col_acc_out,scatter_alpha_acc_out);\r\n        }\r\n\r\n\r\n        if(sceneDepthValue.x < clipSpacePos.z  && sceneDepthValue.x != 0.0){\r\n            float diff = linearDepth(clipSpacePos.z) - linearDepth(sceneDepthValue.x);\r\n            //col -= diff * vec4(scatter_col_acc,scatter_alpha_acc) / SCATTER_MARCH_STEP_SIZE;\r\n            break;\r\n        }\r\n        //vec3 attn = exp( -)\r\n\r\n    }\r\n\r\n\r\n\r\n    col = clamp(col, vec4(0.0),vec4(1.0));\r\n\r\n    return col;\r\n}\r\n\r\n\r\nvoid main() {\r\n    vec2 uv = 0.5*fs_Pos+0.5;\r\n    vec3 sceneDepthValue = texture(sceneDepth,uv).xyz;\r\n    float vsceneDepthValue = linearDepth(sceneDepthValue.x);\r\n\r\n\r\n    float sx = (2.f*gl_FragCoord.x/u_Dimensions.x)-1.f;\r\n    float sy = 1.f-(2.f*gl_FragCoord.y/u_Dimensions.y);\r\n    float len = length(u_Ref - u_Eye);\r\n    vec3 forward = normalize(u_Ref - u_Eye);\r\n    vec3 right = cross(forward,u_Up);\r\n    vec3 V = u_Up * len * tan(FOV/2.f);\r\n    vec3 H = right * len * (u_Dimensions.x/u_Dimensions.y) * tan(FOV/2.f);\r\n    vec3 p = u_Ref + sx * H - sy * V;\r\n\r\n\r\n\r\n    vec3 rd = normalize(p - u_Eye);\r\n    vec3 ro = u_Eye;\r\n\r\n\r\n    float planetScale = 1.0;\r\n\r\n\r\n\r\n    gl_FragDepth = 0.01;\r\n\r\n    float angle = dot(normalize(unif_LightPos),vec3(0.0,1.0,0.0));\r\n    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);\r\n\r\n    vec4 finalCol = vec4(0.0,0.0,0.0,1.0);//vec4(0.0,0.0,0.0,1.0);\r\n    if(u_showScattering == 0){\r\n        finalCol = vec4(0.0,0.0,0.0,0.0);\r\n        gl_FragDepth = 0.99999;\r\n    }else{\r\n        finalCol = scatter_m(ro,rd);\r\n        finalCol.xyz = vec3(1.0) - exp(-finalCol.xyz * 2.0 ); //fog fall off\r\n        //finalCol.xyz *= (1.0 - angle);\r\n        finalCol.w *= 1.0;\r\n        finalCol.w = clamp(finalCol.w, 0.0, 1.0);\r\n        //finalCol.w *=  1.0 - exp(-finalCol.w * 2.0);\r\n    }\r\n    if(sceneDepthValue.x==0.0){\r\n        vec3 color = sky(rd);\r\n        if(u_showScattering == 1){\r\n            color = atmosphere(\r\n                normalize(rd), // normalized ray direction\r\n                vec3(0, 6372e3, 0) * planetScale + vec3(0.0, 0.0, 0.0) + ro, // ray origin\r\n                unif_LightPos, // position of the sun\r\n                20.0, // intensity of the sun\r\n                6371e3 * planetScale, // radius of the planet in meters\r\n                6471e3 * planetScale, // radius of the atmosphere in meters\r\n                vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient\r\n                21e-6, // Mie scattering coefficient\r\n                8e3 * planetScale, // Rayleigh scale height\r\n                1.2e3 * planetScale, // Mie scale height\r\n                0.958// Mie preferred scattering direction\r\n                );\r\n        }\r\n        finalCol.xyz  = mix(max(color,vec3(0.0,0.0,0.0)) , finalCol.xyz, finalCol.w);\r\n        finalCol.w = 1.0;\r\n    }\r\n\r\n\r\n\r\n    out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/2.0)), finalCol.w);\r\n    //out_Col = vec4(sceneDepthValue,1.0);\r\n}\r\n"
 
 /***/ }),
 /* 32 */
@@ -65004,6 +65121,18 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n\r\n\r\n\r\ni
 /***/ (function(module, exports) {
 
 module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec2 u_PlanePos; // Our location in the virtual world displayed by the plane\r\n\r\n\r\n\r\n\r\n\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\n\r\nuniform float u_SimRes;\r\n\r\n\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n\r\n\r\n    out_Col = vec4(vec3(gl_FragCoord.z),1.f);\r\n}\r\n"
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D color_tex;\r\nuniform sampler2D bi_tex;\r\n\r\nuniform float evapod;\r\n\r\nlayout (location = 0) out vec4 result;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n\r\n\r\nvoid main() {\r\n\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n      vec4 geometry = texture(color_tex,curuv);\r\n      vec4 scatter = texture(bi_tex,curuv);\r\n\r\n      float scatter_alpha = clamp(scatter.w,0.0,1.0);\r\n\r\n      vec4 color = vec4((1.0 - scatter.w) * geometry.xyz + (scatter.w)* scatter.xyz,1.0);\r\n\r\n      result = color;\r\n}"
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D scatter_tex;\r\nuniform sampler2D scene_depth;\r\n\r\n\r\nuniform float evapod;\r\nuniform vec2 u_Dimensions;\r\nuniform int u_isHorizontal;\r\nuniform float u_far;\r\nuniform float u_near;\r\n\r\nlayout (location = 0) out vec4 result;\r\n\r\n\r\n// The fragment shader used to render the background of the scene\r\n// Modify this to make your background more interesting\r\n\r\nin vec2 fs_Pos;\r\n\r\n#define GAUSS_BLUR_DEVIATION 1.5\r\n#define FULL_RES_BLUR_KERNEL_SIZE 7\r\n#define PI 3.1415926\r\n#define BLUR_DEPTH_FACTOR 0.5\r\n\r\nfloat GaussianWeight(float offset, float deviation)\r\n{\r\n      float weight = 1.0f / sqrt(2.0f * PI * deviation * deviation);\r\n      weight *= exp(-(offset * offset) / (2.0f * deviation * deviation));\r\n      return weight;\r\n}\r\n\r\nfloat linearDepth(float depthSample)\r\n{\r\n      depthSample = 2.0 * depthSample - 1.0;\r\n      float zLinear = 2.0 * u_near * u_far / (u_far + u_near - depthSample * (u_far - u_near));\r\n      return zLinear;\r\n}\r\n\r\nvec4 BilateralBlur(vec2 curuv, vec2 dir){\r\n      const float deviation = float(FULL_RES_BLUR_KERNEL_SIZE) / float(GAUSS_BLUR_DEVIATION);\r\n      vec4 centerColor = texture(scatter_tex,curuv);\r\n      float centerDepth = linearDepth(texture(scene_depth,curuv).x);\r\n      vec4 color = centerColor;\r\n      float weightSum = 0.0;\r\n      float weight = GaussianWeight(0.0, deviation);\r\n      color *= weight;\r\n      weightSum += weight;\r\n      for(int i = -FULL_RES_BLUR_KERNEL_SIZE; i< 0; i+= 1){\r\n            vec2 offset = dir * float(i);\r\n            vec4 sampleColor = texture(scatter_tex,curuv + offset / u_Dimensions);\r\n\r\n            float sampleDepth = linearDepth(texture(scene_depth,curuv + offset / u_Dimensions).x);\r\n            float deptDiff = abs(centerDepth - sampleDepth);\r\n            float dpFactor = deptDiff * BLUR_DEPTH_FACTOR;\r\n            float w = exp(-(dpFactor * dpFactor));\r\n\r\n            weight = GaussianWeight(float(i), deviation) * w;\r\n            color += weight * sampleColor;\r\n            weightSum += weight;\r\n      }\r\n      for(int i = 1; i< FULL_RES_BLUR_KERNEL_SIZE; i+= 1){\r\n            vec2 offset = dir * float(i);\r\n            vec4 sampleColor = texture(scatter_tex,curuv + offset / u_Dimensions);\r\n\r\n            float sampleDepth = linearDepth(texture(scene_depth,curuv + offset / u_Dimensions).x);\r\n            float deptDiff = abs(centerDepth - sampleDepth);\r\n            float dpFactor = deptDiff * BLUR_DEPTH_FACTOR;\r\n            float w = exp(-(dpFactor * dpFactor));\r\n\r\n\r\n            weight = GaussianWeight(float(i), deviation) * w;\r\n            color += weight * sampleColor;\r\n            weightSum += weight;\r\n      }\r\n      color /= weightSum;\r\n      return color;\r\n\r\n}\r\n\r\nvoid main() {\r\n\r\n      vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n\r\n      vec4 scatter = texture(scatter_tex,curuv);\r\n\r\n      vec4 final_colour = vec4(0.0);\r\n\r\n      if(u_isHorizontal==0){\r\n            final_colour = BilateralBlur(curuv, vec2(1.0,0.0));\r\n      }else{\r\n            final_colour = BilateralBlur(curuv, vec2(0.0,1.0));\r\n      }\r\n\r\n      result = final_colour;\r\n}"
 
 /***/ })
 /******/ ]);

@@ -77,7 +77,7 @@ void main()
     }
     shadowVal/=9.0;
     shadowCol/=9.0;
-    //shadowVal = texture(shadowMap, shadowMapLoc.xy).x;
+    float shadowColorVal = texture(shadowMap, fs_Uv.xy).x;
     float sceneDepthVal = texture(sceneDepth,shadowMapLoc.xy).x;
 
     vec3 forestcol = vec3(63.0/255.0,155.0/255.0,7.0/255.0)*0.6;
@@ -197,7 +197,10 @@ void main()
 
     fcol += addcol;
 
+    fcol = clamp(fcol, vec3(0.0), vec3(1.0));
 
 
     out_Col = vec4(hue*vec3(fcol)*1.0*shadowCol,1.f);
+
+    //out_Col = vec4(vec3(shadowColorVal),1.0);
 }
