@@ -3,7 +3,7 @@
 
 ## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
-![](screenshot/updatemtn.PNG)
+![](screenshot/nmtn.PNG)
 
 ### controls : 
 
