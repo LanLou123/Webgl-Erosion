@@ -239,15 +239,15 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     //rayAttenuation = clamp(rayAttenuation, 0.0, 1.0);
 
     vec4 col = vec4(0.0);
-    vec3 fog_col = 0.6 *  vec3(0.8,0.8,1.0) * clamp(rayAttenuation,0.0,1.0);
+    vec3 fog_col = 0.6 *  vec3(0.6,0.6,1.0) * clamp(rayAttenuation,0.0,1.0);
     float fog_alpha = 1.0 * rayAttenuation;
     float scatter_alpha_acc_all = fog_alpha / float(SCATTER_MARCH_STEPS);
-    float scatter_alpha_acc = scatter_alpha_acc_all*1.0/ 4.0;
-    float scatter_alpha_acc_out = scatter_alpha_acc_all * 3.0/ 4.0;
+    float scatter_alpha_acc = scatter_alpha_acc_all*1.0/ 14.0;
+    float scatter_alpha_acc_out = scatter_alpha_acc_all * 13.0/ 14.0;
 
     vec3 scatter_col_acc_all = fog_col/float(SCATTER_MARCH_STEPS);
     vec3 scatter_col_acc = scatter_col_acc_all*1.0 / 4.0;
-    vec3 scatter_col_acc_out = scatter_col_acc_all * 3.0 / 4.0;
+    vec3 scatter_col_acc_out = scatter_col_acc_all * 13.0 / 14.0;
 
 
 
@@ -333,29 +333,30 @@ void main() {
     }else{
         finalCol = scatter_m(ro,rd);
         finalCol.xyz = vec3(1.0) - exp(-finalCol.xyz * 2.0 ); //fog fall off
-        //finalCol.xyz *= (1.0 - angle);
+        finalCol.xyz *= hue;
         finalCol.w *= 1.0;
         finalCol.w = clamp(finalCol.w, 0.0, 1.0);
         //finalCol.w *=  1.0 - exp(-finalCol.w * 2.0);
     }
     if(sceneDepthValue.x==0.0){
         vec3 color = sky(rd);
+        //finalCol.w = 0.0;
         if(u_showScattering == 1){
             color = atmosphere(
                 normalize(rd), // normalized ray direction
-                vec3(0, 6372e3, 0) * planetScale + vec3(0.0, 0.0, 0.0) + ro, // ray origin
+                vec3(0, 6371e3, 0) * planetScale + vec3(0.0, 0.0, 0.0) + ro, // ray origin
                 unif_LightPos, // position of the sun
                 20.0, // intensity of the sun
                 6371e3 * planetScale, // radius of the planet in meters
-                6471e3 * planetScale, // radius of the atmosphere in meters
-                vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
-                21e-6, // Mie scattering coefficient
+                6871e3 * planetScale, // radius of the atmosphere in meters
+                1.0 * vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
+                1.0 * 21e-6, // Mie scattering coefficient
                 8e3 * planetScale, // Rayleigh scale height
-                1.2e3 * planetScale, // Mie scale height
+                2.4e3 * planetScale, // Mie scale height
                 0.958// Mie preferred scattering direction
                 );
         }
-        finalCol.xyz  = mix(max(color,vec3(0.0,0.0,0.0)) , finalCol.xyz, finalCol.w);
+        finalCol.xyz  = mix(max(color,vec3(0.0,0.0,0.0)) , finalCol.xyz, 0.8 * finalCol.w);
         finalCol.w = 1.0;
     }
 
