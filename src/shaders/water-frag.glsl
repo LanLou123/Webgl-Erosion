@@ -97,5 +97,5 @@ void main()
 
 
 
-    out_Col = vec4(vec3(0.0,0.2,0.5) + R * reflectedSky + watercolorspec  , (.4 + spec) * u_WaterTransparency * dpVal);
+    out_Col = vec4(vec3(0.0,0.2,0.5) + R * reflectedSky + watercolorspec  , (.5 + spec) * u_WaterTransparency * dpVal);
 }
