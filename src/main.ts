@@ -8,11 +8,11 @@ import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
 import {gl, setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
-
-
-
-
 var mouseChange = require('mouse-change');
+
+
+
+// static variables
 var clientWidth : number;
 var clientHeight : number;
 var lastX = 0;
@@ -20,29 +20,30 @@ var lastY = 0;
 
 const simresolution = 1024;
 const shadowMapResolution = 4096;
-let erosioninterations = 68000;
 const enableBilateralBlur = false;
+
 let speed = 3;
-const div = 1/simresolution;
-let start = false;
 let SimFramecnt = 0;
 let TerrainGeometryDirty = true;
 let PauseGeneration = false;
-let HightMapCpuBuf = new Float32Array(simresolution * simresolution * 4);
+let HightMapCpuBuf = new Float32Array(simresolution * simresolution * 4); // height map CPU read back buffer, for CPU raycast & collision physics
 let HightMapBufCounter  = 0;
 let MaxHightMapBufCounter = 60; // determine how many frame to update CPU buffer of terrain hight map for ray casting on CPU
+let simres : number = simresolution;
 
 
+
+// aux control buffer (for backup)
 const controlscomp = {
     tesselations: 5,
-    pipelen: div/1.0,//
-    Kc : 0.012,
-    Ks : 0.0004,
-    Kd : 0.0003,
-    timestep : 0.001,
-    pipeAra : div*div * 1.0,
-    EvaporationDegree : 0.02,
-    RainDegree : 0.5,
+    pipelen:  1.0,//
+    Kc : 0.15,
+    Ks : 0.025,
+    Kd : 0.004,
+    timestep : 0.1,
+    pipeAra :  0.8,
+    EvaporationDegree : 0.01,
+    RainDegree : 4.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
     'Load Scene': loadScene, // A function pointer, essentially
@@ -51,16 +52,26 @@ const controlscomp = {
     'setTerrainRandom':setTerrainRandom,
     'Pause' : Pause,
     TerrainBaseMap : 0,
+    TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace
     TerrainBiomeType : 1,
-    TerrainScale : 0.1,
-    TerrainHeight : 1.0,
+    TerrainScale : 6.0,
+    TerrainHeight : 1.5,
     TerrainDebug : 0,
     WaterTransparency : 0.50,
-    brushType : 0, // 0 : no brush, 1 : terrain, 2 : water
-    brushSize : 2,
+    SnowRange : 0,
+    brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
+    brushSize : 12,
+    brushStrenth : 1.2,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
-
+    talusAngleFallOffCoeff : 0.9,
+    talusAngleTangentBias : 0.0,
+    thermalRate : 0.5,
+    thermalErosionScale : 1.0,
+    lightPosX : 0.4,
+    lightPosY : 0.2,
+    lightPosZ : -1.0,
+    showScattering : true,
 };
 
 
@@ -107,31 +118,38 @@ const controls = {
 
 
 
-function StartGeneration(){
-    PauseGeneration = false;
-}
-//geometries
+
+// ================ geometries ============
+// =============================================================
 let square: Square;
 let plane : Plane;
 let waterPlane : Plane;
-//simulation variables
-// texture structure : R : terrain hight map, G : water carrying, B : sediment carrying
-let simres : number = simresolution;
+
+
+// ================ frame buffers ============
+// =============================================================
 let frame_buffer : WebGLFramebuffer;
-let render_buffer : WebGLRenderbuffer;
-
 let shadowMap_frame_buffer : WebGLFramebuffer;
-let shadowMap_render_buffer : WebGLRenderbuffer;
-let shadowMap_tex : WebGLTexture;
-
 let deferred_frame_buffer : WebGLFramebuffer;
+
+// ================  render buffers ============
+// =============================================================
+let render_buffer : WebGLRenderbuffer;
+let shadowMap_render_buffer : WebGLRenderbuffer;
 let deferred_render_buffer : WebGLRenderbuffer;
+
+// ================ muti-renderpasses used textures ============
+// =============================================================
+let shadowMap_tex : WebGLTexture;
 let scene_depth_tex : WebGLTexture;
 let bilateral_filter_horizontal_tex : WebGLTexture;
 let bilateral_filter_vertical_tex : WebGLTexture;
 let color_pass_tex : WebGLTexture;
+let color_pass_reflection_tex : WebGLTexture;
 let scatter_pass_tex : WebGLTexture;
 
+// ================ simulation textures ===================
+// ========================================================
 let read_terrain_tex : WebGLTexture;
 let write_terrain_tex : WebGLTexture;
 let read_flux_tex : WebGLTexture;
@@ -147,7 +165,11 @@ let write_sediment_tex : WebGLTexture;
 let terrain_nor : WebGLTexture;
 let read_sediment_blend : WebGLTexture;
 let write_sediment_blend : WebGLTexture;
-let num_simsteps : number;
+
+
+
+// ================ dat gui button call backs ============
+// =============================================================
 
 function loadScene() {
   square = new Square(vec3.fromValues(0, 0, 0));
@@ -158,9 +180,9 @@ function loadScene() {
   waterPlane.create();
 }
 
-
-
-
+function StartGeneration(){
+    PauseGeneration = false;
+}
 function Pause(){
     PauseGeneration = true;
 }
@@ -173,6 +195,7 @@ function Reset(){
 
 function setTerrainRandom() {
 }
+
 
 function Render2Texture(renderer:OpenGLRenderer, gl:WebGL2RenderingContext,camera:Camera,shader:ShaderProgram,cur_texture:WebGLTexture){
     gl.bindRenderbuffer(gl.RENDERBUFFER,render_buffer);
@@ -800,6 +823,7 @@ function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
     bilateral_filter_horizontal_tex = LE_create_texture(window.innerWidth,window.innerHeight);
     bilateral_filter_vertical_tex  = LE_create_texture(window.innerWidth,window.innerHeight);
     color_pass_tex = LE_create_texture(window.innerWidth,window.innerHeight);
+    color_pass_reflection_tex = LE_create_texture(window.innerWidth,window.innerHeight);
     scatter_pass_tex = LE_create_texture(window.innerWidth,window.innerHeight);
 
     shadowMap_frame_buffer = gl.createFramebuffer();
@@ -870,6 +894,7 @@ function onKeyUp(event : KeyboardEvent){
 }
 
 function main() {
+
   // Initial display for framerate
   const stats = Stats();
   stats.setMode(0);
@@ -881,8 +906,6 @@ function main() {
 
   // Add controls to the gui
   const gui = new DAT.GUI();
-  // gui.add(controlsBarrier,'TerrainBaseMap',{defaultTerrain : 0, randomrizedTerrain :1});
-  // gui.add(controlsBarrier,'TerrainBiomeType',{mountain:0,desert:1,volcanic:2});
     var simcontrols = gui.addFolder('Simulation Controls');
     simcontrols.add(controls,'Start/Resume');
     simcontrols.add(controls,'Pause');
@@ -926,7 +949,6 @@ function main() {
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
   const gl = <WebGL2RenderingContext> canvas.getContext('webgl2');
-
   clientWidth = canvas.clientWidth;
   clientHeight = canvas.clientHeight;
 
@@ -957,7 +979,7 @@ function main() {
 
   // Initial call to load scene
   loadScene();
-  num_simsteps = erosioninterations;
+
 
   const camera = new Camera(vec3.fromValues(0.3, 0.1, 0.6), vec3.fromValues(0, 0, 0));
   const renderer = new OpenGLRenderer(canvas);
@@ -1064,8 +1086,6 @@ function main() {
     ]);
 
 
-    noiseterrain.setRndTerrain(controls.TerrainBaseMap);
-    noiseterrain.setTerrainType(controls.TerrainBiomeType);
 
     let timer = 0;
     function cleanUpTextures(){
@@ -1168,10 +1188,9 @@ function main() {
 
     //===================per tick uniforms==================
 
-    rains.setSpawnPos(vec2.fromValues(controls.spawnposx, controls.spawnposy));
-    rains.setTime(timer);
 
     flat.setTime(timer);
+
     gl.uniform1f(gl.getUniformLocation(flat.prog,"u_far"),camera.far);
     gl.uniform1f(gl.getUniformLocation(flat.prog,"u_near"),camera.near);
     gl.uniform3fv(gl.getUniformLocation(flat.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
@@ -1192,8 +1211,6 @@ function main() {
     lambert.setFloat(controls.SnowRange, "u_SnowRange");
     gl.uniform3fv(gl.getUniformLocation(lambert.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
 
-
-
     sceneDepthShader.setSimres(simresolution);
 
     rains.setMouseWorldPos(mousePoint);
@@ -1204,6 +1221,8 @@ function main() {
     rains.setBrushPressed(controls.brushPressed);
     rains.setBrushPos(pos);
     rains.setBrushOperation(controls.brushOperation);
+    rains.setSpawnPos(vec2.fromValues(controls.spawnposx, controls.spawnposy));
+    rains.setTime(timer);
 
     flow.setPipeLen(controls.pipelen);
     flow.setSimres(simresolution);
@@ -1242,7 +1261,6 @@ function main() {
     thermalapply.setTimestep(controls.timestep);
     thermalapply.setPipeArea(controls.pipeAra);
     gl.uniform1f(gl.getUniformLocation(thermalapply.prog,"unif_thermalErosionScale"),controls.thermalErosionScale);
-
 
     maxslippageheight.setSimres(simresolution);
     maxslippageheight.setPipeLen(controls.pipelen);
@@ -1333,9 +1351,10 @@ function main() {
     //============ terrain geometry =========
     gl.bindFramebuffer(gl.FRAMEBUFFER,deferred_frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,color_pass_tex,0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,color_pass_reflection_tex,0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,deferred_render_buffer);
 
-    gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
 
     status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
@@ -1424,6 +1443,10 @@ function main() {
     gl.activeTexture(gl.TEXTURE3);
     gl.bindTexture(gl.TEXTURE_2D,scene_depth_tex);
     gl.uniform1i(gl.getUniformLocation(water.prog,"sceneDepth"),3);
+
+    gl.activeTexture(gl.TEXTURE4);
+    gl.bindTexture(gl.TEXTURE_2D,color_pass_reflection_tex);
+    gl.uniform1i(gl.getUniformLocation(water.prog,"colorReflection"),4);
 
     renderer.render(camera, water, [
       plane,
@@ -1557,6 +1580,14 @@ function main() {
     gl.bindRenderbuffer(gl.RENDERBUFFER,deferred_render_buffer);
     gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,
       window.innerWidth,window.innerHeight);
+
+    gl.bindTexture(gl.TEXTURE_2D,color_pass_reflection_tex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,window.innerWidth,window.innerHeight,0,
+      gl.RGBA,gl.FLOAT,null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     gl.bindTexture(gl.TEXTURE_2D,scatter_pass_tex);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,window.innerWidth,window.innerHeight,0,

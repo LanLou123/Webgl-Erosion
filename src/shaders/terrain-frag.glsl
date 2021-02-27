@@ -25,7 +25,8 @@ uniform sampler2D sceneDepth;
 #define PI 3.1415926
 
 
-out vec4 out_Col; // This is the final output color that you will see on your
+layout (location = 0) out vec4 out_Col; // This is the final output color that you will see on your
+layout (location = 1) out vec4 col_reflect;
                   // screen for the pixel that is currently being processed.
 uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
@@ -196,10 +197,11 @@ void main()
 
     fcol = clamp(fcol, vec3(0.0), vec3(1.0));
     fcol *= shadowCol * hue;
+    vec3 tmpCol = fcol;
     fcol += addcol;
 
 
     out_Col = vec4(vec3(fcol)*1.0,1.f);
-
+    col_reflect = vec4(tmpCol,1.0);
     //out_Col = vec4(vec3(shadowColorVal),1.0);
 }

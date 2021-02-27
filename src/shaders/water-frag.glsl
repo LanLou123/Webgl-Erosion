@@ -10,10 +10,12 @@ in vec4 fs_Col;
 uniform sampler2D hightmap;
 uniform sampler2D normap;
 uniform sampler2D sceneDepth;
+uniform sampler2D colorReflection;
 
 in float fs_Sine;
 in vec2 fs_Uv;
-out vec4 out_Col; // This is the final output color that you will see on your
+layout (location = 0) out vec4 out_Col; // This is the final output color that you will see on your
+layout (location = 1) out vec4 col_reflect;
                   // screen for the pixel that is currently being processed.
 uniform vec3 u_Eye, u_Ref, u_Up;
 
@@ -98,4 +100,5 @@ void main()
 
 
     out_Col = vec4(vec3(0.0,0.2,0.5) + R * reflectedSky + watercolorspec  , (.5 + spec) * u_WaterTransparency * dpVal);
+    col_reflect = vec4(1.0);
 }

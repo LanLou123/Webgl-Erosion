@@ -231,6 +231,7 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     float linearSceneDepthVal = linearDepth(sceneDepthValue.x); // max length can travel for this specific ray
     float rayAttenuation = 1.0 * linearSceneDepthVal;
 
+
     float stepSize = ((linearSceneDepthVal ) / float(SCATTER_MARCH_STEPS)) ;
     if(sceneDepthValue.x == 0.0){
         stepSize = 0.2;
@@ -324,7 +325,7 @@ void main() {
     gl_FragDepth = 0.01;
 
     float angle = dot(normalize(unif_LightPos),vec3(0.0,1.0,0.0));
-    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
+    vec3 hue = mix(vec3(255.0,255.0,240.0)/256.0, vec3(255.0,100.0,20.0)/256.0, 1.0 - angle);
 
     vec4 finalCol = vec4(0.0,0.0,0.0,1.0);//vec4(0.0,0.0,0.0,1.0);
     if(u_showScattering == 0){
@@ -333,7 +334,8 @@ void main() {
     }else{
         finalCol = scatter_m(ro,rd);
         finalCol.xyz = vec3(1.0) - exp(-finalCol.xyz * 2.0 ); //fog fall off
-        finalCol.xyz *= hue;
+        float sunAmount = max(dot(rd, normalize(unif_LightPos)),0.0);
+        finalCol.xyz *= mix(vec3(0.6,0.6,0.6) * 0.6,hue, pow(sunAmount, 8.0));
         finalCol.w *= 1.0;
         finalCol.w = clamp(finalCol.w, 0.0, 1.0);
         //finalCol.w *=  1.0 - exp(-finalCol.w * 2.0);
