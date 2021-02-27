@@ -29,7 +29,7 @@ out vec4 out_Col;
 
 #define FOV 45.f
 vec3 sky(in vec3 rd){
-    return 2.0 * mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));
+    return 1.0 * mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));
 }
 
 float linearDepth(float depthSample)
@@ -355,9 +355,13 @@ void main() {
                 2.4e3 * planetScale, // Mie scale height
                 0.958// Mie preferred scattering direction
                 );
+            finalCol.xyz  = mix(max(color,vec3(0.0,0.0,0.0)) , finalCol.xyz, 0.8 * finalCol.w);
+            finalCol.w = 1.0;
+        }else{
+            finalCol.xyz = color;
+            finalCol.w = 1.0;
         }
-        finalCol.xyz  = mix(max(color,vec3(0.0,0.0,0.0)) , finalCol.xyz, 0.8 * finalCol.w);
-        finalCol.w = 1.0;
+
     }
 
 

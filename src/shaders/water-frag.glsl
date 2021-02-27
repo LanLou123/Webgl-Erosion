@@ -62,6 +62,7 @@ void main()
     waterDepth = linearDepth(waterDepth);
 
     float dpVal = 180.0 * max(0.0,terrainDepth - waterDepth);
+    dpVal = clamp(dpVal, 0.0,4.0);
     //dpVal = pow(dpVal, 0.1);
 
 
@@ -96,5 +97,5 @@ void main()
 
 
 
-    out_Col = vec4(vec3(0.0,0.3,0.9) + watercolorspec  + R * reflectedSky, (1.0 + spec) * u_WaterTransparency * dpVal);
+    out_Col = vec4(vec3(0.0,0.2,0.5) + R * reflectedSky + watercolorspec  , (.4 + spec) * u_WaterTransparency * dpVal);
 }

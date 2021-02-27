@@ -194,13 +194,12 @@ void main()
     }
 
 
-
+    fcol = clamp(fcol, vec3(0.0), vec3(1.0));
+    fcol *= shadowCol * hue;
     fcol += addcol;
 
-    fcol = clamp(fcol, vec3(0.0), vec3(1.0));
 
-
-    out_Col = vec4(hue*vec3(fcol)*1.0*shadowCol,1.f);
+    out_Col = vec4(vec3(fcol)*1.0,1.f);
 
     //out_Col = vec4(vec3(shadowColorVal),1.0);
 }
