@@ -140,7 +140,7 @@ void main() {
 
 
   vec2 cpos = 0.5 * uv * u_TerrainScale;
-  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 2.0,2.0 * mod(u_Time,100.f)+10.f);
+  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 8.0,2.0 * mod(u_Time,100.f)+13.f);
   float terrain_hight = fbm(cpos*2.0);
 
     terrain_hight = pow(terrain_hight,3.0);

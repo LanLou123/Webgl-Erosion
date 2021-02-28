@@ -144,6 +144,11 @@ class ShaderProgram {
       gl.uniformMatrix4fv(this.unifViewProj, false, vp);
     }
   }
+  setInt(f : number, name : string){
+    this.use();
+    let newf = gl.getUniformLocation(this.prog,name);
+    gl.uniform1i(newf,f);
+  }
 
   setFloat(f : number, name : string){
     this.use();

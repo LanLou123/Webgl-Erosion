@@ -39,7 +39,10 @@ uniform int u_BrushType;
 uniform vec2 u_BrushPos;
 uniform float u_SimRes;
 uniform float u_SnowRange;
+uniform float u_ForestRange;
+uniform int u_TerrainPlatte;
 uniform vec3 unif_LightPos;
+
 
 uniform mat4 u_sproj;
 uniform mat4 u_sview;
@@ -57,6 +60,47 @@ vec3 calnor(vec2 uv){
     return nor;
 }
 
+    #define OCTAVES 12
+
+float random (in vec2 st) {
+    return fract(sin(dot(st.xy,
+    vec2(12.9898,78.233)))*
+    43758.5453123);
+}
+
+
+float noise (in vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+
+    // Four corners in 2D of a tile
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+
+    vec2 u = f * f * (3.0 - 2.0 * f);
+
+    return mix(a, b, u.x) +
+    (c - a)* u.y * (1.0 - u.x) +
+    (d - b) * u.x * u.y;
+}
+
+
+float fbm (in vec2 st) {
+    // Initial values
+    float value = 0.0;
+    float amplitude = .5;
+    float frequency = 0.;
+    //
+    // Loop of octaves
+    for (int i = 0; i < OCTAVES; i++) {
+        value += amplitude * noise(st);//iqnoise(st,1.f,1.f);
+        st *= 2.0;
+        amplitude *= .33;
+    }
+    return value;
+}
 
 
 void main()
@@ -93,6 +137,9 @@ void main()
     vec3 rock2 = vec3(0.2,0.2,0.2);
     vec3 rock3 = vec3(0.1,0.1,0.1);
 
+
+
+
     vec3 addcol = vec3(0.0);
     if(u_BrushType != 0){
         vec3 ro = u_MouseWorldPos.xyz;
@@ -125,6 +172,8 @@ void main()
     vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
 
 
+
+
     float lamb = dot(nor,vec3(sundir.x,sundir.y,-sundir.z));
 
 
@@ -136,21 +185,24 @@ void main()
 
     vec3 finalcol = vec3(0);
 
-
-    forestcol = mtncolor;
+    if(u_TerrainPlatte == 1){
+        forestcol = mtncolor;
+    }
     if(yval<=100.0){
         finalcol = forestcol;
     }else if(yval>100.0&&yval<=150.0){
         finalcol = mix(forestcol,forestcol,(yval-100.0)/50.0);
     }else if(yval>150.0){
-        if(yval<300.0f ){
-            finalcol = mix(forestcol, mtncolor, (yval-150.0)/150.0);
+        if(yval<600.0f ){
+            finalcol = mix(forestcol, mtncolor, clamp(1.0 / pow(abs(nor.y),u_ForestRange) * (yval-150.0)/450.0, 0.0, 1.0));
         }
-        else if((yval > 300.0f)){
+        else if((yval > 600.0f)){
             finalcol = mtncolor;
         }
 
     }
+
+
 
 
     if(abs(nor.y)<0.75){

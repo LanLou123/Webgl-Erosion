@@ -78,12 +78,12 @@ const controlscomp = {
 const controls = {
   tesselations: 5,
     pipelen:  1.0,//
-    Kc : 0.4,
+    Kc : 0.2,
     Ks : 0.025,
     Kd : 0.004,
     timestep : 0.1,
     pipeAra :  0.8,
-    EvaporationDegree : 0.01,
+    EvaporationDegree : 0.004,
     RainDegree : 4.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
@@ -95,14 +95,16 @@ const controls = {
     TerrainBaseMap : 0,
     TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace
     TerrainBiomeType : 1,
-    TerrainScale : 6.0,
-    TerrainHeight : 1.5,
+    TerrainScale : 4.0,
+    TerrainHeight : 2.0,
     TerrainDebug : 0,
     WaterTransparency : 0.50,
+    TerrainPlatte : 0, // 0 normal alphine mtn, 1 desert, 2 jungle
     SnowRange : 0,
+    ForestRange : 5,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 12,
-    brushStrenth : 1.2,
+    brushStrenth : 0.6,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     talusAngleFallOffCoeff : 0.9,
@@ -938,7 +940,9 @@ function main() {
     terraineditor.open();
     var renderingpara = gui.addFolder('Rendering Parameters');
     renderingpara.add(controls, 'WaterTransparency', 0.0, 1.0);
-    renderingpara.add(controls,'SnowRange',0.0,100.0);
+    renderingpara.add(controls, 'TerrainPlatte', {AlpineMtn : 0, Desert : 1, Jungle : 2});
+    renderingpara.add(controls, 'SnowRange', 0.0, 100.0);
+    renderingpara.add(controls, 'ForestRange', 0.0, 50.0);
     renderingpara.add(controls,'showScattering');
     var renderingparalightpos = renderingpara.addFolder('Shadow map LightPos/Dir');
     renderingparalightpos.add(controls,'lightPosX',-1.0,1.0);
@@ -981,7 +985,7 @@ function main() {
   loadScene();
 
 
-  const camera = new Camera(vec3.fromValues(0.3, 0.1, 0.6), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(0.15, 0.3, 0.6), vec3.fromValues(0, 0, 0));
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.0, 0.0, 0.0, 0);
   gl.enable(gl.DEPTH_TEST);
@@ -1209,6 +1213,8 @@ function main() {
     lambert.setBrushPos(pos);
     lambert.setSimres(simresolution);
     lambert.setFloat(controls.SnowRange, "u_SnowRange");
+    lambert.setFloat(controls.ForestRange, "u_ForestRange");
+    lambert.setInt(controls.TerrainPlatte, "u_TerrainPlatte");
     gl.uniform3fv(gl.getUniformLocation(lambert.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
 
     sceneDepthShader.setSimres(simresolution);
