@@ -47,7 +47,6 @@
 ![](screenshot/delta2.PNG)
 
 
-#### added Raleigh scattering & shadow map
 ![](screenshot/raleigh.PNG)
 
 #### a lonely mountain
