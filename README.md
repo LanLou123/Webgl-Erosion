@@ -47,10 +47,9 @@
 ![](screenshot/delta2.PNG)
 
 
-![](screenshot/raleigh.PNG)
+![](screenshot/raleigh1.PNG)
 
-#### a lonely mountain
-![](screenshot/lonemountain.PNG)
+![](screenshot/lonemountain1.PNG)
 
 
 #### rain erosion option (not stable yet, in progress)
