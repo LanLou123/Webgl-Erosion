@@ -3,7 +3,7 @@
 
 ## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
-![](screenshot/nmtn.PNG)
+![](screenshot/nmtn1.PNG)
 
 ### controls : 
 
@@ -20,13 +20,6 @@
 - use the dropdown to check the debug views
 - press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
 
-## click on image below to see Video showing river/delta formation on a cliff : 
-[![](screenshot/river.PNG)](https://youtu.be/nyvz7OIhxQ8)
-
-
-- Lower spike diffusion threshold & thermal produces more stable results on a fbm noise terrain
-![](screenshot/lowerspike.PNG)
-
 
 ![](screenshot/river2.PNG)
 
@@ -35,7 +28,6 @@
 ![](screenshot/atmosphere.PNG)
 
 ## [**Video How 2 create A mountain with simulator**](https://youtu.be/JeMJDxrr-4g)
-
 
 
 ### some screenshots
@@ -51,13 +43,6 @@
 
 ![](screenshot/lonemountain1.PNG)
 
-
-#### rain erosion option (not stable yet, in progress)
-![](screenshot/rainexample.PNG)
-
-### Terrain editor support
-
-![](screenshot/editor.PNG)
 
 
 ## Debug view images
