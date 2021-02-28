@@ -18,7 +18,7 @@ var clientHeight : number;
 var lastX = 0;
 var lastY = 0;
 
-const simresolution = 2024;
+const simresolution = 1024;
 const shadowMapResolution = 4096;
 const enableBilateralBlur = false;
 

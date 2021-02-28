@@ -5,6 +5,8 @@
 
 ![](screenshot/nmtn1.PNG)
 
+![](screenshot/vol.PNG)
+
 ### controls : 
 
 - press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
@@ -151,6 +153,7 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - simple shadowmapping with a small pcf kernel
    - Background Raleigh & Mie scattering atmosphere scattering based on scientific approximation and this [amazing example](https://github.com/wwwtyro/glsl-atmosphere)
    - another Close range Mie atmosphere scattering was also added since I feel Raleigh scattering cannot show good enough results if we choose sample points too close to camera, this one is a bit trickyer than previous, since it involves accessing depth buffers from previous render passes(shadow map) and current pass(scene depth buffer) to compare, raymarching&sampling methods is similar to previous Raleigh scattering steps, the difference here is that we also need to do depth comparision between sample point (scene depth map for in scattering and shadow map for out scattering)
+   - since we want to maximize the performance, we don't want to have too many march steps, but if we use too little steps, a very ugly banding effect would occur, one method we can do to alliviate this is to use a dithering matrix to jitter the ray at the beginning of each raymarching for current active frame, the result is pretty good, I can use march step number as small as 15, and the result is still good, however, dithering also brings small artifact by itself, I used a mutipass(horizontal/vertical both for 5 times) depth sensitive bilateral blurring shader to reduce the artifact and preseve the edge, idea based on : [Volumetric Lights for Unity 5](https://github.com/SlightlyMad/VolumetricLights).
 
 #### atmosphere scattering in action : 
 
@@ -168,3 +171,4 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
 ### Reference
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
 - [Interactive Terrain Modeling Using Hydraulic Erosion](https://cgg.mff.cuni.cz/~jaroslav/papers/2008-sca-erosim/2008-sca-erosiom-fin.pdf)
+- [Volumetric Lights for Unity 5](https://github.com/SlightlyMad/VolumetricLights)
