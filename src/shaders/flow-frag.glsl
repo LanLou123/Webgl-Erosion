@@ -85,6 +85,15 @@ void main() {
   if(curuv.y<=div) ftopout = 0.f;
   if(curuv.y>=1.f - 2.0 * div) fbottomout = 0.f;
 
+  if(curuv.x<=div || (curuv.x>=1.f - 2.0 * div) ||(curuv.y<=div) ||(curuv.y>=1.f - 2.0 * div)  ){
+    ftopout = 0.0;
+    frightout = 0.0;
+    fbottomout = 0.0;
+    fleftout = 0.0;
+  }
+
+
+
 //  float divs = min(abs(veloci.x), abs(veloci.y))/max(abs(veloci.x), abs(veloci.y));
 //
 //  veloci *= max(0.01,divs / 1.0);

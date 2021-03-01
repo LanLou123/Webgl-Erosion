@@ -83,7 +83,7 @@ const controls = {
     Kd : 0.004,
     timestep : 0.1,
     pipeAra :  0.8,
-    EvaporationDegree : 0.004,
+    EvaporationDegree : 0.002,
     RainDegree : 4.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
@@ -104,7 +104,7 @@ const controls = {
     ForestRange : 5,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 12,
-    brushStrenth : 0.6,
+    brushStrenth : 0.2,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     talusAngleFallOffCoeff : 0.9,
@@ -779,13 +779,13 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     //---------------swap terrain mao----------------------------
 }
 
-function LE_create_texture(w : number, h : number){
+function LE_create_texture(w : number, h : number, samplingType : number){
     let new_tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D,new_tex);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,w,h,0,
         gl.RGBA,gl.FLOAT,null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, samplingType);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, samplingType);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     return new_tex;
@@ -797,36 +797,36 @@ function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
 
 
     //Noise generated data from GPU texture, include population density, water distribution, terrain elevation...
-    read_terrain_tex = LE_create_texture(simres,simres);
-    write_terrain_tex = LE_create_texture(simres,simres);
+    read_terrain_tex = LE_create_texture(simres,simres,gl.LINEAR);
+    write_terrain_tex = LE_create_texture(simres,simres,gl.LINEAR);
 
-    read_flux_tex = LE_create_texture(simres,simres);
-    write_flux_tex = LE_create_texture(simres,simres);
+    read_flux_tex = LE_create_texture(simres,simres,gl.LINEAR);
+    write_flux_tex = LE_create_texture(simres,simres,gl.LINEAR);
 
-    read_terrain_flux_tex = LE_create_texture(simres,simres);
-    write_terrain_flux_tex = LE_create_texture(simres,simres);
+    read_terrain_flux_tex = LE_create_texture(simres,simres,gl.LINEAR);
+    write_terrain_flux_tex = LE_create_texture(simres,simres,gl.LINEAR);
 
-    read_maxslippage_tex = LE_create_texture(simres,simres);
-    write_maxslippage_tex = LE_create_texture(simres,simres);
+    read_maxslippage_tex =LE_create_texture(simres,simres,gl.LINEAR);
+    write_maxslippage_tex = LE_create_texture(simres,simres,gl.LINEAR);
 
-    read_vel_tex = LE_create_texture(simres,simres);
-    write_vel_tex = LE_create_texture(simres,simres);
+    read_vel_tex = LE_create_texture(simres,simres,gl.LINEAR);
+    write_vel_tex = LE_create_texture(simres,simres,gl.LINEAR);
 
-    read_sediment_tex = LE_create_texture(simres,simres);
-    write_sediment_tex = LE_create_texture(simres,simres);
+    read_sediment_tex = LE_create_texture(simres,simres,gl.LINEAR);
+    write_sediment_tex = LE_create_texture(simres,simres,gl.LINEAR);
 
-    terrain_nor = LE_create_texture(simres,simres);
+    terrain_nor = LE_create_texture(simres,simres,gl.LINEAR);
 
-    read_sediment_blend = LE_create_texture(simres,simres);
-    write_sediment_blend = LE_create_texture(simres,simres);
+    read_sediment_blend = LE_create_texture(simres,simres,gl.LINEAR);
+    write_sediment_blend = LE_create_texture(simres,simres,gl.LINEAR);
 
-    shadowMap_tex = LE_create_texture(shadowMapResolution, shadowMapResolution);
-    scene_depth_tex = LE_create_texture(window.innerWidth,window.innerHeight);
-    bilateral_filter_horizontal_tex = LE_create_texture(window.innerWidth,window.innerHeight);
-    bilateral_filter_vertical_tex  = LE_create_texture(window.innerWidth,window.innerHeight);
-    color_pass_tex = LE_create_texture(window.innerWidth,window.innerHeight);
-    color_pass_reflection_tex = LE_create_texture(window.innerWidth,window.innerHeight);
-    scatter_pass_tex = LE_create_texture(window.innerWidth,window.innerHeight);
+    shadowMap_tex = LE_create_texture(shadowMapResolution, shadowMapResolution,gl.LINEAR);
+    scene_depth_tex = LE_create_texture(window.innerWidth,window.innerHeight,gl.LINEAR);
+    bilateral_filter_horizontal_tex = LE_create_texture(window.innerWidth,window.innerHeight,gl.LINEAR);
+    bilateral_filter_vertical_tex  = LE_create_texture(window.innerWidth,window.innerHeight,gl.LINEAR);
+    color_pass_tex = LE_create_texture(window.innerWidth,window.innerHeight,gl.LINEAR);
+    color_pass_reflection_tex = LE_create_texture(window.innerWidth,window.innerHeight,gl.LINEAR);
+    scatter_pass_tex = LE_create_texture(window.innerWidth,window.innerHeight,gl.LINEAR);
 
     shadowMap_frame_buffer = gl.createFramebuffer();
     shadowMap_render_buffer = gl.createRenderbuffer();

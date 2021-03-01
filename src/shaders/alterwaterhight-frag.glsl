@@ -69,10 +69,10 @@ void main(){
       veloci = veloci/(da * u_PipeLen);
     }
 
-  if(curuv.x<=div) {deltavol = 0.f; veloci.x = 0.0;}
-  if(curuv.x>=1.f - 2.0 *div) {deltavol = 0.f; veloci.x = 0.0;}
-  if(curuv.y<=div) {deltavol = 0.f;veloci.y = 0.0;}
-  if(curuv.y>=1.f - 2.0 * div) {deltavol = 0.f;veloci.y = 0.0;}
+  if(curuv.x<=div) {deltavol = 0.f; veloci = vec2(0.0);}
+  if(curuv.x>=1.f - 2.0 *div) {deltavol = 0.f; veloci = vec2(0.0);}
+  if(curuv.y<=div) {deltavol = 0.f;veloci = vec2(0.0);}
+  if(curuv.y>=1.f - 2.0 * div) {deltavol = 0.f;veloci = vec2(0.0);}
 
 //  float absx = abs(veloci.x);
 //  float absy = abs(veloci.y);
