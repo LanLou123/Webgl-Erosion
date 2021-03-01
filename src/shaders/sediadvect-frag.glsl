@@ -57,7 +57,7 @@ void main() {
 
 
     vec4 useVel = curvel/u_SimRes;
-    useVel *= 2.0;
+    useVel *= 1.0;
 //    vec4 top = texture(vel,curuv+vec2(0.f,div));
 //    vec4 right = texture(vel,curuv+vec2(div,0.f));
 //    vec4 bottom = texture(vel,curuv+vec2(0.f,-div));

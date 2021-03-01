@@ -104,7 +104,7 @@ const controls = {
     ForestRange : 5,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 12,
-    brushStrenth : 0.2,
+    brushStrenth : 0.5,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     talusAngleFallOffCoeff : 0.9,
