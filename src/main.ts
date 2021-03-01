@@ -79,7 +79,7 @@ const controls = {
   tesselations: 5,
     pipelen:  1.0,//
     Kc : 0.4,
-    Ks : 0.085,
+    Ks : 0.025,
     Kd : 0.004,
     timestep : 0.1,
     pipeAra :  0.8,
