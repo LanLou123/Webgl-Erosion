@@ -219,9 +219,11 @@ void main()
 
     vec3 normal = lamb*(finalcol) + ambientCol;
     vec3 fcol = normal;
+    bool debug = true;
     //normal : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4
     if(u_TerrainDebug == 0){
         fcol = normal;
+        debug = false;
     }else if(u_TerrainDebug == 1){
         fcol = texture(sedimap,fs_Uv).xyz * 2.0;
     }else if(u_TerrainDebug == 2){
@@ -249,7 +251,9 @@ void main()
 
 
     fcol = clamp(fcol, vec3(0.0), vec3(1.0));
-    fcol *= shadowCol * hue;
+    if(!debug){
+        fcol *= shadowCol * hue;
+    }
     vec3 tmpCol = fcol;
     fcol += addcol;
 
