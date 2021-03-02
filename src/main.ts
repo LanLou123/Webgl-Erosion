@@ -95,8 +95,9 @@ const controls = {
     TerrainBaseMap : 0,
     TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace
     TerrainBiomeType : 1,
-    TerrainScale : 4.0,
+    TerrainScale : 10.0,
     TerrainHeight : 2.0,
+    TerrainSphereMask : 0,//0 on, 1 off
     TerrainDebug : 0,
     WaterTransparency : 0.50,
     TerrainPlatte : 0, // 0 normal alphine mtn, 1 desert, 2 jungle
@@ -916,6 +917,7 @@ function main() {
     var terrainParameters = gui.addFolder('Terrain Parameters');
     terrainParameters.add(controls,'TerrainScale', 0.1, 10.0);
     terrainParameters.add(controls,'TerrainHeight', 1.0, 2.0);
+    terrainParameters.add(controls,'TerrainSphereMask',{ON : 0 ,OFF : 1});
     terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2});
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
@@ -985,7 +987,7 @@ function main() {
   loadScene();
 
 
-  const camera = new Camera(vec3.fromValues(0.15, 0.3, 0.6), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(-0.38, 0.3, 0.6), vec3.fromValues(0, 0, 0));
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.0, 0.0, 0.0, 0);
   gl.enable(gl.DEPTH_TEST);
@@ -1174,6 +1176,7 @@ function main() {
     noiseterrain.setTime(timer);
     noiseterrain.setTerrainHeight(controls.TerrainHeight);
     noiseterrain.setTerrainScale(controls.TerrainScale);
+    noiseterrain.setInt(controls.TerrainSphereMask,"u_TerrainSphereMask");
     gl.uniform1i(gl.getUniformLocation(noiseterrain.prog,"u_terrainBaseType"),controls.TerrainBaseType);
 
 

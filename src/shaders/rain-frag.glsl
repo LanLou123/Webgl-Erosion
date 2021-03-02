@@ -102,12 +102,14 @@ void main() {
 
 
       float epsilon = 0.000001f;
-      float nrain = noise(vec3(curuv * 10000.0, u_Time));
-      nrain = 1.0f;
-      rain = nrain/1450.0;
+      float nrain = noise(vec3(curuv * 100.0, u_Time));
+      //nrain = 1.0f;
+      rain = nrain/150.0;
 
-
-
+//      if(mod(u_Time, 10.0) <= 1.0){
+//            rain = 0.0f;
+//            addwater = 0.0f;
+//      }
       rain = 0.0f;
       epsilon = 0.0f;
 //      if(curuv.x<maxx && curuv.x>minx && curuv.y<maxy&&curuv.y>miny){
@@ -118,5 +120,5 @@ void main() {
 //      }
 
 
-      writeTerrain = vec4(min(max(cur.x + addterrain, -0.10),2000.30),max(cur.y+rain * raindeg + addwater, epsilon),cur.z,cur.w);
+      writeTerrain = vec4(min(max(cur.x + addterrain, -0.10),2000.30),max(cur.y+rain * raindeg + addwater, 0.0f),cur.z,cur.w);
 }

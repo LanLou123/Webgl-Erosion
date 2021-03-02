@@ -7,6 +7,7 @@ uniform float u_Time;
 uniform float u_TerrainScale;
 uniform float u_TerrainHeight;
 uniform int u_terrainBaseType;
+uniform int u_TerrainSphereMask;
 
 layout (location = 0) out vec4 initial;
 layout (location = 1) out vec4 initial2;
@@ -128,6 +129,10 @@ float test(vec2 p){
     return abs(pow(2.0,-length(p - vec2(0.5))*2.0));
 }
 
+float circle_mask(vec2 p){
+    return max(0.5 - distance(p, vec2(0.5)), 0.0) ;
+}
+
 //nice one 5.3f*uv+vec2(178.f,27.f);
 
 // 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);
@@ -138,9 +143,9 @@ void main() {
   vec2 uv = 0.5f*fs_Pos+vec2(0.5f);
 
 
-
+    float c_mask = circle_mask(uv);
   vec2 cpos = 0.5 * uv * u_TerrainScale;
-  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 8.0,2.0 * mod(u_Time,100.f)+13.f);
+  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 58.0,2.0 * mod(u_Time,100.f)+23.f);
   float terrain_hight = fbm(cpos*2.0);
 
     terrain_hight = pow(terrain_hight,2.0)/1.50;
@@ -151,6 +156,9 @@ void main() {
     }
 
     terrain_hight *= u_TerrainHeight*500.0;
+    if(u_TerrainSphereMask == 0){
+        terrain_hight *= 2.0 * pow(c_mask, 1.0);
+    }
     //terrain_hight = test(uv) * 500.0;
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
