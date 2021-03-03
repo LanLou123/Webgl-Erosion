@@ -79,7 +79,9 @@ void main() {
     oldsedi = samplebilinear(oldloc,u_SimRes );
 
     float curSediVal = length(useVel.xy) * curterrain.y;
-    float sediBlendVal = texture(sediBlend, oldloc).x;
+    //float newSediVal =
+    float sediBlendVal = texture(sediBlend, curuv).x;
+
     if(sediBlendVal < curSediVal){
         sediBlendVal = (sediBlendVal + curSediVal) / 2.0;
     }

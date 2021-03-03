@@ -31,6 +31,7 @@ layout (location = 1) out vec4 col_reflect;
 uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
 uniform int u_TerrainDebug;
+uniform int u_SedimentTrace;
 
 uniform vec4 u_MouseWorldPos;
 uniform vec3 u_MouseWorldDir;
@@ -217,6 +218,15 @@ void main()
     //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));
 
 
+    // sediment trace, unstable for now
+//    float sedimentTrace = 0.0;
+//    if(u_SedimentTrace == 0){
+//        sedimentTrace = 1.0 - pow(3.0, -sval*130.0);
+//        sedimentTrace *= pow(abs(nor.y), 3.0);
+//    }
+//    finalcol = mix(finalcol, vec3(174.f/255.f,244.f/255.f,26.f/255.f),sedimentTrace);
+
+
     vec3 normal = lamb*(finalcol) + ambientCol;
     vec3 fcol = normal;
     bool debug = true;
@@ -256,6 +266,7 @@ void main()
     }
     vec3 tmpCol = fcol;
     fcol += addcol;
+
 
 
     out_Col = vec4(vec3(fcol)*1.0,1.f);

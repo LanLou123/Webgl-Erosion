@@ -100,6 +100,7 @@ const controls = {
     TerrainSphereMask : 0,//0 on, 1 off
     TerrainDebug : 0,
     WaterTransparency : 0.50,
+    SedimentTrace : 0, // 0 on, 1 off
     TerrainPlatte : 0, // 0 normal alphine mtn, 1 desert, 2 jungle
     SnowRange : 0,
     ForestRange : 5,
@@ -945,6 +946,7 @@ function main() {
     renderingpara.add(controls, 'TerrainPlatte', {AlpineMtn : 0, Desert : 1, Jungle : 2});
     renderingpara.add(controls, 'SnowRange', 0.0, 100.0);
     renderingpara.add(controls, 'ForestRange', 0.0, 50.0);
+    renderingpara.add(controls,'SedimentTrace',{ON : 0, OFF : 1});
     renderingpara.add(controls,'showScattering');
     var renderingparalightpos = renderingpara.addFolder('Shadow map LightPos/Dir');
     renderingparalightpos.add(controls,'lightPosX',-1.0,1.0);
@@ -1218,6 +1220,7 @@ function main() {
     lambert.setFloat(controls.SnowRange, "u_SnowRange");
     lambert.setFloat(controls.ForestRange, "u_ForestRange");
     lambert.setInt(controls.TerrainPlatte, "u_TerrainPlatte");
+    lambert.setInt(controls.SedimentTrace,"u_SedimentTrace");
     gl.uniform3fv(gl.getUniformLocation(lambert.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
 
     sceneDepthShader.setSimres(simresolution);
@@ -1457,7 +1460,8 @@ function main() {
     gl.bindTexture(gl.TEXTURE_2D,color_pass_reflection_tex);
     gl.uniform1i(gl.getUniformLocation(water.prog,"colorReflection"),4);
 
-    renderer.render(camera, water, [
+
+      renderer.render(camera, water, [
       plane,
     ]);
 

@@ -32,6 +32,13 @@ vec3 sky(in vec3 rd){
     return 1.0 * mix(vec3(0.6,0.6,0.6),vec3(0.3,0.5,0.9),clamp(rd.y,0.f,1.f));
 }
 
+float getSun(in vec3 rd){
+    vec3 lightpos = normalize(unif_LightPos);
+    float cosine = normalize(dot(lightpos, rd));
+    float sine = sqrt(1.0 - cosine * cosine);
+    return max(0.0, sine - 0.7);
+}
+
 float linearDepth(float depthSample)
 {
     depthSample = 2.0 * depthSample - 1.0;
@@ -367,6 +374,7 @@ void main() {
     }
 
 
+    //finalCol = mix(finalCol, vec4(1.0,1.0,0.9,1.0), 3.0 * getSun(rd));
 
     out_Col = vec4(  pow(vec3(finalCol.xyz), vec3(1.0/2.0)), finalCol.w);
     //out_Col = vec4(sceneDepthValue,1.0);

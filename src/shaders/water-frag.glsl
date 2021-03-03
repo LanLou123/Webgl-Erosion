@@ -11,6 +11,7 @@ uniform sampler2D hightmap;
 uniform sampler2D normap;
 uniform sampler2D sceneDepth;
 uniform sampler2D colorReflection;
+uniform sampler2D sedimap;
 
 in float fs_Sine;
 in vec2 fs_Uv;
@@ -58,6 +59,7 @@ void main()
 
     vec2 uv = vec2(gl_FragCoord.xy/u_Dimensions);
     float terrainDepth = texture(sceneDepth,uv).x;
+    float sediment = texture(sedimap,fs_Uv).x;
     float waterDepth = gl_FragCoord.z;
 
     terrainDepth = linearDepth(terrainDepth);
@@ -93,7 +95,7 @@ void main()
 
 
 
-    vec3 watercolor = mix(vec3(0.0,0.6,0.8), vec3(0.0,0.0,0.8), pow(wval,1.0));
+    vec3 watercolor = mix(vec3(0.8,0.0,0.0), vec3(0.0,0.0,0.8), sediment * 2.0);
     vec3 watercolorspec = vec3(1.0);
     watercolorspec *= spec;
 

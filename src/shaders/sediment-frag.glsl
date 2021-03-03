@@ -74,7 +74,7 @@ void main() {
   vec4 newVel = (topvel + rightvel + bottomvel + leftvel + alpha * curvel)/(4.0 + alpha);
 
   //newVel = mix(newVel,curvel,slopeSin);
-  newVel = curvel;
+  //newVel = curvel;
 
   vec4 curSediment = texture(readSediment,curuv);
   vec4 curTerrain = texture(readTerrain,curuv);
