@@ -7,6 +7,8 @@
 
 ![](screenshot/vol.PNG)
 
+![](screenshot/rnd2.PNG)
+
 ### controls : 
 
 - press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
@@ -45,7 +47,7 @@
 
 ![](screenshot/rnd1.PNG)
 
-![](screenshot/rnd2.PNG)
+![](screenshot/rnd3.PNG)
 
 ![](screenshot/lonemountain1.PNG)
 
