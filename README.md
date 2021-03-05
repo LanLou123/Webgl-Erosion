@@ -7,7 +7,7 @@
 
 ![](screenshot/vol.PNG)
 
-![](screenshot/rnd2.PNG)
+![](screenshot/rnd5.PNG)
 
 ### controls : 
 
@@ -44,6 +44,9 @@
 #### yet another delta example
 ![](screenshot/delta2.PNG)
 
+![](screenshot/rnd2.PNG)
+
+![](screenshot/rnd4.PNG)
 
 ![](screenshot/rnd1.PNG)
 
