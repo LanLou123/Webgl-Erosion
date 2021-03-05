@@ -65,7 +65,7 @@ void main()
     terrainDepth = linearDepth(terrainDepth);
     waterDepth = linearDepth(waterDepth);
 
-    float dpVal = 280.0 * max(0.0,terrainDepth - waterDepth);
+    float dpVal = 180.0 * max(0.0,terrainDepth - waterDepth);
     dpVal = clamp(dpVal, 0.0,4.0);
     //dpVal = pow(dpVal, 0.1);
 

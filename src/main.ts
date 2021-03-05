@@ -35,6 +35,53 @@ let simres : number = simresolution;
 
 // aux control buffer (for backup)
 const controlscomp = {
+
+
+    tesselations: 5,
+    pipelen:  1.0,//
+    Kc : 0.8,
+    Ks : 0.025,
+    Kd : 0.004,
+    timestep : 0.1,
+    pipeAra :  0.8,
+    EvaporationDegree : 0.0116,
+    RainDegree : 4.5,
+    spawnposx : 0.5,
+    spawnposy : 0.5,
+    'Load Scene': loadScene, // A function pointer, essentially
+    'Start/Resume' :StartGeneration,
+    'Reset' : Reset,
+    'setTerrainRandom':setTerrainRandom,
+    'Pause' : Pause,
+    TerrainBaseMap : 0,
+    TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace
+    TerrainBiomeType : 1,
+    TerrainScale : 10.0,
+    TerrainHeight : 2.0,
+    TerrainSphereMask : 0,//0 on, 1 off
+    TerrainDebug : 0,
+    WaterTransparency : 0.90,
+    SedimentTrace : 0, // 0 on, 1 off
+    TerrainPlatte : 0, // 0 normal alphine mtn, 1 desert, 2 jungle
+    SnowRange : 0,
+    ForestRange : 5,
+    brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
+    brushSize : 12,
+    brushStrenth : 1.2,
+    brushOperation : 0, // 0 : add, 1 : subtract
+    brushPressed : 0, // 0 : not pressed, 1 : pressed
+    talusAngleFallOffCoeff : 0.9,
+    talusAngleTangentBias : 0.0,
+    thermalRate : 0.5,
+    thermalErosionScale : 1.0,
+    lightPosX : 0.4,
+    lightPosY : 0.2,
+    lightPosZ : -1.0,
+    showScattering : true,
+};
+
+
+const controls = {
     tesselations: 5,
     pipelen:  1.0,//
     Kc : 0.4,
@@ -66,51 +113,6 @@ const controlscomp = {
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 12,
     brushStrenth : 0.5,
-    brushOperation : 0, // 0 : add, 1 : subtract
-    brushPressed : 0, // 0 : not pressed, 1 : pressed
-    talusAngleFallOffCoeff : 0.9,
-    talusAngleTangentBias : 0.0,
-    thermalRate : 0.5,
-    thermalErosionScale : 1.0,
-    lightPosX : 0.4,
-    lightPosY : 0.2,
-    lightPosZ : -1.0,
-    showScattering : true,
-};
-
-
-const controls = {
-  tesselations: 5,
-    pipelen:  1.0,//
-    Kc : 0.8,
-    Ks : 0.025,
-    Kd : 0.004,
-    timestep : 0.1,
-    pipeAra :  0.8,
-    EvaporationDegree : 0.0116,
-    RainDegree : 4.5,
-    spawnposx : 0.5,
-    spawnposy : 0.5,
-    'Load Scene': loadScene, // A function pointer, essentially
-    'Start/Resume' :StartGeneration,
-    'Reset' : Reset,
-    'setTerrainRandom':setTerrainRandom,
-    'Pause' : Pause,
-    TerrainBaseMap : 0,
-    TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace
-    TerrainBiomeType : 1,
-    TerrainScale : 10.0,
-    TerrainHeight : 2.0,
-    TerrainSphereMask : 0,//0 on, 1 off
-    TerrainDebug : 0,
-    WaterTransparency : 0.90,
-    SedimentTrace : 0, // 0 on, 1 off
-    TerrainPlatte : 0, // 0 normal alphine mtn, 1 desert, 2 jungle
-    SnowRange : 0,
-    ForestRange : 5,
-    brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
-    brushSize : 12,
-    brushStrenth : 1.2,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     talusAngleFallOffCoeff : 0.9,
