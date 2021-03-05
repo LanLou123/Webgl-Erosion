@@ -82,9 +82,9 @@ void main() {
     //float newSediVal =
     float sediBlendVal = texture(sediBlend, curuv).x;
 
-    if(sediBlendVal < curSediVal){
-        sediBlendVal = (sediBlendVal + curSediVal) / 2.0;
-    }
+    //if(sediBlendVal < curSediVal){
+        sediBlendVal = (sediBlendVal*360.0 + curSediVal) / 361.0;
+    //}
 
 
 

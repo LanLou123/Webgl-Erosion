@@ -219,12 +219,12 @@ void main()
 
 
     // sediment trace, unstable for now
-//    float sedimentTrace = 0.0;
-//    if(u_SedimentTrace == 0){
-//        sedimentTrace = 1.0 - pow(3.0, -sval*130.0);
-//        sedimentTrace *= pow(abs(nor.y), 3.0);
-//    }
-//    finalcol = mix(finalcol, vec3(174.f/255.f,244.f/255.f,26.f/255.f),sedimentTrace);
+    float sedimentTrace = 0.0;
+    if(u_SedimentTrace == 0){
+        sedimentTrace = 1.0 - pow(3.0, -sval*330.0);
+        sedimentTrace *= pow(abs(nor.y), 3.0);
+    }
+    finalcol = mix(finalcol, vec3(174.f/255.f,244.f/255.f,26.f/255.f),3.0 * sedimentTrace);
 
 
     vec3 normal = lamb*(finalcol) + ambientCol;
