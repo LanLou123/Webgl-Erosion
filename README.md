@@ -38,7 +38,7 @@
 
 ## [**Debug View Demo video**](https://www.youtube.com/watch?v=_OOvdP4mjwo)
 
-## [**Video How 2 create A mountain with simulator**](https://youtu.be/JeMJDxrr-4g)
+## [**Video How 2 create mountains with simulator**](https://youtu.be/fPwkvJVvyWc)
 
 
 ### some screenshots
