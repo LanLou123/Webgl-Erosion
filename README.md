@@ -24,6 +24,9 @@
 - use the dropdown to check the debug views
 - press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
 
+## Results of terrace base terrain (fake different hardness for now, since I haven't implement different layers)
+![](screenshot/r3.PNG)
+
 ## added sediment trace (or hydraulic map)
 ![](screenshot/sedim.PNG)
 
