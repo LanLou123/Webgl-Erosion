@@ -76,7 +76,7 @@ void main() {
 
     vec2 oldloc = vec2(curuv.x-useVel.x*velscale*u_timestep,curuv.y-useVel.y*velscale*u_timestep);
     float oldsedi = texture(sedi, oldloc).x;
-    oldsedi = samplebilinear(oldloc,u_SimRes * 2.0 );
+    oldsedi = samplebilinear(oldloc,u_SimRes * 1.0 );
 
     float curSediVal = length(useVel.xy) * curterrain.y;
     //float newSediVal =
