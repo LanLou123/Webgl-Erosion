@@ -89,7 +89,7 @@ const controls = {
     Kd : 0.004,
     timestep : 0.1,
     pipeAra :  0.8,
-    EvaporationDegree : 0.0001,
+    EvaporationDegree : 0.001,
     RainDegree : 4.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
@@ -106,7 +106,7 @@ const controls = {
     TerrainSphereMask : 0,//0 on, 1 off
     TerrainDebug : 0,
     WaterTransparency : 0.50,
-    SedimentTrace : 0, // 0 on, 1 off
+    SedimentTrace : 1, // 0 on, 1 off
     TerrainPlatte : 0, // 0 normal alphine mtn, 1 desert, 2 jungle
     SnowRange : 0,
     ForestRange : 5,

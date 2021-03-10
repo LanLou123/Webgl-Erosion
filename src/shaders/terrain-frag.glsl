@@ -238,6 +238,7 @@ void main()
         fcol = texture(sedimap,fs_Uv).xyz * 2.0;
     }else if(u_TerrainDebug == 2){
         fcol = abs(texture(velmap,fs_Uv).xyz/2.0);
+        //fcol = vec3(length(texture(velmap,fs_Uv).xyz)/5.0);
         //fcol = nor1;
         //fcol.xy = fcol.xy / 2.0 + vec2(0.5);
     }else if(u_TerrainDebug == 3){
