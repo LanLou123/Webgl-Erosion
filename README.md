@@ -9,7 +9,6 @@
 
 ![](screenshot/vol.PNG)
 
-![](screenshot/rnd5.PNG)
 
 ### controls : 
 
@@ -26,24 +25,18 @@
 - use the dropdown to check the debug views
 - press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
 
-## Results of terrace base terrain (fake different hardness for now, since I haven't implement different layers)
-![](screenshot/r3.PNG)
-
-## added sediment trace (or hydraulic map)
-![](screenshot/sedim.PNG)
-
-![](screenshot/river2.PNG)
-
-- Atmosphere scattering working at full scale :
-
-![](screenshot/atmosphere.PNG)
-
-## [**Debug View Demo video**](https://www.youtube.com/watch?v=_OOvdP4mjwo)
-
-## [**Video How 2 create mountains with simulator**](https://youtu.be/fPwkvJVvyWc)
-
 
 ### some screenshots
+
+#### mountain and vally scenes
+
+![](screenshot/vallymtn.PNG)
+
+![](screenshot/vallymtn2.PNG)
+
+#### Atmosphere scattering working at full scale :
+
+![](screenshot/atmosphere.PNG)
 
 #### a lake in the process of being evaporated, it was originally formed by a river coming downhill
 ![](screenshot/lake.PNG)
@@ -51,9 +44,6 @@
 #### yet another delta example
 ![](screenshot/delta2.PNG)
 
-![](screenshot/vallymtn.PNG)
-
-![](screenshot/vallymtn2.PNG)
 
 ![](screenshot/rnd1.PNG)
 
@@ -61,6 +51,13 @@
 
 ![](screenshot/lonemountain1.PNG)
 
+## added sediment trace (or hydraulic map)
+![](screenshot/sedim.PNG)
+
+
+## [**Debug View Demo video**](https://www.youtube.com/watch?v=_OOvdP4mjwo)
+
+## [**Video How 2 create mountains with simulator**](https://youtu.be/fPwkvJVvyWc)
 
 
 ## Debug view images
