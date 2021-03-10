@@ -51,9 +51,9 @@
 #### yet another delta example
 ![](screenshot/delta2.PNG)
 
-![](screenshot/rnd2.PNG)
+![](screenshot/vallymtn.PNG)
 
-![](screenshot/rnd4.PNG)
+![](screenshot/vallymtn2.PNG)
 
 ![](screenshot/rnd1.PNG)
 
