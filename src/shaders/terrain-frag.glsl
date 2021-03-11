@@ -226,6 +226,7 @@ void main()
     }
     finalcol = mix(finalcol, vec3(174.f/255.f,214.f/255.f,66.f/255.f),clamp(2.0 * sedimentTrace, 0.0, 1.0));
 
+    //finalcol = mix(finalcol, vec3(0.5,0.1,0.1),texture(sedimap,fs_Uv).x);
 
     vec3 normal = lamb*(finalcol) + ambientCol;
     vec3 fcol = normal;

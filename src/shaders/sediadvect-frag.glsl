@@ -80,6 +80,7 @@ void main() {
 
     float curSediVal = length(useVel.xy) * curterrain.y;
     //float newSediVal =
+    //curSediVal = cursedi.x;
     float sediBlendVal = texture(sediBlend, curuv).x;
 
     //if(sediBlendVal < curSediVal){
