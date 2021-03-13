@@ -872,7 +872,7 @@ function SimulationStep(curstep:number,
                         thermalterrainflux:ShaderProgram,
                         thermalapply:ShaderProgram,
                         maxslippageheight : ShaderProgram,
-                        renderer:OpenGLRenderer, 
+                        renderer:OpenGLRenderer,
                         gl:WebGL2RenderingContext,camera:Camera){
     if(PauseGeneration) return true;
     else{
@@ -1578,7 +1578,10 @@ function main() {
     gl.uniform1i(gl.getUniformLocation(combinedShader.prog,"color_tex"),0);
 
     gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, scatter_pass_tex);
+    if(enableBilateralBlur)
+        gl.bindTexture(gl.TEXTURE_2D, bilateral_filter_horizontal_tex);
+    else
+        gl.bindTexture(gl.TEXTURE_2D, scatter_pass_tex);
     gl.uniform1i(gl.getUniformLocation(combinedShader.prog,"bi_tex"),1);
 
     renderer.clear();

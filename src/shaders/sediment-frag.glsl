@@ -100,15 +100,15 @@ void main() {
 
   float velo = length(texture(readVelocity,curuv).xy);
   velo = length(newVel.xy);
-  float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
+  float slope = max(0.1f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo ;// * pow(curTerrain.y,0.2) ;
 
   float lmax = 0.0f;
-  float maxdepth = 0.5;
+  float maxdepth = 0.1;
   if(curTerrain.y > maxdepth){ // max river bed depth
     lmax = 0.0f;
   }else{
-    lmax = 1.0 - ((maxdepth - curTerrain.y)/maxdepth);
+    lmax = ((maxdepth - curTerrain.y)/maxdepth);
   }
 
 

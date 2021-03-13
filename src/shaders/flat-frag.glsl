@@ -216,7 +216,7 @@ vec4 Screen2Clip(vec3 pos){
     clipSpacePos = clipSpacePos/ clipSpacePos.w;
     clipSpacePos.x = (clipSpacePos.x + 1.0) / 2.0;
     clipSpacePos.y = (1.0 - clipSpacePos.y) / 2.0;
-    clipSpacePos.z = (clipSpacePos.z + 1.0) / 2.0;// damn dude, this shit easy to neglect
+    clipSpacePos.z = (clipSpacePos.z + 1.0) / 2.0;// d
     return clipSpacePos;
 }
 
@@ -228,7 +228,6 @@ vec4 Screen2Light(vec3 pos){
 }
 
 #define SCATTER_MARCH_STEPS 15
-#define SCATTER_OUT_MARCH_STEPS 32
 #define SCATTER_MARCH_STEP_SIZE 0.1
 
 vec4 scatter_m(vec3 ro, vec3 rd){

@@ -110,6 +110,7 @@ void main() {
 //            rain = 0.0f;
 //            addwater = 0.0f;
 //      }
+
       rain = 0.0f;
       epsilon = 0.0f;
 //      if(curuv.x<maxx && curuv.x>minx && curuv.y<maxy&&curuv.y>miny){

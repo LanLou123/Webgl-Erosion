@@ -128,7 +128,7 @@ void main()
 
     vec3 forestcol = vec3(63.0/255.0,155.0/255.0,7.0/255.0)*0.6;
     vec3 mtncolor = vec3(0.99,0.99,0.99);
-    vec3 dirtcol = vec3(0.21,0.2,0.2);
+    vec3 dirtcol = vec3(0.25,0.22,0.2);
     vec3 grass = vec3(193.0/255.0,235.0/255.0,27.0/255.0);
     vec3 sand = vec3(214.f/255.f,184.f/255.f,96.f/255.f);
     vec3 watercol = vec3(0.1,0.3,0.8);
@@ -224,7 +224,7 @@ void main()
         sedimentTrace = 1.0 - pow(3.0, -sval*330.0);
         sedimentTrace *= pow(abs(nor.y), 1.0);
     }
-    finalcol = mix(finalcol, vec3(174.f/255.f,214.f/255.f,66.f/255.f),clamp(2.0 * sedimentTrace, 0.0, 1.0));
+    finalcol = mix(finalcol, vec3(214.f/255.f,214.f/255.f,96.f/255.f),clamp(2.0 * sedimentTrace, 0.0, 1.0));
 
     //finalcol = mix(finalcol, vec3(0.5,0.1,0.1),texture(sedimap,fs_Uv).x);
 
