@@ -7,6 +7,8 @@
 
 ![](screenshot/nmtn2.PNG)
 
+![](screenshot/highres.PNG)
+
 ![](screenshot/vol.PNG)
 
 
@@ -64,7 +66,7 @@
 ![](screenshot/sedim.PNG)
 
 
-## [**Debug View Demo video**](https://www.youtube.com/watch?v=_OOvdP4mjwo)
+## [**Demo video**](https://youtu.be/so72wMQ2phU)
 
 ## [**Video How 2 create mountains with simulator**](https://youtu.be/fPwkvJVvyWc)
 
