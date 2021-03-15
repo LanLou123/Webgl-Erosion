@@ -54835,7 +54835,7 @@ const controls = {
     TerrainSphereMask: 1,
     TerrainDebug: 0,
     WaterTransparency: 0.50,
-    SedimentTrace: 1,
+    SedimentTrace: 0,
     TerrainPlatte: 0,
     SnowRange: 0,
     ForestRange: 5,

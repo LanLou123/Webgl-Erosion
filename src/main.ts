@@ -106,7 +106,7 @@ const controls = {
     TerrainSphereMask : 1,//0 on, 1 off
     TerrainDebug : 0,
     WaterTransparency : 0.50,
-    SedimentTrace : 1, // 0 on, 1 off
+    SedimentTrace : 0, // 0 on, 1 off
     TerrainPlatte : 0, // 0 normal alphine mtn, 1 desert, 2 jungle
     SnowRange : 0,
     ForestRange : 5,
