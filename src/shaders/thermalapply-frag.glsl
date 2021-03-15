@@ -44,5 +44,5 @@ void main() {
   vec4 curTerrain = texture(readTerrain, curuv);
 
   //writeTerrain = vec4(curTerrain.x ,curTerrain.y,curTerrain.z,curTerrain.w);
-  writeTerrain = vec4(curTerrain.x ,curTerrain.y,curTerrain.z,curTerrain.w);
+  writeTerrain = vec4(curTerrain.x  + tdelta,curTerrain.y,curTerrain.z,curTerrain.w);
 }

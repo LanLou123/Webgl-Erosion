@@ -18,7 +18,7 @@ var clientHeight : number;
 var lastX = 0;
 var lastY = 0;
 
-const simresolution = 2024;
+const simresolution = 1024;
 const shadowMapResolution = 4096;
 const enableBilateralBlur = false;
 
@@ -99,11 +99,11 @@ const controls = {
     'setTerrainRandom':setTerrainRandom,
     'Pause' : Pause,
     TerrainBaseMap : 0,
-    TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace
+    TerrainBaseType : 2,//0 ordinary fbm, 1 domain warping, 2 terrace
     TerrainBiomeType : 1,
-    TerrainScale : 10.0,
+    TerrainScale : 7.0,
     TerrainHeight : 2.0,
-    TerrainSphereMask : 0,//0 on, 1 off
+    TerrainSphereMask : 1,//0 on, 1 off
     TerrainDebug : 0,
     WaterTransparency : 0.50,
     SedimentTrace : 1, // 0 on, 1 off
@@ -995,7 +995,7 @@ function main() {
   loadScene();
 
 
-  const camera = new Camera(vec3.fromValues(-0.38, 0.3, 0.6), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(0.18, 0.3, 0.6), vec3.fromValues(0, 0, 0));
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.0, 0.0, 0.0, 0);
   gl.enable(gl.DEPTH_TEST);
