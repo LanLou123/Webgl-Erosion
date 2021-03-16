@@ -22,7 +22,7 @@ const simresolution = 1024;
 const shadowMapResolution = 4096;
 const enableBilateralBlur = false;
 
-let speed = 3;
+let speed = 2;
 let SimFramecnt = 0;
 let TerrainGeometryDirty = true;
 let PauseGeneration = false;
