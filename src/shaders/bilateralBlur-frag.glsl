@@ -45,6 +45,7 @@ vec4 BilateralBlur(vec2 curuv, vec2 dir){
       vec4 color = centerColor;
       float weightSum = 0.0;
       float weight = GaussianWeight(0.0, deviation);
+      float al = centerColor.w;
       color *= weight;
       weightSum += weight;
       for(int i = -FULL_RES_BLUR_KERNEL_SIZE; i< 0; i+= 1){
@@ -58,6 +59,7 @@ vec4 BilateralBlur(vec2 curuv, vec2 dir){
 
             weight = GaussianWeight(float(i), deviation) * w;
             color += weight * sampleColor;
+            al += weight * sampleColor.w;
             weightSum += weight;
       }
       for(int i = 1; i< FULL_RES_BLUR_KERNEL_SIZE; i+= 1){
@@ -72,9 +74,13 @@ vec4 BilateralBlur(vec2 curuv, vec2 dir){
 
             weight = GaussianWeight(float(i), deviation) * w;
             color += weight * sampleColor;
+            al += weight * sampleColor.w;
             weightSum += weight;
       }
       color /= weightSum;
+      al /= weightSum;
+
+      color.w = 1.0;
       return color;
 
 }

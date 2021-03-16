@@ -78,6 +78,7 @@ const controlscomp = {
     lightPosY : 0.2,
     lightPosZ : -1.0,
     showScattering : true,
+
 };
 
 
@@ -123,6 +124,7 @@ const controls = {
     lightPosY : 0.2,
     lightPosZ : -1.0,
     showScattering : true,
+    enableBilateralBlur : true,
 };
 
 
@@ -335,7 +337,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
 
     gl.viewport(0,0,simres,simres);
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
-    
+
     renderer.clear();
     shader.use();
 
@@ -354,15 +356,15 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     renderer.render(camera,shader,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
-    
-    
+
+
     //-----swap flux ping and pong
 
 
     tmp = read_flux_tex;
     read_flux_tex = write_flux_tex;
     write_flux_tex = tmp;
-    
+
     //-----swap flux ping and pong
 
     //////////////////////////////////////////////////////////////////
@@ -370,7 +372,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     // hight map + flux map -----> velocity map + hight map
     //////////////////////////////////////////////////////////////////
 
-    
+
     gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_terrain_tex,0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,write_vel_tex,0);
@@ -954,6 +956,7 @@ function main() {
     renderingpara.add(controls, 'ForestRange', 0.0, 50.0);
     renderingpara.add(controls,'SedimentTrace',{ON : 0, OFF : 1});
     renderingpara.add(controls,'showScattering');
+    renderingpara.add(controls,'enableBilateralBlur');
     var renderingparalightpos = renderingpara.addFolder('Shadow map LightPos/Dir');
     renderingparalightpos.add(controls,'lightPosX',-1.0,1.0);
     renderingparalightpos.add(controls,'lightPosY',0.0,1.0);
@@ -1522,7 +1525,7 @@ function main() {
 
 
     // ======================== pass 5 : bilateral blurring pass ==================================
-      if(enableBilateralBlur) {
+      if(controls.enableBilateralBlur) {
           let NumBlurPass = 6;
           for (let i = 0; i < NumBlurPass; ++i) {
 
@@ -1578,11 +1581,15 @@ function main() {
     gl.uniform1i(gl.getUniformLocation(combinedShader.prog,"color_tex"),0);
 
     gl.activeTexture(gl.TEXTURE1);
-    if(enableBilateralBlur)
+    if(controls.enableBilateralBlur)
         gl.bindTexture(gl.TEXTURE_2D, bilateral_filter_horizontal_tex);
     else
         gl.bindTexture(gl.TEXTURE_2D, scatter_pass_tex);
     gl.uniform1i(gl.getUniformLocation(combinedShader.prog,"bi_tex"),1);
+
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, scene_depth_tex);
+    gl.uniform1i(gl.getUniformLocation(combinedShader.prog,"sceneDepth_tex"),2);
 
     renderer.clear();
     renderer.render(camera, combinedShader, [

@@ -227,7 +227,7 @@ vec4 Screen2Light(vec3 pos){
     return lightSpacePos;
 }
 
-#define SCATTER_MARCH_STEPS 15
+#define SCATTER_MARCH_STEPS 10
 #define SCATTER_MARCH_STEP_SIZE 0.1
 
 vec4 scatter_m(vec3 ro, vec3 rd){
@@ -246,7 +246,7 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     //rayAttenuation = clamp(rayAttenuation, 0.0, 1.0);
 
     vec4 col = vec4(0.0);
-    vec3 fog_col = 0.6 *  vec3(0.6,0.6,1.0) * clamp(rayAttenuation,0.0,1.0);
+    vec3 fog_col = 1.0 *  vec3(0.6,0.6,0.6) * clamp(rayAttenuation,0.0,1.0);
     float fog_alpha = 1.0 * rayAttenuation;
     float scatter_alpha_acc_all = fog_alpha / float(SCATTER_MARCH_STEPS);
     float scatter_alpha_acc = scatter_alpha_acc_all*1.0/ 14.0;
@@ -340,6 +340,7 @@ void main() {
     }else{
         finalCol = scatter_m(ro,rd);
         finalCol.xyz = vec3(1.0) - exp(-finalCol.xyz * 2.0 ); //fog fall off
+        finalCol.xyz = pow(finalCol.xyz, vec3(2.0)); // make fog more esay to accumulate based on dis
         float sunAmount = max(dot(rd, normalize(unif_LightPos)),0.0);
         finalCol.xyz *= mix(vec3(0.6,0.6,0.6) * 0.6,hue, pow(sunAmount, 8.0));
         finalCol.w *= 1.0;

@@ -166,6 +166,20 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - thermal appy step : ```terrain/slippage flux map -----> terrain map```
    - Water evaporation step : ```terrain map -----> terrain map```
   
+#### a comparision of bilateral blurred passes applied and bilateral blurred passes not applied (the setup I used : bayer 4x4 dither, 5 ray marching steps pps , 6 times hrizontal vertical bilateral blurring based on scene depth with gaussian kernel size being 14)
+
+blur off | blur on
+------|------
+![](screenshot/blurred.PNG)|![](screenshot/unblurred.PNG)
+
+
+### Rendering
+   - simple shadowmapping with a small pcf kernel
+   - Background Raleigh & Mie scattering atmosphere scattering based on scientific approximation and this [amazing example](https://github.com/wwwtyro/glsl-atmosphere)
+   - another Close range Mie atmosphere scattering was also added since I feel Raleigh scattering cannot show good enough results if we choose sample points too close to camera, this one is a bit trickyer than previous, since it involves accessing depth buffers from previous render passes(shadow map) and current pass(scene depth buffer) to compare, raymarching&sampling methods is similar to previous Raleigh scattering steps, the difference here is that we also need to do depth comparision between sample point (scene depth map for in scattering and shadow map for out scattering)
+   - since we want to maximize the performance, we don't want to have too many march steps, but if we use too little steps, a very ugly banding effect would occur, one method we can do to alliviate this is to use a dithering matrix to jitter the ray at the beginning of each raymarching for current active frame, the result is pretty good, I can use march step number as small as 5, and the result is still good, however, dithering also brings small artifact by itself, I used a mutipass(horizontal/vertical both for 6 times) depth sensitive bilateral blurring shader to reduce the artifact and preseve the edge, the image above shows how blurring helps with alleviate the dithering pattern , idea based on : [Volumetric Lights for Unity 5](https://github.com/SlightlyMad/VolumetricLights).
+
+
 ### Terrain Editor
    - Terrain edition is implemented with a ray caster on CPU,
    - mouse position has to be transfered from screen space to world space first on CPU
@@ -173,15 +187,8 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - ray cast into the height map buffer to estimate collison location
    - sidenote here : threeJS's orbitcontrol has a function call in it's onMouseDown callback named ```event.preventDefault()`` to disable further mouseMoveEvent callbacks so that only it's own member has access to mouse pos, this happened to make my mousecallback responsible for raycasting ineffective, need to remember comment out that preventdefault thingy when simmilar things happen in the future
 
-### Rendering
-   - simple shadowmapping with a small pcf kernel
-   - Background Raleigh & Mie scattering atmosphere scattering based on scientific approximation and this [amazing example](https://github.com/wwwtyro/glsl-atmosphere)
-   - another Close range Mie atmosphere scattering was also added since I feel Raleigh scattering cannot show good enough results if we choose sample points too close to camera, this one is a bit trickyer than previous, since it involves accessing depth buffers from previous render passes(shadow map) and current pass(scene depth buffer) to compare, raymarching&sampling methods is similar to previous Raleigh scattering steps, the difference here is that we also need to do depth comparision between sample point (scene depth map for in scattering and shadow map for out scattering)
-   - since we want to maximize the performance, we don't want to have too many march steps, but if we use too little steps, a very ugly banding effect would occur, one method we can do to alliviate this is to use a dithering matrix to jitter the ray at the beginning of each raymarching for current active frame, the result is pretty good, I can use march step number as small as 15, and the result is still good, however, dithering also brings small artifact by itself, I used a mutipass(horizontal/vertical both for 5 times) depth sensitive bilateral blurring shader to reduce the artifact and preseve the edge, idea based on : [Volumetric Lights for Unity 5](https://github.com/SlightlyMad/VolumetricLights).
 
-#### atmosphere scattering in action : 
 
-![](screenshot/ady.gif)
 
 ### Future Plans:
 - Better GUI & Visulization
