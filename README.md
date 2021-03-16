@@ -168,9 +168,11 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
   
 #### a comparision of bilateral blurred passes applied and bilateral blurred passes not applied (the setup I used : bayer 4x4 dither, 5 ray marching steps pps , 6 times hrizontal vertical bilateral blurring based on scene depth with gaussian kernel size being 14)
 
-blur off | blur on
-------|------
-![](screenshot/blurred.PNG)|![](screenshot/unblurred.PNG)
+- Blur On 
+![](screenshot/blurred.PNG)
+
+- Blur Off
+![](screenshot/unblurred.PNG)
 
 
 ### Rendering
@@ -191,6 +193,7 @@ blur off | blur on
 
 
 ### Future Plans:
+- Depth upsampling/downsampling for better edge effect for volumetric rendering
 - Better GUI & Visulization
 - muti-layered(rock/sand/etc) erosion
 - Terrain features like instaced tree placements
