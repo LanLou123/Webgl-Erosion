@@ -22,13 +22,13 @@ const simresolution = 1024;
 const shadowMapResolution = 4096;
 const enableBilateralBlur = false;
 
-let speed = 2;
+let speed = 3;
 let SimFramecnt = 0;
 let TerrainGeometryDirty = true;
 let PauseGeneration = false;
 let HightMapCpuBuf = new Float32Array(simresolution * simresolution * 4); // height map CPU read back buffer, for CPU raycast & collision physics
 let HightMapBufCounter  = 0;
-let MaxHightMapBufCounter = 60; // determine how many frame to update CPU buffer of terrain hight map for ray casting on CPU
+let MaxHightMapBufCounter = 200; // determine how many frame to update CPU buffer of terrain hight map for ray casting on CPU
 let simres : number = simresolution;
 
 
