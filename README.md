@@ -52,16 +52,6 @@
 #### a lake in the process of being evaporated, it was originally formed by a river coming downhill
 ![](screenshot/lake.PNG)
 
-#### yet another delta example
-![](screenshot/delta2.PNG)
-
-
-![](screenshot/rnd1.PNG)
-
-![](screenshot/rnd3.PNG)
-
-![](screenshot/lonemountain1.PNG)
-
 ## added sediment trace (or hydraulic map)
 ![](screenshot/sedim.PNG)
 
@@ -69,28 +59,6 @@
 ## [**Demo video**](https://youtu.be/so72wMQ2phU)
 
 ## [**Video How 2 create mountains with simulator**](https://youtu.be/fPwkvJVvyWc)
-
-
-## Debug view images
-
-### Sediment map
-
-- ![](screenshot/placeholder.PNG)
-
-### Velocity map
-
-- ![](screenshot/placeholder.PNG)
-
-### Water coverage map
-
-- ![](screenshot/placeholder.PNG)
-
-### Flux map
-
-- ![](screenshot/placeholder.PNG)
-
-
-
 
 
 
