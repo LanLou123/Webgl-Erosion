@@ -20,7 +20,7 @@ layout (location = 0) out vec4 result;
 in vec2 fs_Pos;
 
 #define GAUSS_BLUR_DEVIATION 1.5
-#define FULL_RES_BLUR_KERNEL_SIZE 7
+#define FULL_RES_BLUR_KERNEL_SIZE 3
 #define PI 3.1415926
 #define BLUR_DEPTH_FACTOR 0.5
 

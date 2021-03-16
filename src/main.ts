@@ -1526,7 +1526,7 @@ function main() {
 
     // ======================== pass 5 : bilateral blurring pass ==================================
       if(controls.enableBilateralBlur) {
-          let NumBlurPass = 6;
+          let NumBlurPass = 4;
           for (let i = 0; i < NumBlurPass; ++i) {
 
               gl.bindFramebuffer(gl.FRAMEBUFFER, deferred_frame_buffer);
