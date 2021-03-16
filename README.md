@@ -53,7 +53,7 @@
 ![](screenshot/lake.PNG)
 
 ## added sediment trace (or hydraulic map)
-![](screenshot/sedim.PNG)
+![](screenshot/rr.PNG)
 
 
 ## [**Demo video**](https://youtu.be/so72wMQ2phU)
