@@ -58,6 +58,6 @@ void main() {
         col = 1.0;
     }
 
-    writeTerrain = vec4(cur.x,cur.y,cur.z,cur.w);
+    writeTerrain = vec4(cur_h,cur.y,cur.z,cur.w);
     writeAvg = vec4(vec3(col), 1.0);
 }
