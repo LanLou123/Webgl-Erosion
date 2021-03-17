@@ -238,7 +238,7 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     float rayAttenuation = 1.0 * linearSceneDepthVal;
 
 
-    float stepSize = ((linearSceneDepthVal ) / float(SCATTER_MARCH_STEPS)) ;
+    float stepSize = ((linearSceneDepthVal + 0.0) / float(SCATTER_MARCH_STEPS)) ;
     if(sceneDepthValue.x == 0.0){
         stepSize = 0.2;
         rayAttenuation = 1.0;
@@ -283,13 +283,17 @@ vec4 scatter_m(vec3 ro, vec3 rd){
         }
         if(lightSpacePos.z < shadowMapDepth || shadowMapDepth==0.0){
             col += vec4(scatter_col_acc_out,scatter_alpha_acc_out);
+        }else{
+            float diff = linearDepth(lightSpacePos.z) - linearDepth(shadowMapDepth);
+            col -= 2.0 * diff * vec4(scatter_col_acc_out,scatter_alpha_acc_out) / SCATTER_MARCH_STEP_SIZE;
+
         }
 
 
         if(sceneDepthValue.x < clipSpacePos.z  && sceneDepthValue.x != 0.0){
-            float diff = linearDepth(clipSpacePos.z) - linearDepth(sceneDepthValue.x);
+
             //col -= diff * vec4(scatter_col_acc,scatter_alpha_acc) / SCATTER_MARCH_STEP_SIZE;
-            break;
+           break;
         }
         //vec3 attn = exp( -)
 

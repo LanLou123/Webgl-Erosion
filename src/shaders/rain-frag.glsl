@@ -85,7 +85,7 @@ void main() {
                   }else if(u_BrushType == 2 && u_BrushPressed == 1){
                         addwater =  amount * dens * 280.0;
                         float aw = noise(vec3(curuv * 100.0, u_Time));
-                        //addwater *= aw;
+                        addwater *= aw;
                         addwater = u_BrushOperation == 0 ? addwater : -addwater;
                   }
 

@@ -102,7 +102,7 @@ const controls = {
     TerrainBaseMap : 0,
     TerrainBaseType : 2,//0 ordinary fbm, 1 domain warping, 2 terrace
     TerrainBiomeType : 1,
-    TerrainScale : 7.0,
+    TerrainScale : 2.0,
     TerrainHeight : 2.0,
     TerrainSphereMask : 1,//0 on, 1 off
     TerrainDebug : 0,
@@ -924,7 +924,7 @@ function main() {
     simcontrols.add(controls,'Reset');
     simcontrols.open();
     var terrainParameters = gui.addFolder('Terrain Parameters');
-    terrainParameters.add(controls,'TerrainScale', 0.1, 10.0);
+    terrainParameters.add(controls,'TerrainScale', 0.1, 4.0);
     terrainParameters.add(controls,'TerrainHeight', 1.0, 2.0);
     terrainParameters.add(controls,'TerrainSphereMask',{ON : 0 ,OFF : 1});
     terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2});
