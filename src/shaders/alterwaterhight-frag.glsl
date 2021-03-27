@@ -27,6 +27,13 @@ void main(){
   float pipelen = u_PipeLen;
 
 
+  //
+  //      x
+  //  w   c   y
+  //      z
+  //
+
+
   vec4 topflux = texture(readFlux,curuv+vec2(0.f,div));
   vec4 rightflux = texture(readFlux,curuv+vec2(div,0.f));
   vec4 bottomflux = texture(readFlux,curuv+vec2(0.f,-div));
@@ -47,6 +54,7 @@ void main(){
 
   float fout = ftopout+frightout+fbottomout+fleftout;
   float fin = topflux.z+rightflux.w+bottomflux.x+leftflux.y;
+  fin = inputflux.x + inputflux.y + inputflux.z + inputflux.w;
 
   float deltavol = u_timestep*(fin-fout)/(u_PipeLen*u_PipeLen);
 

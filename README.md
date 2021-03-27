@@ -3,6 +3,8 @@
 
 ## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
 
+## [**Demo Video showing sandbox feature**](https://youtu.be/hexXjWoa_hM)
+
 ![](screenshot/nmtn.PNG)
 
 ![](screenshot/nmtn2.PNG)
@@ -54,11 +56,6 @@
 
 ## added sediment trace (or hydraulic map)
 ![](screenshot/rr.PNG)
-
-
-## [**Demo video**](https://youtu.be/so72wMQ2phU)
-
-## [**Video How 2 create mountains with simulator**](https://youtu.be/fPwkvJVvyWc)
 
 
 

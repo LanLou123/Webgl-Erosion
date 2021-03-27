@@ -71,6 +71,7 @@ void main() {
 
 
   float damping = 0.9999;
+  //damping = 1.0;
   float k = min(1.f,((curTerrain.y )*u_PipeLen*u_PipeLen)/(u_timestep*(ftopout+frightout+fbottomout+fleftout))) * damping;
   //k = 1.0;
   //rescale outflow readFlux so that outflow don't exceed current water volume

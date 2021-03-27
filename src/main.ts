@@ -924,7 +924,7 @@ function main() {
     simcontrols.add(controls,'Reset');
     simcontrols.open();
     var terrainParameters = gui.addFolder('Terrain Parameters');
-    terrainParameters.add(controls,'TerrainScale', 0.1, 4.0);
+    terrainParameters.add(controls,'TerrainScale', 0.00, 4.0);
     terrainParameters.add(controls,'TerrainHeight', 1.0, 2.0);
     terrainParameters.add(controls,'TerrainSphereMask',{ON : 0 ,OFF : 1});
     terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2});
