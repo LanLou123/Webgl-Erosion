@@ -145,7 +145,7 @@ void main() {
 
     float c_mask = circle_mask(uv);
   vec2 cpos = 1.5 * uv * u_TerrainScale;
-  cpos = cpos + vec2(2.f*mod(u_Time,100.f) + 158.0,2.0 * mod(u_Time,100.f)+21.f);
+  cpos = cpos + vec2(1.f*mod(u_Time,5.f)+0.2,1.0 * mod(u_Time,5.f)+0.8);
   float terrain_hight = fbm(cpos*2.0);
 
     terrain_hight = pow(terrain_hight,3.0)/1.0;
