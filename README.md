@@ -45,7 +45,6 @@
 
 ![](screenshot/vallymtn.PNG)
 
-![](screenshot/vallymtn2.PNG)
 
 #### Atmosphere scattering working at full scale :
 

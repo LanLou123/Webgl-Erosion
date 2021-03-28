@@ -108,7 +108,7 @@ float fbm (in vec2 st) {
     for (int i = 0; i < OCTAVES; i++) {
         value += amplitude * noise(st);//iqnoise(st,1.f,1.f);
         st *= 2.0;
-        amplitude *= .33;
+        amplitude *= .53;
     }
     return value;
 }
@@ -155,7 +155,7 @@ void main() {
         terrain_hight = domainwarp(cpos * 2.0)/3.0;
     }
 
-    terrain_hight *= u_TerrainHeight*500.0;
+    terrain_hight *= u_TerrainHeight*100.0;
     if(u_TerrainSphereMask == 0){
         terrain_hight *= 2.0 * pow(c_mask, 1.0);
     }
