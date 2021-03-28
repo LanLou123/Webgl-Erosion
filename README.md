@@ -8,7 +8,7 @@
 
 ![](screenshot/nmtn2.PNG)
 
-![](screenshot/_New3.PNG.PNG)
+![](screenshot/new3.PNG.PNG)
 
 ![](screenshot/vol.PNG)
 
