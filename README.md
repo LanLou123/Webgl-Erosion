@@ -5,11 +5,10 @@
 
 ## [**Demo Video showing sandbox feature**](https://youtu.be/hexXjWoa_hM)
 
-![](screenshot/nmtn.PNG)
 
 ![](screenshot/nmtn2.PNG)
 
-![](screenshot/highres.PNG)
+![](screenshot/new3.PNG)
 
 ![](screenshot/vol.PNG)
 
@@ -40,6 +39,8 @@
 
 #### desert terrace
 ![](screenshot/dessertterrace.PNG)
+
+![](screenshot/new.PNG)
 
 #### mountain and vally scenes
 

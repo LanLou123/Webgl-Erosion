@@ -155,7 +155,7 @@ void main() {
         terrain_hight = domainwarp(cpos * 2.0)/3.0;
     }
 
-    terrain_hight *= u_TerrainHeight*100.0;
+    terrain_hight *= u_TerrainHeight*120.0;
     if(u_TerrainSphereMask == 0){
         terrain_hight *= 2.0 * pow(c_mask, 1.0);
     }
