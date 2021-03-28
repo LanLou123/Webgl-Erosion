@@ -34,11 +34,10 @@
 #### river forming lake
 ![](screenshot/riverlake.PNG)
 
-#### crator
-![](screenshot/crator.PNG)
 
-#### desert terrace
-![](screenshot/dessertterrace.PNG)
+![](screenshot/new2.PNG)
+
+![](screenshot/new3.PNG)
 
 ![](screenshot/new.PNG)
 

@@ -71,7 +71,7 @@ float noise2(vec2 st) {
 
 //smooth========================================================================
 
-#define OCTAVES 12
+#define OCTAVES 22
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -145,7 +145,7 @@ void main() {
 
     float c_mask = circle_mask(uv);
   vec2 cpos = 1.5 * uv * u_TerrainScale;
-  cpos = cpos + vec2(1.f*mod(u_Time,5.f)+0.2,1.0 * mod(u_Time,5.f)+0.8);
+  cpos = cpos + vec2(1.f*mod(u_Time,10.f)+0.2,1.0 * mod(u_Time,10.f)+0.8);
   float terrain_hight = fbm(cpos*2.0);
 
     terrain_hight = pow(terrain_hight,3.0)/1.0;
