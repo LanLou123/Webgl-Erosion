@@ -280,7 +280,7 @@ void main()
             else if (ssval > large){
                 ss = mix(vec3(0.0, 0.5, 0.99), vec3(0.0, 0.0, 0.99), (ssval - large)/(1.0 - large));
             }
-            fcol = mix(fcol, ss * lamb, ssval);
+            fcol = mix(fcol, max(ss * lamb, vec3(0.0)), ssval);
         }
 
 
