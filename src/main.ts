@@ -942,7 +942,7 @@ function main() {
     thermalerosionpara.add(controls,'talusAngleTangentBias',0.0, 0.01 );
     thermalerosionpara.add(controls,'thermalRate',0.0, 1.0 );
     thermalerosionpara.add(controls,'thermalErosionScale',0.0, 10.0 );
-    thermalerosionpara.open();
+    //thermalerosionpara.open();
     var terraineditor = gui.addFolder('Terrain Editor');
     terraineditor.add(controls,'brushType',{NoBrush : 0, TerrainBrush : 1, WaterBrush : 2});
     terraineditor.add(controls,'brushSize',0.1, 20.0);
@@ -957,10 +957,11 @@ function main() {
     renderingpara.add(controls,'SedimentTrace',{ON : 0, OFF : 1});
     renderingpara.add(controls,'showScattering');
     renderingpara.add(controls,'enableBilateralBlur');
-    var renderingparalightpos = renderingpara.addFolder('Shadow map LightPos/Dir');
+    var renderingparalightpos = renderingpara.addFolder('sunPos/Dir');
     renderingparalightpos.add(controls,'lightPosX',-1.0,1.0);
     renderingparalightpos.add(controls,'lightPosY',0.0,1.0);
     renderingparalightpos.add(controls,'lightPosZ',-1.0,1.0);
+    renderingparalightpos.open();
     renderingpara.open();
 
   // get canvas and webgl context

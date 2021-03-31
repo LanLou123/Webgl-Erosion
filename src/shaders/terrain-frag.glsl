@@ -264,6 +264,26 @@ void main()
 
     fcol = clamp(fcol, vec3(0.0), vec3(1.0));
     if(!debug){
+
+
+        if(u_SedimentTrace == 0){
+            float ssval = texture(sedimap, fs_Uv).x;
+            ssval = max(min(pow(2.0 * ssval, 0.6), 1.0), 0.0);
+            vec3 ss = vec3(0.8, 0.8, 0.8);
+            float small = 0.2, large = 0.3;
+            if (ssval <=small){
+                ss = mix(ss, vec3(0.99, 0.99, 0.0), ssval/small);
+
+            } else if (ssval > small && ssval <= large){
+                ss = mix(vec3(0.99, 0.99, 0.0), vec3(0.0, 0.5, 0.99), (ssval - small)/(large - small));
+            }
+            else if (ssval > large){
+                ss = mix(vec3(0.0, 0.5, 0.99), vec3(0.0, 0.0, 0.99), (ssval - large)/(1.0 - large));
+            }
+            fcol = mix(fcol, ss * lamb, ssval);
+        }
+
+
         fcol *= shadowCol * hue;
     }
     vec3 tmpCol = fcol;
@@ -271,7 +291,8 @@ void main()
 
 
 
-    out_Col = vec4(vec3(fcol)*1.0,1.f);
+
+    out_Col = vec4(vec3(fcol)*1.0 ,1.f);
     col_reflect = vec4(tmpCol,1.0);
     //out_Col = vec4(vec3(shadowColorVal),1.0);
 }
