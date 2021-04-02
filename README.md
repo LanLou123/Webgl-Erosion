@@ -31,6 +31,9 @@
 
 ### some screenshots
 
+#### updated sediment trace
+![](screenshot/trace.PNG)
+
 #### river forming lake
 ![](screenshot/riverlake.PNG)
 

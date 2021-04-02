@@ -270,7 +270,7 @@ void main()
             float ssval = texture(sedimap, fs_Uv).x;
             ssval = max(min(pow(2.0 * ssval, 0.6), 1.0), 0.0);
             vec3 ss = vec3(0.8, 0.8, 0.8);
-            float small = 0.2, large = 0.3;
+            float small = 0.1, large = 0.2;
             if (ssval <=small){
                 ss = mix(ss, vec3(0.99, 0.99, 0.0), ssval/small);
 

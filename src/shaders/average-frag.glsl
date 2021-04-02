@@ -52,8 +52,8 @@ void main() {
 //    }
 
     //four dir average
-    if(((abs(r_d) > threathhold || abs(l_d) > threathhold)&& r_d*l_d > 0.0)||
-    ((abs(t_d) > threathhold || abs(b_d) > threathhold) && t_d * b_d > 0.0)){
+    if(((pow(abs(r_d),1.0) > threathhold || pow(abs(l_d),1.0) > threathhold)&& r_d*l_d > 0.0)||
+    ((pow(abs(t_d),1.0) > threathhold || pow(abs(b_d),1.0) > threathhold) && t_d * b_d > 0.0)){
         cur_h = (cur.x * curWeight + top.x + right.x + bottom.x + left.x )/(4.0+curWeight);
         col = 1.0;
     }
