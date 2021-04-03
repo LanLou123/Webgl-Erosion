@@ -108,7 +108,7 @@ const controls = {
     TerrainDebug : 0,
     WaterTransparency : 0.50,
     SedimentTrace : 0, // 0 on, 1 off
-    TerrainPlatte : 0, // 0 normal alphine mtn, 1 desert, 2 jungle
+    TerrainPlatte : 1, // 0 normal alphine mtn, 1 desert, 2 jungle
     SnowRange : 0,
     ForestRange : 5,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
@@ -121,7 +121,7 @@ const controls = {
     thermalRate : 0.5,
     thermalErosionScale : 1.0,
     lightPosX : 0.4,
-    lightPosY : 0.2,
+    lightPosY : 0.09,
     lightPosZ : -1.0,
     showScattering : true,
     enableBilateralBlur : true,
