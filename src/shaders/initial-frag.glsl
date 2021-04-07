@@ -113,6 +113,11 @@ float fbm (in vec2 st) {
     return value;
 }
 
+float voroni(in vec2 ss){
+    float qq = iqnoise(ss * 2.0, 2.0f, 2.0f);
+    return qq;
+}
+
 float teR(float h) {
     float W = 0.06; // width of terracing bands
     float k = floor(h / W);
@@ -146,13 +151,15 @@ void main() {
     float c_mask = circle_mask(uv);
   vec2 cpos = 1.5 * uv * u_TerrainScale;
   cpos = cpos + vec2(1.f*mod(u_Time,10.f)+0.2,1.0 * mod(u_Time,10.f)+0.8);
-  float terrain_hight = fbm(cpos*2.0);
+  float terrain_hight = fbm(cpos*2.0)/1.0;
 
     terrain_hight = pow(terrain_hight,3.0)/1.0;
     if(u_terrainBaseType == 2){
         terrain_hight = teR(terrain_hight);
     }else if(u_terrainBaseType == 1){
-        terrain_hight = domainwarp(cpos * 2.0)/3.0;
+        terrain_hight = domainwarp(cpos * 2.0)/1.0;
+    }else if(u_terrainBaseType == 3){
+        terrain_hight = voroni(cpos * 2.0)/3.0;
     }
 
     terrain_hight *= u_TerrainHeight*120.0;

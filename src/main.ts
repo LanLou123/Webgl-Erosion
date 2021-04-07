@@ -100,7 +100,7 @@ const controls = {
     'setTerrainRandom':setTerrainRandom,
     'Pause' : Pause,
     TerrainBaseMap : 0,
-    TerrainBaseType : 2,//0 ordinary fbm, 1 domain warping, 2 terrace
+    TerrainBaseType : 2,//0 ordinary fbm, 1 domain warping, 2 terrace, 3 voroni
     TerrainBiomeType : 1,
     TerrainScale : 2.0,
     TerrainHeight : 2.0,
@@ -927,7 +927,7 @@ function main() {
     terrainParameters.add(controls,'TerrainScale', 0.00, 4.0);
     terrainParameters.add(controls,'TerrainHeight', 1.0, 2.0);
     terrainParameters.add(controls,'TerrainSphereMask',{ON : 0 ,OFF : 1});
-    terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2});
+    terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2, voroni : 3});
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
