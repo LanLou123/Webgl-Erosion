@@ -30,7 +30,10 @@
 
 
 ### some screenshots
-
+- before
+![](screenshot/bf.PNG) 
+- after
+![](screenshot/af.PNG)
 
 ![](screenshot/tr2.PNG)
 
@@ -55,12 +58,7 @@
 
 ![](screenshot/atmosphere.PNG)
 
-#### a lake in the process of being evaporated, it was originally formed by a river coming downhill
-![](screenshot/lake.PNG)
-
-## added sediment trace (or hydraulic map)
-![](screenshot/rr.PNG)
-
+ 
 
 
 ### Base terrain generation:
