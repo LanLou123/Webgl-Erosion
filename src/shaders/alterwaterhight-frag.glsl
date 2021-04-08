@@ -71,7 +71,7 @@ void main(){
 
 
   //veloci *= 100000.0;
-    if(da <= 1e-5) {
+    if(da <= 1e-4) {
       veloci = vec2(0.0);
     }else{
       veloci = veloci/(da * u_PipeLen);

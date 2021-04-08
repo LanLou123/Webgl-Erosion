@@ -12,6 +12,18 @@ layout (location = 1) out vec4 writeAvg;
 uniform float u_SimRes;
 in vec2 fs_Pos;
 
+vec3 calnor(vec2 uv){
+    float eps = 1.f/u_SimRes;
+    vec4 cur = texture(readTerrain,uv);
+    vec4 r = texture(readTerrain,uv+vec2(eps,0.f));
+    vec4 t = texture(readTerrain,uv+vec2(0.f,eps));
+    vec4 b = texture(readTerrain,uv+vec2(0.f,-eps));
+    vec4 l = texture(readTerrain,uv+vec2(-eps,0.f));
+
+    vec3 nor = vec3(l.x - r.x, 2.0, t.x - b.x);
+    nor = -normalize(nor);
+    return nor;
+}
 
 void main() {
 
@@ -19,6 +31,9 @@ void main() {
     float div = 1.0/u_SimRes;
     vec2 curuv = 0.5f*fs_Pos+0.5f;
     vec4 cur = texture(readTerrain,curuv);
+    vec3 nor = calnor(curuv);
+    //float dval = abs(dot(nor, vec3(0.0, 1.0, 0.0)));
+    //threathhold *= dval;
 
     vec4 top = texture(readTerrain,curuv+vec2(0.f,div));
     vec4 topright = texture(readTerrain,curuv+vec2(div,div));
@@ -43,11 +58,11 @@ void main() {
     float curWeight = 5.0;
 
     //eight dir average
-//    if(((abs(r_d) > threathhold || abs(l_d) > threathhold)&& r_d*l_d > 0.0)||
-//    ((abs(t_d) > threathhold || abs(b_d) > threathhold) && t_d * b_d > 0.0)||
-//    ((abs(tr_d) > threathhold || abs(bl_d) > threathhold) && tr_d * bl_d > 0.0)||
-//    ((abs(tl_d) > threathhold || abs(br_d) > threathhold) && tl_d * br_d > 0.0)){
-//        cur_h = (cur.x + top.x + right.x + bottom.x + left.x + topright.x + topleft.x + bottomleft.x + bottomright.x)/9.0;
+//    if(((abs(r_d) > threathhold && abs(l_d) > threathhold)&& r_d*l_d > 0.0)||
+//    ((abs(t_d) > threathhold && abs(b_d) > threathhold) && t_d * b_d > 0.0)||
+//    ((abs(tr_d) > threathhold && abs(bl_d) > threathhold) && tr_d * bl_d > 0.0)||
+//    ((abs(tl_d) > threathhold && abs(br_d) > threathhold) && tl_d * br_d > 0.0)){
+//        cur_h = (cur.x * curWeight + top.x + right.x + bottom.x + left.x + topright.x + topleft.x + bottomleft.x + bottomright.x)/(8.0 + curWeight);
 //        col = 1.0;
 //    }
 
@@ -56,7 +71,21 @@ void main() {
     ((pow(abs(t_d),1.0) > threathhold || pow(abs(b_d),1.0) > threathhold) && t_d * b_d > 0.0)){
         cur_h = (cur.x * curWeight + top.x + right.x + bottom.x + left.x )/(4.0+curWeight);
         col = 1.0;
+    }else{
+        col = 0.0;
     }
+
+    //four dir average
+//    if(((pow(abs(r_d),1.0) > threathhold && pow(abs(l_d),1.0) > threathhold)&& r_d*l_d > 0.0)||
+//    ((pow(abs(t_d),1.0) > threathhold && pow(abs(b_d),1.0) > threathhold) && t_d * b_d > 0.0)){
+//        cur_h = (cur.x * curWeight + top.x + right.x + bottom.x + left.x )/(4.0+curWeight);
+//        col = 1.0;
+//    }
+
+//    if((abs(r_d) > threathhold) && (abs(l_d) > threathhold) && (abs(b_d) > threathhold) && (abs(t_d) > threathhold) && ((l_d > 0.0 && b_d > 0.0&& t_d > 0.0 && r_d > 0.0) || (l_d < 0.0 && b_d < 0.0&& t_d < 0.0 && r_d < 0.0))){
+//                cur_h = (cur.x * curWeight + top.x + right.x + bottom.x + left.x )/(4.0+curWeight);
+//                col = 1.0;
+//    }
 
     writeTerrain = vec4(cur_h,cur.y,cur.z,cur.w);
     writeAvg = vec4(vec3(col), 1.0);

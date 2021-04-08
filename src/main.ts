@@ -778,6 +778,11 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
     gl.uniform1i(gl.getUniformLocation(ave.prog,"readTerrain"),0);
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
+    gl.uniform1i(gl.getUniformLocation(ave.prog,"readSedi"),1);
+
     renderer.render(camera,ave,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
     //---------------swap terrain mao----------------------------
