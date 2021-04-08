@@ -6,7 +6,7 @@
 ## [**Demo Video showing sandbox feature**](https://youtu.be/hexXjWoa_hM)
 
 
-![](screenshot/nmtn2.PNG)
+![](screenshot/ranges.PNG)
 
 ![](screenshot/new4.PNG)
 
@@ -42,9 +42,9 @@
 
 ![](screenshot/new2.PNG)
 
-![](screenshot/new3.PNG)
+![](screenshot/topdown.PNG)
 
-![](screenshot/new.PNG)
+![](screenshot/yo.PNG)
 
 #### mountain and vally scenes
 
