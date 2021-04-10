@@ -8,9 +8,9 @@
 
 ![](screenshot/ranges.PNG)
 
-![](screenshot/new4.PNG)
+![](screenshot/td.PNG)
 
-![](screenshot/vol.PNG)
+![](screenshot/vol1.PNG)
 
 
 ### controls : 
@@ -42,8 +42,10 @@
 #### river forming lake
 ![](screenshot/riverlake.PNG)
 
+### beatiful sediments ^_^
+![](screenshot/sedi.gif)
 
-![](screenshot/new2.PNG)
+![](screenshot/mt2.PNG)
 
 ![](screenshot/topdown.PNG)
 

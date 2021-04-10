@@ -2,6 +2,7 @@
 precision highp float;
 
 uniform sampler2D readTerrain;
+uniform sampler2D readSedi;
 
 // this render pass was used soley for smoothing sharp ridges & ravines which would potentially introduce corruption
 // thanks to the references https://github.com/Huw-man/Interactive-Erosion-Simulator-on-GPU & https://github.com/karhu/terrain-erosion
@@ -31,6 +32,8 @@ void main() {
     float div = 1.0/u_SimRes;
     vec2 curuv = 0.5f*fs_Pos+0.5f;
     vec4 cur = texture(readTerrain,curuv);
+    //float curs = texture(readSedi,curuv).x;
+    //threathhold = clamp(curs * 2.0, 0.1, 2.0);
     vec3 nor = calnor(curuv);
     //float dval = abs(dot(nor, vec3(0.0, 1.0, 0.0)));
     //threathhold *= dval;

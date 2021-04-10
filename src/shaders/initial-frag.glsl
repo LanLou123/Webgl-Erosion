@@ -150,12 +150,12 @@ void main() {
 
     float c_mask = circle_mask(uv);
   vec2 cpos = 1.5 * uv * u_TerrainScale;
-  cpos = cpos + vec2(1.f*mod(u_Time,10.f)+0.2,1.0 * mod(u_Time,10.f)+0.8);
+  cpos = cpos + vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6);
   float terrain_hight = fbm(cpos*2.0)/1.0;
 
     terrain_hight = pow(terrain_hight,3.0)/1.0;
     if(u_terrainBaseType == 2){
-        terrain_hight = teR(terrain_hight);
+        terrain_hight = teR(terrain_hight / 1.2);
     }else if(u_terrainBaseType == 1){
         terrain_hight = domainwarp(cpos * 2.0)/1.0;
     }else if(u_terrainBaseType == 3){

@@ -44,7 +44,7 @@ const controlscomp = {
     Kd : 0.004,
     timestep : 0.1,
     pipeAra :  0.8,
-    EvaporationDegree : 0.0116,
+    EvaporationConstant : 0.0116,
     RainDegree : 4.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
@@ -90,7 +90,7 @@ const controls = {
     Kd : 0.004,
     timestep : 0.1,
     pipeAra :  0.8,
-    EvaporationDegree : 0.001,
+    EvaporationConstant : 0.001,
     RainDegree : 4.5,
     spawnposx : 0.5,
     spawnposy : 0.5,
@@ -102,7 +102,7 @@ const controls = {
     TerrainBaseMap : 0,
     TerrainBaseType : 2,//0 ordinary fbm, 1 domain warping, 2 terrace, 3 voroni
     TerrainBiomeType : 1,
-    TerrainScale : 2.0,
+    TerrainScale : 1.2,
     TerrainHeight : 2.0,
     TerrainSphereMask : 1,//0 on, 1 off
     TerrainDebug : 0,
@@ -735,7 +735,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
     gl.uniform1i(gl.getUniformLocation(eva.prog,"terrain"),0);
-    gl.uniform1f(gl.getUniformLocation(eva.prog,'evapod'),controls.EvaporationDegree);
+    gl.uniform1f(gl.getUniformLocation(eva.prog,'evapod'),controls.EvaporationConstant);
 
     renderer.render(camera,eva,[square]);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -930,12 +930,12 @@ function main() {
     simcontrols.open();
     var terrainParameters = gui.addFolder('Terrain Parameters');
     terrainParameters.add(controls,'TerrainScale', 0.00, 4.0);
-    terrainParameters.add(controls,'TerrainHeight', 1.0, 2.0);
+    terrainParameters.add(controls,'TerrainHeight', 1.0, 5.0);
     terrainParameters.add(controls,'TerrainSphereMask',{ON : 0 ,OFF : 1});
     terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2, voroni : 3});
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
-    erosionpara.add(controls, 'EvaporationDegree', 0.0001, 0.08);
+    erosionpara.add(controls, 'EvaporationConstant', 0.0001, 0.08);
     erosionpara.add(controls,'RainDegree', 0.1,5.0);
     erosionpara.add(controls,'Kc', 0.1,1.0);
     erosionpara.add(controls,'Ks', 0.001,0.1);
@@ -1004,7 +1004,7 @@ function main() {
   loadScene();
 
 
-  const camera = new Camera(vec3.fromValues(0.18, 0.3, 0.6), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(-0.18, 0.3, 0.6), vec3.fromValues(0, 0, 0));
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.0, 0.0, 0.0, 0);
   gl.enable(gl.DEPTH_TEST);
