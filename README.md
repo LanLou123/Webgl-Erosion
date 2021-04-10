@@ -8,9 +8,9 @@
 
 ![](screenshot/ranges.PNG)
 
-![](screenshot/td.PNG)
+![](screenshot/td1.PNG)
 
-![](screenshot/vol1.PNG)
+![](screenshot/vol.PNG)
 
 
 ### controls : 
