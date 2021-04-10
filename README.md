@@ -42,7 +42,7 @@
 #### river forming lake
 ![](screenshot/riverlake.PNG)
 
-### beatiful sediments ^_^
+### beautiful sediments ^_^
 ![](screenshot/sedi.gif)
 
 ![](screenshot/mt2.PNG)
