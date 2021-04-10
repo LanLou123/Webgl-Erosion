@@ -8,7 +8,7 @@
 
 ![](screenshot/ranges.PNG)
 
-![](screenshot/td1.PNG)
+![](screenshot/td1.png)
 
 ![](screenshot/vol.PNG)
 
