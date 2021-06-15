@@ -104,7 +104,7 @@ void main() {
       float epsilon = 0.000001f;
       float nrain = noise(vec3(curuv * 100.0, u_Time));
       //nrain = 1.0f;
-      rain = nrain/150.0;
+      rain = nrain/11150.0;
 
 //      if(mod(u_Time, 10.0) <= 1.0){
 //            rain = 0.0f;

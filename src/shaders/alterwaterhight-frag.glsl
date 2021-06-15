@@ -13,8 +13,7 @@ uniform float u_PipeArea;
 layout (location = 0) out vec4 writeTerrain;
 layout (location = 1) out vec4 writeVel;
 
-// The fragment shader used to render the background of the scene
-// Modify this to make your background more interesting
+
 
 in vec2 fs_Pos;
 #define PI 3.1415926
