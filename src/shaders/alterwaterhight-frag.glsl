@@ -24,7 +24,7 @@ void main(){
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float div = 1.f/u_SimRes;
   float pipelen = u_PipeLen;
-
+  float sediImpact = 1.0;
 
   //
   //      x
@@ -60,7 +60,7 @@ void main(){
 
 
 
-  float d1 = cur.y + curs.x;
+  float d1 = cur.y + curs.x * sediImpact;
   //float d1 = cur.y;
   float d2 = d1 + deltavol;
   float da = (d1 + d2)/2.0f;

@@ -49,7 +49,7 @@
 
 ![](screenshot/topdown.PNG)
 
-![](screenshot/yo.PNG)
+![](screenshot/newmtn.PNG)
 
 #### mountain and vally scenes
 

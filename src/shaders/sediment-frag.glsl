@@ -32,7 +32,15 @@ vec3 calnor(vec2 uv){
   vec4 b = texture(readTerrain,uv+vec2(0.f,-eps));
   vec4 l = texture(readTerrain,uv+vec2(-eps,0.f));
 
-  vec3 nor = vec3(l.x - r.x, 2.0, t.x - b.x);
+  vec4 rs = texture(readSediment,uv+vec2(eps,0.f));
+  vec4 ts = texture(readSediment,uv+vec2(0.f,eps));
+  vec4 bs = texture(readSediment,uv+vec2(0.f,-eps));
+  vec4 ls = texture(readSediment,uv+vec2(-eps,0.f));
+
+
+  //vec3 nor = vec3(l.x + l.y + ls.x - r.x - r.y - rs.x, 2.0, t.x + t.y + ts.x - b.x - b.y - bs.x);
+  //vec3 nor = vec3(l.x + ls.x - r.x - rs.x, 2.0, t.x + ts.x - b.x - bs.x);
+  vec3 nor = vec3(l.x - r.x , 2.0, t.x - b.x);
   nor = normalize(nor);
   return nor;
 }
@@ -44,7 +52,7 @@ void main() {
   float Kc = u_Kc;
   float Ks = u_Ks;
   float Kd = u_Kd;
-  float alpha = 20.0;
+  float alpha = 2.0;
 
 
   vec4 top = texture(readSediment,curuv+vec2(0.f,div));
@@ -102,7 +110,8 @@ void main() {
   velo = length(newVel.xy);
   float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo ;// * pow(curTerrain.y,0.2) ;
-
+  //sedicap *= pow(2.0,curTerrain.y);
+  //sedicap = min(curTerrain.y * 2.0, sedicap); // TO DO : will the volume of water affect sediment capacity
   float lmax = 0.0f;
   float maxdepth = 0.1;
   if(curTerrain.y > maxdepth){ // max river bed depth

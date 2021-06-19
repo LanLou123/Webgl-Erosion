@@ -30,21 +30,22 @@ void main() {
   float g = 0.80;
   float pipelen = u_PipeLen;
 
+  float sediImpact = 1.0;
 
   vec4 top = texture(readTerrain,curuv+vec2(0.f,div));
   vec4 right = texture(readTerrain,curuv+vec2(div,0.f));
   vec4 bottom = texture(readTerrain,curuv+vec2(0.f,-div));
   vec4 left = texture(readTerrain,curuv+vec2(-div,0.f));
 
-  vec4 tops = texture(readSedi,curuv+vec2(0.f,div));
-  vec4 rights = texture(readSedi,curuv+vec2(div,0.f));
-  vec4 bottoms = texture(readSedi,curuv+vec2(0.f,-div));
-  vec4 lefts = texture(readSedi,curuv+vec2(-div,0.f));
+  vec4 tops = texture(readSedi,curuv+vec2(0.f,div)) * sediImpact;
+  vec4 rights = texture(readSedi,curuv+vec2(div,0.f)) * sediImpact;
+  vec4 bottoms = texture(readSedi,curuv+vec2(0.f,-div)) * sediImpact;
+  vec4 lefts = texture(readSedi,curuv+vec2(-div,0.f)) * sediImpact;
 
 
   vec4 curTerrain = texture(readTerrain,curuv);
   vec4 curFlux = texture(readFlux,curuv);
-  vec4 curs = texture(readSedi,curuv);
+  vec4 curs = texture(readSedi,curuv) * sediImpact;
 
 
 

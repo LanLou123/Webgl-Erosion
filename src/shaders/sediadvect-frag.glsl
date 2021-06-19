@@ -55,7 +55,12 @@ void main() {
     vec4 cursedi = texture(sedi,curuv);
     vec4 curterrain = texture(terrain,curuv);
 
+    vec4 topt = texture(terrain,curuv+vec2(0.f,div));
+    vec4 right = texture(terrain,curuv+vec2(div,0.f));
+    vec4 bottomt = texture(terrain,curuv+vec2(0.f,-div));
+    vec4 leftt = texture(terrain,curuv+vec2(-div,0.f));
 
+    float low = min(leftt.x, min(bottomt.x, min(topt.x, right.x )));
 
 
 //
@@ -76,7 +81,7 @@ void main() {
 
 
     vec4 useVel = curvel/u_SimRes;
-    useVel *= 0.20;//affects erosion dis, important
+    useVel *= 1.0;
 //    vec4 top = texture(vel,curuv+vec2(0.f,div));
 //    vec4 right = texture(vel,curuv+vec2(div,0.f));
 //    vec4 bottom = texture(vel,curuv+vec2(0.f,-div));
@@ -94,17 +99,8 @@ void main() {
 
 
     vec2 oldloc = vec2(curuv.x-useVel.x*velscale*u_timestep,curuv.y-useVel.y*velscale*u_timestep);
-
-    vec4 oldterrain = texture(terrain,oldloc);
-    vec4 topt = texture(terrain,oldloc+vec2(0.f,div));
-    vec4 rightt = texture(terrain,oldloc+vec2(div,0.f));
-    vec4 bottomt = texture(terrain,oldloc+vec2(0.f,-div));
-    vec4 leftt = texture(terrain,oldloc+vec2(-div,0.f));
-
-    float low = min(leftt.x, min(bottomt.x, min(topt.x, rightt.x )));
-
     float oldsedi = texture(sedi, oldloc).x;
-    //oldsedi = samplebilinear(oldloc,u_SimRes * 1.0 );
+    //oldsedi = samplebilinear(oldloc,u_SimRes   );
 
     float curSediVal = length(useVel.xy) * curterrain.y;
     //float newSediVal =
@@ -117,8 +113,8 @@ void main() {
 
 
 
-//    if(oldterrain.x - oldsedi < low){
-//        oldsedi = oldterrain.x - low;
+//    if(curterrain.x - cursedi.x + oldsedi < low  && oldsedi > 0.0 && cursedi.x > oldsedi){
+//        oldsedi = max(low + cursedi.x - curterrain.x,0.0);
 //    }
 
     writeSediment = vec4(oldsedi, 0.0, 0.0, 1.0);
