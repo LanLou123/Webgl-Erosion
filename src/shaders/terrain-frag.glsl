@@ -185,19 +185,22 @@ void main()
     float sval = texture(sediBlend, fs_Uv).x;
 
     vec3 finalcol = vec3(0);
-
+    float upper = 600.0;
     if(u_TerrainPlatte == 1){
         forestcol = mtncolor;
+    }else if(u_TerrainPlatte == 2){
+        upper = 2000.0;
     }
+
     if(yval<=100.0){
         finalcol = forestcol;
     }else if(yval>100.0&&yval<=150.0){
         finalcol = mix(forestcol,forestcol,(yval-100.0)/50.0);
     }else if(yval>150.0){
-        if(yval<600.0f ){
-            finalcol = mix(forestcol, mtncolor, clamp(1.0 / pow(abs(nor.y),u_ForestRange) * (yval-150.0)/450.0, 0.0, 1.0));
+        if(yval<upper ){
+            finalcol = mix(forestcol, mtncolor, clamp(1.0 / pow(abs(nor.y),u_ForestRange) * (yval-150.0)/(upper - 150.0), 0.0, 1.0));
         }
-        else if((yval > 600.0f)){
+        else if((yval > upper)){
             finalcol = mtncolor;
         }
 

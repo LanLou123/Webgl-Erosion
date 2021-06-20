@@ -152,6 +152,8 @@ void main() {
   vec2 cpos = 1.5 * uv * u_TerrainScale;
   cpos = cpos + vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6);
   float terrain_hight = fbm(cpos*2.0)/1.0;
+    float base_height = fbm(cpos*6.2)/1.0;
+
 
     terrain_hight = pow(terrain_hight,3.0)/1.0;
     if(u_terrainBaseType == 2){
@@ -169,6 +171,6 @@ void main() {
     //terrain_hight = test(uv) * 500.0;
   float rainfall = .0f;
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
-  initial = vec4(terrain_hight,rainfall,0.f,1.f);
-  initial2= vec4(terrain_hight,rainfall,0.f,1.f);
+  initial = vec4(terrain_hight,rainfall,0.0,1.f);
+  initial2= vec4(terrain_hight,rainfall,0.0,1.f);
 }

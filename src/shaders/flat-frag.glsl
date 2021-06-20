@@ -238,7 +238,7 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     float rayAttenuation = 1.0 * linearSceneDepthVal;
 
 
-    float stepSize = ((linearSceneDepthVal + 0.0) / float(SCATTER_MARCH_STEPS)) ;
+    float stepSize = ((linearSceneDepthVal + 0.1) / float(SCATTER_MARCH_STEPS)) ;
     if(sceneDepthValue.x == 0.0){
         stepSize = 0.2;
         rayAttenuation = 1.0;

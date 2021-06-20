@@ -28,7 +28,7 @@ vec3 calnor(vec2 uv){
 
 void main() {
 
-    float threathhold = 0.1f;
+    float threathhold = 0.2f;
     float div = 1.0/u_SimRes;
     vec2 curuv = 0.5f*fs_Pos+0.5f;
     vec4 cur = texture(readTerrain,curuv);
@@ -58,7 +58,7 @@ void main() {
 
     float cur_h = cur.x;
     float col = 0.0;
-    float curWeight = 5.0;
+    float curWeight = 25.0;
 
     //eight dir average
 //    if(((abs(r_d) > threathhold && abs(l_d) > threathhold)&& r_d*l_d > 0.0)||
