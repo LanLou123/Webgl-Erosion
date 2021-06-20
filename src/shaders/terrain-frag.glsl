@@ -259,7 +259,7 @@ void main()
     }else if(u_TerrainDebug == 6){
         fcol = texture(maxslippagemap, fs_Uv).xyz / 3.0;
     }else if(u_TerrainDebug == 7){
-        fcol = vec3(sval * 500.0);
+        fcol = vec3(sval * 100.0);
     }else if(u_TerrainDebug == 8){
         fcol = slopesin;
     }
