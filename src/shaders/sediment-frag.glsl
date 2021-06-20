@@ -108,7 +108,7 @@ void main() {
 
   float velo = length(texture(readVelocity,curuv).xy);
   velo = length(newVel.xy);
-  float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
+  float slope = max(0.005f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo ;// * pow(curTerrain.y,0.2) ;
   //sedicap *= pow(2.0,curTerrain.y);
   //sedicap = min(curTerrain.y * 2.0, sedicap); // TO DO : will the volume of water affect sediment capacity

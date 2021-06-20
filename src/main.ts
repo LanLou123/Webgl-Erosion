@@ -90,8 +90,9 @@ const controls = {
     Kd : 0.004,
     timestep : 0.1,
     pipeAra :  0.8,
-    EvaporationConstant : 0.006,
+    EvaporationConstant : 0.001,
     RainDegree : 4.5,
+    AdvectionSpeedScaling : 1.0,
     spawnposx : 0.5,
     spawnposy : 0.5,
     'Load Scene': loadScene, // A function pointer, essentially
@@ -936,10 +937,11 @@ function main() {
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationConstant', 0.0001, 0.08);
-    erosionpara.add(controls,'RainDegree', 0.1,5.0);
+    //erosionpara.add(controls,'RainDegree', 0.1,5.0);
     erosionpara.add(controls,'Kc', 0.1,1.0);
     erosionpara.add(controls,'Ks', 0.001,0.1);
     erosionpara.add(controls,'Kd', 0.0001,0.1);
+    //erosionpara.add(controls,'AdvectionSpeedScaling', 0.1, 1.0);
     erosionpara.add(controls, 'TerrainDebug', {noDebugView : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6, flowMap : 7, spikeDiffusion : 8});
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
@@ -1274,6 +1276,7 @@ function main() {
     sediadvect.setKs(controls.Ks);
     sediadvect.setKd(controls.Kd);
     sediadvect.setTimestep(controls.timestep);
+    sediadvect.setFloat(controls.AdvectionSpeedScaling, "unif_advectionSpeedScale");
 
     thermalterrainflux.setSimres(simresolution);
     thermalterrainflux.setPipeLen(controls.pipelen);

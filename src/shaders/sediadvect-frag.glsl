@@ -8,6 +8,7 @@ uniform sampler2D terrain;
 
 uniform float u_SimRes;
 uniform float u_timestep;
+uniform float unif_advectionSpeedScale;
 
 
 layout (location = 0) out vec4 writeSediment;
@@ -81,7 +82,7 @@ void main() {
 
 
     vec4 useVel = curvel/u_SimRes;
-    useVel *= 1.0;
+    useVel *= unif_advectionSpeedScale;
 //    vec4 top = texture(vel,curuv+vec2(0.f,div));
 //    vec4 right = texture(vel,curuv+vec2(div,0.f));
 //    vec4 bottom = texture(vel,curuv+vec2(0.f,-div));

@@ -21,7 +21,6 @@
 - press button ```Reset``` to reset simulation and start with a new randomly generated base terrain
 - use ```WaterTrabsparancy``` slider to control alpha of water
 - use ```EvaporationDegree``` slider to control anomunt of evaporation you want each simulation step
-- use ```RainDegree``` slider to control anomunt of Rain you want each simulation step
 - use ```Kc``` slider to control Kc (erosion capacity constant)
 - use ```Ks``` slider to control Ks (erosion dissolvating constant)
 - use ```Kd``` slider to control Kc (erosion deposition constant)
