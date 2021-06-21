@@ -53,7 +53,7 @@ void main(){
 
   float fout = ftopout+frightout+fbottomout+fleftout;
   float fin = topflux.z+rightflux.w+bottomflux.x+leftflux.y;
-  fin = inputflux.x + inputflux.y + inputflux.z + inputflux.w;
+  //fin = inputflux.x + inputflux.y + inputflux.z + inputflux.w;
 
   float deltavol = u_timestep*(fin-fout)/(u_PipeLen*u_PipeLen);
 
