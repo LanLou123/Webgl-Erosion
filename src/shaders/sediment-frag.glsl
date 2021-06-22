@@ -82,7 +82,7 @@ void main() {
   vec4 newVel = (topvel + rightvel + bottomvel + leftvel + alpha * curvel)/(4.0 + alpha);
 
   //newVel = mix(newVel,curvel,slopeSin);
-  newVel = curvel;
+  //newVel = curvel;
 
   vec4 curSediment = texture(readSediment,curuv);
   vec4 curTerrain = texture(readTerrain,curuv);
@@ -108,7 +108,7 @@ void main() {
 
   float velo = length(texture(readVelocity,curuv).xy);
   velo = length(newVel.xy);
-  float slope = max(0.1f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
+  float slope = max(0.001f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float sedicap = Kc*slope*velo ;// * pow(curTerrain.y,0.2) ;
   //sedicap *= pow(2.0,curTerrain.y);
   //sedicap = min(curTerrain.y * 2.0, sedicap); // TO DO : will the volume of water affect sediment capacity

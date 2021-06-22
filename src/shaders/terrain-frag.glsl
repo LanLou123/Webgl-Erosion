@@ -224,10 +224,10 @@ void main()
     // sediment trace, unstable for now
     float sedimentTrace = 0.0;
     if(u_SedimentTrace == 0){
-        sedimentTrace = 1.0 - pow(3.0, -sval*330.0);
+        sedimentTrace = 1.0 - pow(3.0, -sval*130.0);
         sedimentTrace *= pow(abs(nor.y), 1.0);
     }
-    finalcol = mix(finalcol, vec3(214.f/255.f,214.f/255.f,96.f/255.f),clamp(2.0 * sedimentTrace, 0.0, 1.0));
+    finalcol = mix(finalcol, vec3(214.f/255.f,214.f/255.f,96.f/255.f),clamp(0.3 * sedimentTrace, 0.0, 1.0));
 
     //finalcol = mix(finalcol, vec3(0.5,0.1,0.1),texture(sedimap,fs_Uv).x);
 

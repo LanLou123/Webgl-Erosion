@@ -17,6 +17,47 @@ uniform int u_BrushOperation;
 
 layout (location = 0) out vec4 writeTerrain;
 
+#define OCTAVES 6
+
+float random (in vec2 st) {
+      return fract(sin(dot(st.xy,
+      vec2(12.9898,78.233)))*
+      43758.5453123);
+}
+
+
+float noise (in vec2 st) {
+      vec2 i = floor(st);
+      vec2 f = fract(st);
+
+      // Four corners in 2D of a tile
+      float a = random(i);
+      float b = random(i + vec2(1.0, 0.0));
+      float c = random(i + vec2(0.0, 1.0));
+      float d = random(i + vec2(1.0, 1.0));
+
+      vec2 u = f * f * (3.0 - 2.0 * f);
+
+      return mix(a, b, u.x) +
+      (c - a)* u.y * (1.0 - u.x) +
+      (d - b) * u.x * u.y;
+}
+
+
+float fbm (in vec2 st) {
+      // Initial values
+      float value = 0.0;
+      float amplitude = .5;
+      float frequency = 0.;
+      //
+      // Loop of octaves
+      for (int i = 0; i < OCTAVES; i++) {
+            value += amplitude * noise(st);//iqnoise(st,1.f,1.f);
+            st *= 2.0;
+            amplitude *= .53;
+      }
+      return value;
+}
 
 
 //generic noise from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
@@ -46,11 +87,11 @@ float noise(vec3 p){
       return o4.y * d.y + o4.x * (1.0 - d.y);
 }
 
-float random (in vec2 st) {
-      return fract(sin(dot(st.xy,
-      vec2(12.9898,78.233)))*
-      43758.5453123);
-}
+//float random (in vec2 st) {
+//      return fract(sin(dot(st.xy,
+//      vec2(12.9898,78.233)))*
+//      43758.5453123);
+//}
 
 in vec2 fs_Pos;
 
@@ -102,16 +143,21 @@ void main() {
 
 
       float epsilon = 0.000001f;
+
+
       float nrain = noise(vec3(curuv * 100.0, u_Time));
-      //nrain = 1.0f;
-      rain = nrain/1150.0;
+      nrain = fbm(curuv*1.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
+
+      rain = nrain/100.0;
 
 //      if(mod(u_Time, 10.0) <= 1.0){
 //            rain = 0.0f;
 //            addwater = 0.0f;
 //      }
 
+      //if(mod(u_Time,100.0)!=9.0)
       rain = 0.0f;
+
       epsilon = 0.0f;
 //      if(curuv.x<maxx && curuv.x>minx && curuv.y<maxy&&curuv.y>miny){
 //            rain += 0.001;
