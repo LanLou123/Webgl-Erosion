@@ -1,19 +1,6 @@
 ﻿## Terrain erosion sandbox in WebGl
 
-
-## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
-
-## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
-
-
-![](screenshot/ranges1.PNG)
-
-![](screenshot/td1.png)
-
-![](screenshot/vol.PNG)
-
-
-### controls : 
+## controls : 
 
 - press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
 - press button ```Start/Resume``` to the right top corner to start or resume the erosion sim
@@ -26,6 +13,22 @@
 - use ```Kd``` slider to control Kc (erosion deposition constant)
 - use the dropdown to check the debug views
 - press right mouse button to rotate camera, press left mouse button to translate camera, use middle mouse to scale...
+
+## [**PLAY LIVE** (Chrome Recommended)]( https://lanlou123.github.io/Webgl-Erosion/)
+
+## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
+
+
+![](screenshot/ranges1.PNG)
+
+![](screenshot/river.PNG)
+
+![](screenshot/td1.png)
+
+![](screenshot/vol.PNG)
+
+
+
 
 
 ### some screenshots
