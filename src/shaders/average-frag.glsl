@@ -59,13 +59,14 @@ void main() {
     float cur_h = cur.x;
     float col = 0.0;
     float curWeight = 8.0;
+    float diagonalWeight = 0.5;
 
     //eight dir average
     if(((abs(r_d) > threathhold && abs(l_d) > threathhold)&& r_d*l_d > 0.0)||
     ((abs(t_d) > threathhold && abs(b_d) > threathhold) && t_d * b_d > 0.0)||
     ((abs(tr_d) > threathhold && abs(bl_d) > threathhold) && tr_d * bl_d > 0.0)||
     ((abs(tl_d) > threathhold && abs(br_d) > threathhold) && tl_d * br_d > 0.0)){
-        cur_h = (cur.x * curWeight + top.x + right.x + bottom.x + left.x + topright.x + topleft.x + bottomleft.x + bottomright.x)/(8.0 + curWeight);
+        cur_h = (cur.x * curWeight + top.x + right.x + bottom.x + left.x + topright.x * diagonalWeight + topleft.x * diagonalWeight + bottomleft.x * diagonalWeight + bottomright.x * diagonalWeight)/(4.0 * (1.0 + diagonalWeight) + curWeight);
         col = 1.0;
     }
 

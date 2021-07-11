@@ -52,7 +52,7 @@ void main() {
   float Kc = u_Kc;
   float Ks = u_Ks;
   float Kd = u_Kd;
-  float alpha = 20.0;
+  float alpha = 5.0;
 
 
   vec4 top = texture(readSediment,curuv+vec2(0.f,div));

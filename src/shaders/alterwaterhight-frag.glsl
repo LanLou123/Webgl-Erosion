@@ -4,6 +4,7 @@ precision highp float;
 uniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:
 uniform sampler2D readFlux;//flux map R: top, G: right, B: bottom, A: left
 uniform sampler2D readSedi;
+uniform sampler2D readVel;
 
 uniform float u_SimRes;
 uniform float u_PipeLen;
@@ -41,6 +42,7 @@ void main(){
   vec4 curflux = texture(readFlux,curuv);
   vec4 cur = texture(readTerrain,curuv);
   vec4 curs = texture(readSedi,curuv);
+  vec4 curvel = texture(readVel, curuv);
 
    //out flow flux
   float ftopout = curflux.x;
@@ -60,7 +62,7 @@ void main(){
 
 
 
-  float d1 = cur.y + curs.x * sediImpact;
+  float d1 = cur.y + curs.x;
   //float d1 = cur.y;
   float d2 = d1 + deltavol;
   float da = (d1 + d2)/2.0f;
@@ -75,6 +77,11 @@ void main(){
     }else{
       veloci = veloci/(da * u_PipeLen);
     }
+
+  float velImportance = 2.0;
+  //veloci = (curvel.xy + veloci * velImportance) / (1.0 + velImportance);
+  //veloci += curvel.xy * 0.5;
+
 
   if(curuv.x<=div) {deltavol = 0.f; veloci = vec2(0.0);}
   if(curuv.x>=1.f - 2.0 *div) {deltavol = 0.f; veloci = vec2(0.0);}

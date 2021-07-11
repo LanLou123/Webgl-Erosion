@@ -155,7 +155,12 @@ class ShaderProgram {
     let newf = gl.getUniformLocation(this.prog,name);
     gl.uniform1f(newf,f);
   }
+  setVec2(v : vec2, name : string){
+    this.use();
+    let newv = gl.getUniformLocation(this.prog,name);
+    gl.uniform2fv(newv, v);
 
+  }
   setTime(t:number){
     this.use();
     if(this.unifTime!==-1){
@@ -254,6 +259,8 @@ class ShaderProgram {
       gl.uniform2fv(this.unifSpanwPos, pos);
     }
   }
+
+
 
   setMouseWorldPos(pos : vec4){
     this.use();

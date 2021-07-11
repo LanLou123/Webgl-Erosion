@@ -85,7 +85,7 @@ const controlscomp = {
 const controls = {
     tesselations: 5,
     pipelen:  1.0,//
-    Kc : 0.4,
+    Kc : 0.3,
     Ks : 0.025,
     Kd : 0.004,
     timestep : 0.1,
@@ -95,15 +95,17 @@ const controls = {
     AdvectionSpeedScaling : 1.0,
     spawnposx : 0.5,
     spawnposy : 0.5,
+    posTemp : vec2.fromValues(0.0,0.0),
+    posPerm : vec2.fromValues(0.0,0.0),
     'Load Scene': loadScene, // A function pointer, essentially
     'Start/Resume' :StartGeneration,
     'Reset' : Reset,
     'setTerrainRandom':setTerrainRandom,
     'Pause' : Pause,
     TerrainBaseMap : 0,
-    TerrainBaseType : 2,//0 ordinary fbm, 1 domain warping, 2 terrace, 3 voroni
+    TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace, 3 voroni
     TerrainBiomeType : 1,
-    TerrainScale : 1.2,
+    TerrainScale : 3.2,
     TerrainHeight : 2.0,
     TerrainSphereMask : 1,//0 on, 1 off
     TerrainDebug : 0,
@@ -114,15 +116,17 @@ const controls = {
     ForestRange : 5,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 12,
-    brushStrenth : 0.3,
+    brushStrenth : 0.40,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
+    pbrushOn : 0,
+    pbrushData : vec2.fromValues(5.0, 0.4), // size & strength
     talusAngleFallOffCoeff : 0.9,
     talusAngleTangentBias : 0.0,
     thermalRate : 0.5,
     thermalErosionScale : 1.0,
     lightPosX : 0.4,
-    lightPosY : 0.09,
+    lightPosY : 0.2,
     lightPosZ : -1.0,
     showScattering : true,
     enableBilateralBlur : true,
@@ -409,6 +413,11 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
     gl.uniform1i(gl.getUniformLocation(waterhight.prog,"readSedi"),2);
+
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D,read_vel_tex);
+    gl.uniform1i(gl.getUniformLocation(waterhight.prog,"readVel"),3);
+
 
 
     renderer.render(camera,waterhight,[square]);
@@ -903,6 +912,15 @@ function onKeyDown(event : KeyboardEvent){
         controls.brushPressed = 0;
     }
 
+    if(event.key == 'r'){
+        controls.pbrushOn = controls.pbrushOn == 0 ? 1 : 0;
+        controls.posPerm = controls.posTemp;
+        controls.pbrushData = vec2.fromValues(controls.brushSize, controls.brushStrenth);
+    }
+    if(event.key == 'p'){
+        controls.pbrushOn = 0;
+    }
+
 }
 
 function onKeyUp(event : KeyboardEvent){
@@ -938,11 +956,11 @@ function main() {
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationConstant', 0.0001, 0.08);
     //erosionpara.add(controls,'RainDegree', 0.1,5.0);
-    erosionpara.add(controls,'Kc', 0.1,1.0);
-    erosionpara.add(controls,'Ks', 0.001,0.1);
+    erosionpara.add(controls,'Kc', 0.01,1.0);
+    erosionpara.add(controls,'Ks', 0.001,0.2);
     erosionpara.add(controls,'Kd', 0.0001,0.1);
     //erosionpara.add(controls,'AdvectionSpeedScaling', 0.1, 1.0);
-    erosionpara.add(controls, 'TerrainDebug', {noDebugView : 0, sediment : 1, velocity : 2, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6, flowMap : 7, spikeDiffusion : 8});
+    erosionpara.add(controls, 'TerrainDebug', {noDebugView : 0, sediment : 1, velocity : 2, velocityHeatmap : 9, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6, flowMap : 7, spikeDiffusion : 8});
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
     thermalerosionpara.add(controls,'talusAngleFallOffCoeff',0.0, 1.0 );
@@ -1211,6 +1229,7 @@ function main() {
     //ray cast happens here
     let pos = vec2.fromValues(0.0, 0.0);
     pos = rayCast(ro, dir);
+    controls.posTemp = pos;
 
     //===================per tick uniforms==================
 
@@ -1238,6 +1257,9 @@ function main() {
     lambert.setFloat(controls.ForestRange, "u_ForestRange");
     lambert.setInt(controls.TerrainPlatte, "u_TerrainPlatte");
     lambert.setInt(controls.SedimentTrace,"u_SedimentTrace");
+    lambert.setVec2(controls.posPerm,'u_permanentPos');
+    lambert.setInt(controls.pbrushOn, "u_pBrushOn");
+    lambert.setVec2(controls.pbrushData,"u_PBrushData");
     gl.uniform3fv(gl.getUniformLocation(lambert.prog,"unif_LightPos"),vec3.fromValues(controls.lightPosX,controls.lightPosY,controls.lightPosZ));
 
     sceneDepthShader.setSimres(simresolution);
@@ -1248,9 +1270,12 @@ function main() {
     rains.setBrushStrength(controls.brushStrenth);
     rains.setBrushType(controls.brushType);
     rains.setBrushPressed(controls.brushPressed);
+    rains.setInt(controls.pbrushOn, "u_pBrushOn");
+    rains.setVec2(controls.pbrushData,"u_PBrushData");
     rains.setBrushPos(pos);
     rains.setBrushOperation(controls.brushOperation);
     rains.setSpawnPos(vec2.fromValues(controls.spawnposx, controls.spawnposy));
+    rains.setVec2(controls.posPerm,'u_permanentPos');
     rains.setTime(timer);
 
     flow.setPipeLen(controls.pipelen);

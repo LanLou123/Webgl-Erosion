@@ -14,6 +14,10 @@ uniform int u_BrushType;
 uniform int u_BrushPressed;
 uniform vec2 u_BrushPos;
 uniform int u_BrushOperation;
+uniform int u_pBrushOn;
+
+uniform vec2 u_permanentPos;
+uniform vec2 u_PBrushData;
 
 layout (location = 0) out vec4 writeTerrain;
 
@@ -125,13 +129,34 @@ void main() {
                         addterrain = u_BrushOperation == 0 ? addterrain : -addterrain;
                   }else if(u_BrushType == 2 && u_BrushPressed == 1){
                         addwater =  amount * dens * 280.0;
-                        float aw = noise(vec3(curuv * 100.0, u_Time));
+                        //float aw = noise(vec3(curuv * 100.0, u_Time));
+                        float aw = fbm(curuv*1.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
                         addwater *= aw;
                         addwater = u_BrushOperation == 0 ? addwater : -addwater;
                   }
 
             }
 
+      }
+
+      if(u_pBrushOn != 0){
+            vec3 ro = u_MouseWorldPos.xyz;
+            vec3 rd = u_MouseWorldDir;
+            vec2 pointOnPlane = u_permanentPos;
+            float pdis2fragment = distance(pointOnPlane, curuv);
+            amount = 0.0006 * u_PBrushData.y;
+            if (pdis2fragment < 0.01 * u_PBrushData.x){
+                  float dens = (0.01 * u_PBrushData.x - pdis2fragment) / (0.01 * u_PBrushData.x);
+
+
+                        addwater =  amount * dens * 280.0;
+                        //float aw = noise(vec3(curuv * 100.0, u_Time));
+                        float aw = fbm(curuv*1.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
+                        addwater *= aw;
+
+
+
+            }
       }
 
 

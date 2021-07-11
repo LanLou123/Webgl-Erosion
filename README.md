@@ -1,8 +1,13 @@
 ﻿## Terrain erosion sandbox in WebGl
 
+## update 7/10/2021 : 
+- permanent water source is added, you can pressed ```R``` to place it, see controls for details 
+- added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
+
 ## controls : 
 
 - press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
+- press keyboard ```R``` to place permanent water source. (note : 1 . press ```R``` again to remove permanent water source, 2 . after it's placed you can see a red circle marking the location, 3 . the size and strength of permanent water is equal to the brush size and strength the moment permanent water source is placed)
 - press button ```Start/Resume``` to the right top corner to start or resume the erosion sim
 - press button ```Pause``` to pause the simulation
 - press button ```Reset``` to reset simulation and start with a new randomly generated base terrain
@@ -21,8 +26,6 @@
 
 ![](screenshot/ranges1.PNG)
 
-![](screenshot/river.PNG)
-
 ![](screenshot/td1.png)
 
 ![](screenshot/vol.PNG)
@@ -32,6 +35,8 @@
 
 
 ### some screenshots
+- experiment with meander effects (not stable atm, need to find better parameter combo)
+![](screenshot/meander.png)
 - before
 ![](screenshot/bf.PNG) 
 - after
@@ -41,21 +46,17 @@
 
 #### updated sediment trace
 ![](screenshot/rivv.PNG)
-#### river forming lake
-![](screenshot/riverlake.PNG)
+
 
 ### beautiful sediments ^_^
 ![](screenshot/sedi.gif)
 
-![](screenshot/mt2.PNG)
 
 ![](screenshot/topdown.PNG)
 
 ![](screenshot/newmtn.PNG)
 
-#### mountain and vally scenes
 
-![](screenshot/vallymtn.PNG)
 
 
 #### Atmosphere scattering working at full scale :

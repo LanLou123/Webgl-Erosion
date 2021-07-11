@@ -57,7 +57,7 @@ void main() {
 
   diff = max(vec4(0.0), diff);
 
-  vec4 newFlow = diff * 0.2;
+  vec4 newFlow = diff * 1.2;
 
   float outfactor = (newFlow.x + newFlow.y + newFlow.z + newFlow.w)*u_timestep;
 

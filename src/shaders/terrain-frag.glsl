@@ -43,6 +43,9 @@ uniform float u_SnowRange;
 uniform float u_ForestRange;
 uniform int u_TerrainPlatte;
 uniform vec3 unif_LightPos;
+uniform vec2 u_permanentPos;
+uniform int u_pBrushOn;
+uniform vec2 u_PBrushData;
 
 
 uniform mat4 u_sproj;
@@ -128,10 +131,11 @@ void main()
 
     vec3 forestcol = vec3(63.0/255.0,155.0/255.0,7.0/255.0)*0.6;
     vec3 mtncolor = vec3(0.99,0.99,0.99);
-    vec3 dirtcol = vec3(0.25,0.22,0.2);
+    vec3 dirtcol = vec3(0.45,0.45,0.45);
     vec3 grass = vec3(193.0/255.0,235.0/255.0,27.0/255.0);
     vec3 sand = vec3(214.f/255.f,184.f/255.f,96.f/255.f);
     vec3 watercol = vec3(0.1,0.3,0.8);
+    vec3 permanentCol = vec3(0.8,0.1,0.2);
     vec3 obsidian = vec3(0.2);
 
     vec3 rock1 = vec3(0.4,0.4,0.4);
@@ -158,6 +162,21 @@ void main()
             addcol *= dens;
         }
 
+    }
+
+    if(u_pBrushOn!= 0){
+        vec3 ro = u_MouseWorldPos.xyz;
+        vec3 rd = u_MouseWorldDir;
+        vec2 pointOnPlane = u_permanentPos;
+        float pdis2fragment = distance(pointOnPlane, fs_Uv);
+        if (pdis2fragment < 0.01 * u_PBrushData.x){
+            float dens = (0.01 * u_PBrushData.x - pdis2fragment) / (0.01 * u_PBrushData.x);
+
+
+            addcol = permanentCol * 0.8;
+
+            addcol *= dens * 5.0;
+        }
     }
 
 
@@ -224,10 +243,11 @@ void main()
     // sediment trace, unstable for now
     float sedimentTrace = 0.0;
     if(u_SedimentTrace == 0){
-        sedimentTrace = 1.0 - pow(3.0, -sval*130.0);
+        sedimentTrace = 1.0 - pow(3.0, -sval*330.0);
         sedimentTrace *= pow(abs(nor.y), 1.0);
+        sedimentTrace = sval * 60.0;
     }
-    finalcol = mix(finalcol, vec3(214.f/255.f,214.f/255.f,96.f/255.f),clamp(0.3 * sedimentTrace, 0.0, 1.0));
+    finalcol = mix(finalcol, vec3(214.f/255.f,214.f/255.f,96.f/255.f),clamp(0.9 * sedimentTrace, 0.0, 1.0));
 
     //finalcol = mix(finalcol, vec3(0.5,0.1,0.1),texture(sedimap,fs_Uv).x);
 
@@ -242,7 +262,24 @@ void main()
         fcol = texture(sedimap,fs_Uv).xyz * 2.0;
     }else if(u_TerrainDebug == 2){
         fcol = abs(texture(velmap,fs_Uv).xyz/2.0);
+    }else if(u_TerrainDebug == 9){
+
         //fcol = vec3(length(texture(velmap,fs_Uv).xyz)/5.0);
+
+        float velSize = length(texture(velmap,fs_Uv).xyz) / 3.0;
+        velSize = 1.0 - exp(-velSize); // 1 - pow(e, -x)
+        float midVelBlend = 0.5;
+        float highVelBlend = 1.0;
+        float maxVelBlend = 1.0;
+        if(velSize <= midVelBlend && velSize >= 0.0){
+            fcol = mix(vec3(0.0,0.0,1.0), vec3(0.0,1.0,0.0), (velSize - 0.0) / (midVelBlend - 0.0));
+        }else  if( velSize >=midVelBlend){
+            fcol = mix(vec3(0.0,1.0,0.0), vec3(1.0,0.0,0.0), (velSize - midVelBlend) / (highVelBlend - midVelBlend));
+        }
+        if(wval < 0.0001){
+            fcol = vec3(0.0);
+        }
+
         //fcol = nor1;
         //fcol.xy = fcol.xy / 2.0 + vec2(0.5);
     }else if(u_TerrainDebug == 3){

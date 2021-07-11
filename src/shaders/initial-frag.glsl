@@ -122,7 +122,7 @@ float teR(float h) {
     float W = 0.06; // width of terracing bands
     float k = floor(h / W);
     float f = (h - k*W) / W;
-    float s = min(2.0 * f, 1.0);
+    float s = min(100.0 * f, 1.0);
     return (k+s) * W;
 }
 
@@ -155,6 +155,8 @@ void main() {
     float base_height = fbm(cpos*6.2)/1.0;
 
 
+
+
     terrain_hight = pow(terrain_hight,3.0)/1.0;
     if(u_terrainBaseType == 2){
         terrain_hight = teR(terrain_hight / 1.2);
@@ -164,12 +166,16 @@ void main() {
         terrain_hight = voroni(cpos * 2.0)/3.0;
     }
 
+
     terrain_hight *= u_TerrainHeight*120.0;
     if(u_TerrainSphereMask == 0){
         terrain_hight *= 2.0 * pow(c_mask, 1.0);
     }
     //terrain_hight = test(uv) * 500.0;
   float rainfall = .0f;
+
+    //terrain_hight *= (uv.x + 1.0);
+
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.0,1.f);
   initial2= vec4(terrain_hight,rainfall,0.0,1.f);

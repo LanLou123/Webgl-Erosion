@@ -71,7 +71,7 @@ void main() {
   float fleftout = max(0.f,curFlux.w+(u_timestep*g*u_PipeArea*Hleftout)/pipelen);
 
 
-  float damping = 0.9999;
+  float damping = 1.0;
   //damping = 1.0;
   float k = min(1.f,((curTerrain.y )*u_PipeLen*u_PipeLen)/(u_timestep*(ftopout+frightout+fbottomout+fleftout))) * damping;
   //k = 1.0;
