@@ -1,8 +1,9 @@
 ﻿## Terrain erosion sandbox in WebGl
 
-## update 7/10/2021 : 
+## update 7/11/2021 : 
 - permanent water source is added, you can pressed ```R``` to place it, see controls for details 
 - added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
+- added MacCormack advection scheme for sediment advection, resulting in less numerical diffusion (referencing : ShaderX7 Advanced Rendering Techniques - starting page 207), you can find and toggle it on/off under ```erosionParameters``` in gui
 
 ## controls : 
 
@@ -180,3 +181,4 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
 - [Interactive Terrain Modeling Using Hydraulic Erosion](https://cgg.mff.cuni.cz/~jaroslav/papers/2008-sca-erosim/2008-sca-erosiom-fin.pdf)
 - [Volumetric Lights for Unity 5](https://github.com/SlightlyMad/VolumetricLights)
+- ShaderX7 Advanced Rendering Techniques : starting page 207

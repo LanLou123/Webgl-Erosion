@@ -9,6 +9,7 @@ uniform sampler2D terrain;
 uniform float u_SimRes;
 uniform float u_timestep;
 uniform float unif_advectionSpeedScale;
+uniform float unif_advectMultiplier;
 
 
 layout (location = 0) out vec4 writeSediment;
@@ -56,46 +57,10 @@ void main() {
     vec4 cursedi = texture(sedi,curuv);
     vec4 curterrain = texture(terrain,curuv);
 
-    vec4 topt = texture(terrain,curuv+vec2(0.f,div));
-    vec4 right = texture(terrain,curuv+vec2(div,0.f));
-    vec4 bottomt = texture(terrain,curuv+vec2(0.f,-div));
-    vec4 leftt = texture(terrain,curuv+vec2(-div,0.f));
-
-    float low = min(leftt.x, min(bottomt.x, min(topt.x, right.x )));
-
-
-//
-//    int dir = 0;  // 0 up, 1 right, 2 down, 3 left
-//    if(abs(curvel.x) < abs(curvel.y)){
-//        dir = curvel.y > 0.0 ? 0 : 2;
-//    }else{
-//        dir = curvel.x > 0.0 ? 1 : 3;
-//    }
-//
-//    bool valid = true;
-//    if((dir == 0 && (bottomt.x + bottomt.y > curterrain.x + curterrain.y))||
-//    (dir == 1 && (leftt.x + leftt.y > curterrain.x + curterrain.y))||
-//    (dir == 2 && (topt.x + topt.y > curterrain.x + curterrain.y))||
-//    (dir == 3 && (right.x + right.y > curterrain.x + curterrain.y))){
-//        valid = false;
-//    }
 
 
     vec4 useVel = curvel/u_SimRes;
-    useVel *= unif_advectionSpeedScale;
-//    vec4 top = texture(vel,curuv+vec2(0.f,div));
-//    vec4 right = texture(vel,curuv+vec2(div,0.f));
-//    vec4 bottom = texture(vel,curuv+vec2(0.f,-div));
-//    vec4 left = texture(vel,curuv+vec2(-div,0.f));
-//    vec4 cur = texture(vel,curuv);
-//
-//    float sumlen = length(top) + length(right) + length(bottom) + length(left);
-//
-//    if(length(cur) > (sumlen/4.0)){ // make sure velocity are not too large
-//        cur *= (sumlen/4.0) / length(cur);
-//    }
-//
-//    vec4 newVel = (top + right + bottom + left + alpha * cur)/(4.0 + alpha);
+    useVel *= unif_advectMultiplier;
 
 
 
@@ -104,19 +69,12 @@ void main() {
     //oldsedi = samplebilinear(oldloc,u_SimRes   );
 
     float curSediVal = cursedi.x * curterrain.y * 0.1;
-    //float newSediVal =
-    //curSediVal = cursedi.x;
+
     float sediBlendVal = texture(sediBlend, curuv).x;
 
-    //if(sediBlendVal < curSediVal){
-        sediBlendVal = (sediBlendVal*1660.0 + curSediVal) / 1661.0;
-    //}
 
+    sediBlendVal = (sediBlendVal*1660.0 + curSediVal) / 1661.0;
 
-
-//    if(curterrain.x - cursedi.x + oldsedi < low  && oldsedi > 0.0 && cursedi.x > oldsedi){
-//        oldsedi = max(low + cursedi.x - curterrain.x,0.0);
-//    }
 
     writeSediment = vec4(oldsedi, 0.0, 0.0, 1.0);
     writeVel = curvel;

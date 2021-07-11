@@ -64,7 +64,7 @@ void main(){
 
   float d1 = cur.y + curs.x;
   //float d1 = cur.y;
-  float d2 = d1 + deltavol;
+  float d2 = max(d1 + deltavol,0.0);
   float da = (d1 + d2)/2.0f;
 
   vec2 veloci = vec2(inputflux.w-outputflux.w+outputflux.y-inputflux.y,inputflux.z-outputflux.z+outputflux.x-inputflux.x)/2.0;

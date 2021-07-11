@@ -63,6 +63,7 @@ void main() {
   vec3 nor = calnor(curuv);
   float slopeSin;
   slopeSin = abs(sqrt(1.0 - nor.y*nor.y));
+  //slopeSin = acos(dot(nor, vec3(0.0,1.0,0.0)));
   //slopeSin = abs(sin(acos(dot(nor, vec3(0.0, 1.0, 0.0)))));
 
 

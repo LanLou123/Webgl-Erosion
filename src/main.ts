@@ -86,8 +86,8 @@ const controls = {
     tesselations: 5,
     pipelen:  1.0,//
     Kc : 0.3,
-    Ks : 0.025,
-    Kd : 0.004,
+    Ks : 0.04,
+    Kd : 0.006,
     timestep : 0.1,
     pipeAra :  1.0,
     EvaporationConstant : 0.001,
@@ -130,6 +130,7 @@ const controls = {
     lightPosZ : -1.0,
     showScattering : true,
     enableBilateralBlur : true,
+    enableMacCormackAdvection : true,
 };
 
 
@@ -183,6 +184,8 @@ let terrain_nor : WebGLTexture;
 let read_sediment_blend : WebGLTexture;
 let write_sediment_blend : WebGLTexture;
 
+let sediment_advect_a : WebGLTexture;
+let sediment_advect_b : WebGLTexture;
 
 
 // ================ dat gui button call backs ============
@@ -256,6 +259,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
                          waterhight:ShaderProgram,
                          sedi:ShaderProgram,
                          advect:ShaderProgram,
+                         macCormack : ShaderProgram,
                          rains:ShaderProgram,
                          eva:ShaderProgram,
                          ave:ShaderProgram,
@@ -505,50 +509,197 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     // 4---use velocity map, sediment map to derive new sediment map :
     // velocity map + sediment map -----> sediment map
     //////////////////////////////////////////////////////////////////
+    if(controls.enableMacCormackAdvection) {
+        //4.1  first subpass writing to the intermidiate sediment advection texture a
+        {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, sediment_advect_a, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, write_vel_tex, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, write_sediment_blend, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, null, 0);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,write_sediment_tex,0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,write_vel_tex,0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT2,gl.TEXTURE_2D,write_sediment_blend,0);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT3,gl.TEXTURE_2D,null,0);
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,render_buffer);
+            gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1, gl.COLOR_ATTACHMENT2]);
 
-    gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1, gl.COLOR_ATTACHMENT2]);
+            status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+            if (status !== gl.FRAMEBUFFER_COMPLETE) {
+                console.log("frame buffer status:" + status.toString());
+            }
 
-    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-    if (status !== gl.FRAMEBUFFER_COMPLETE) {
-        console.log( "frame buffer status:" + status.toString());
+            gl.bindTexture(gl.TEXTURE_2D, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+            gl.viewport(0, 0, simres, simres);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+
+
+            renderer.clear();
+            advect.use();
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
+            gl.uniform1i(gl.getUniformLocation(advect.prog, "vel"), 0);
+
+            gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
+            gl.uniform1i(gl.getUniformLocation(advect.prog, "sedi"), 1);
+
+            gl.activeTexture(gl.TEXTURE2);
+            gl.bindTexture(gl.TEXTURE_2D, read_sediment_blend);
+            gl.uniform1i(gl.getUniformLocation(advect.prog, "sediBlend"), 2);
+
+            gl.activeTexture(gl.TEXTURE3);
+            gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
+            gl.uniform1i(gl.getUniformLocation(advect.prog, "terrain"), 3);
+
+            advect.setFloat(1, "unif_advectMultiplier");
+
+            renderer.render(camera, advect, [square]);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        }
+        //4.2  second subpass writing to the intermidiate sediment advection texture b using a
+        {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, sediment_advect_b, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, write_vel_tex, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, write_sediment_blend, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, null, 0);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
+
+            gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1, gl.COLOR_ATTACHMENT2]);
+
+            status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+            if (status !== gl.FRAMEBUFFER_COMPLETE) {
+                console.log("frame buffer status:" + status.toString());
+            }
+
+            gl.bindTexture(gl.TEXTURE_2D, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+            gl.viewport(0, 0, simres, simres);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+
+
+            renderer.clear();
+            advect.use();
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
+            gl.uniform1i(gl.getUniformLocation(advect.prog, "vel"), 0);
+
+            gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, sediment_advect_a);
+            gl.uniform1i(gl.getUniformLocation(advect.prog, "sedi"), 1);
+
+            gl.activeTexture(gl.TEXTURE2);
+            gl.bindTexture(gl.TEXTURE_2D, read_sediment_blend);
+            gl.uniform1i(gl.getUniformLocation(advect.prog, "sediBlend"), 2);
+
+            gl.activeTexture(gl.TEXTURE3);
+            gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
+            gl.uniform1i(gl.getUniformLocation(advect.prog, "terrain"), 3);
+
+            advect.setFloat(-1, "unif_advectMultiplier");
+
+            renderer.render(camera, advect, [square]);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        }
+        //4.3 thrid subpass : mac cormack advection writing to actual sediment using intermidiate advection textures
+        {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_sediment_tex, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, null, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, null, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, null, 0);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
+
+            gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1, gl.COLOR_ATTACHMENT2]);
+
+            status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+            if (status !== gl.FRAMEBUFFER_COMPLETE) {
+                console.log("frame buffer status:" + status.toString());
+            }
+
+            gl.bindTexture(gl.TEXTURE_2D, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+            gl.viewport(0, 0, simres, simres);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+
+
+            renderer.clear();
+            macCormack.use();
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
+            gl.uniform1i(gl.getUniformLocation(macCormack.prog, "vel"), 0);
+
+            gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
+            gl.uniform1i(gl.getUniformLocation(macCormack.prog, "sedi"), 1);
+
+            gl.activeTexture(gl.TEXTURE2);
+            gl.bindTexture(gl.TEXTURE_2D, sediment_advect_a);
+            gl.uniform1i(gl.getUniformLocation(macCormack.prog, "sediadvecta"), 2);
+
+            gl.activeTexture(gl.TEXTURE3);
+            gl.bindTexture(gl.TEXTURE_2D, sediment_advect_b);
+            gl.uniform1i(gl.getUniformLocation(macCormack.prog, "sediadvectb"), 3);
+
+
+            renderer.render(camera, macCormack, [square]);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        }
+
+    }else{
+        gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, write_sediment_tex, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, write_vel_tex, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, write_sediment_blend, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, null, 0);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, render_buffer);
+
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1, gl.COLOR_ATTACHMENT2]);
+
+        status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+            console.log("frame buffer status:" + status.toString());
+        }
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+        gl.viewport(0, 0, simres, simres);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+
+
+        renderer.clear();
+        advect.use();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, read_vel_tex);
+        gl.uniform1i(gl.getUniformLocation(advect.prog, "vel"), 0);
+
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, read_sediment_tex);
+        gl.uniform1i(gl.getUniformLocation(advect.prog, "sedi"), 1);
+
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, read_sediment_blend);
+        gl.uniform1i(gl.getUniformLocation(advect.prog, "sediBlend"), 2);
+
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, read_terrain_tex);
+        gl.uniform1i(gl.getUniformLocation(advect.prog, "terrain"), 3);
+
+        advect.setFloat(1, "unif_advectMultiplier");
+
+        renderer.render(camera, advect, [square]);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
-
-    gl.bindTexture(gl.TEXTURE_2D,null);
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-    gl.bindRenderbuffer(gl.RENDERBUFFER,null);
-
-    gl.viewport(0,0,simres,simres);
-    gl.bindFramebuffer(gl.FRAMEBUFFER,frame_buffer);
-
-
-    renderer.clear();
-    advect.use();
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D,read_vel_tex);
-    gl.uniform1i(gl.getUniformLocation(advect.prog,"vel"),0);
-
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D,read_sediment_tex);
-    gl.uniform1i(gl.getUniformLocation(advect.prog,"sedi"),1);
-
-    gl.activeTexture(gl.TEXTURE2);
-    gl.bindTexture(gl.TEXTURE_2D,read_sediment_blend);
-    gl.uniform1i(gl.getUniformLocation(advect.prog,"sediBlend"),2);
-
-    gl.activeTexture(gl.TEXTURE3);
-    gl.bindTexture(gl.TEXTURE_2D,read_terrain_tex);
-    gl.uniform1i(gl.getUniformLocation(advect.prog,"terrain"),3);
-
-    renderer.render(camera,advect,[square]);
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-
     //----------swap sediment map---------
 
     tmp = read_sediment_blend;
@@ -845,6 +996,9 @@ function setupFramebufferandtextures(gl:WebGL2RenderingContext) {
     read_sediment_blend = LE_create_texture(simres,simres,gl.LINEAR);
     write_sediment_blend = LE_create_texture(simres,simres,gl.LINEAR);
 
+    sediment_advect_a = LE_create_texture(simres,simres,gl.LINEAR);
+    sediment_advect_b = LE_create_texture(simres,simres,gl.LINEAR);
+
     shadowMap_tex = LE_create_texture(shadowMapResolution, shadowMapResolution,gl.LINEAR);
     scene_depth_tex = LE_create_texture(window.innerWidth,window.innerHeight,gl.LINEAR);
     bilateral_filter_horizontal_tex = LE_create_texture(window.innerWidth,window.innerHeight,gl.LINEAR);
@@ -883,6 +1037,7 @@ function SimulationStep(curstep:number,
                         waterhight : ShaderProgram,
                         sediment : ShaderProgram,
                         advect:ShaderProgram,
+                        macCormack : ShaderProgram,
                         rains:ShaderProgram,
                         evapo:ShaderProgram,
                         average:ShaderProgram,
@@ -894,7 +1049,7 @@ function SimulationStep(curstep:number,
     if(PauseGeneration) return true;
     else{
         SimulatePerStep(renderer,
-            gl,camera,flow,waterhight,sediment,advect,rains,evapo,average,thermalterrainflux,thermalapply, maxslippageheight);
+            gl,camera,flow,waterhight,sediment,advect, macCormack,rains,evapo,average,thermalterrainflux,thermalapply, maxslippageheight);
     }
     return false;
 }
@@ -961,6 +1116,7 @@ function main() {
     erosionpara.add(controls,'Kd', 0.0001,0.1);
     //erosionpara.add(controls,'AdvectionSpeedScaling', 0.1, 1.0);
     erosionpara.add(controls, 'TerrainDebug', {noDebugView : 0, sediment : 1, velocity : 2, velocityHeatmap : 9, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6, flowMap : 7, spikeDiffusion : 8});
+    erosionpara.add(controls, 'enableMacCormackAdvection');
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
     thermalerosionpara.add(controls,'talusAngleFallOffCoeff',0.0, 1.0 );
@@ -1031,40 +1187,45 @@ function main() {
 
   setupFramebufferandtextures(gl);
 
-  const lambert = new ShaderProgram([
+    const lambert = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/terrain-vert.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/terrain-frag.glsl')),
-  ]);
+    ]);
 
-  const flat = new ShaderProgram([
+    const flat = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/flat-vert.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/flat-frag.glsl')),
-  ]);
+    ]);
 
-  const noiseterrain = new ShaderProgram([
+    const noiseterrain = new ShaderProgram([
       new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
       new Shader(gl.FRAGMENT_SHADER, require('./shaders/initial-frag.glsl')),
-  ]);
+    ]);
 
-  const flow = new ShaderProgram([
+    const flow = new ShaderProgram([
       new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
       new Shader(gl.FRAGMENT_SHADER, require('./shaders/flow-frag.glsl')),
-  ]);
+    ]);
 
-  const waterhight = new ShaderProgram([
+    const waterhight = new ShaderProgram([
       new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
       new Shader(gl.FRAGMENT_SHADER, require('./shaders/alterwaterhight-frag.glsl')),
-  ]);
+    ]);
 
-  const sediment = new ShaderProgram([
+    const sediment = new ShaderProgram([
       new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
       new Shader(gl.FRAGMENT_SHADER, require('./shaders/sediment-frag.glsl')),
-  ]);
+    ]);
 
-  const sediadvect = new ShaderProgram([
+    const sediadvect = new ShaderProgram([
       new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
       new Shader(gl.FRAGMENT_SHADER, require('./shaders/sediadvect-frag.glsl')),
-  ]);
+    ]);
+
+    const macCormack = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/maccormack-frag.glsl')),
+    ]);
 
     const rains = new ShaderProgram([
         new Shader(gl.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
@@ -1147,6 +1308,8 @@ function main() {
         Render2Texture(renderer, gl, camera, clean, terrain_nor);
         Render2Texture(renderer, gl, camera, clean, read_sediment_blend);
         Render2Texture(renderer, gl, camera, clean, write_sediment_blend);
+        Render2Texture(renderer, gl, camera, clean, sediment_advect_a);
+        Render2Texture(renderer, gl, camera, clean, sediment_advect_b);
     }
 
     function rayCast(ro : vec3, rd : vec3){
@@ -1303,6 +1466,16 @@ function main() {
     sediadvect.setTimestep(controls.timestep);
     sediadvect.setFloat(controls.AdvectionSpeedScaling, "unif_advectionSpeedScale");
 
+
+
+    macCormack.setSimres(simresolution);
+    macCormack.setPipeLen(controls.pipelen);
+    macCormack.setKc(controls.Kc);
+    macCormack.setKs(controls.Ks);
+    macCormack.setKd(controls.Kd);
+    macCormack.setTimestep(controls.timestep);
+    macCormack.setFloat(controls.AdvectionSpeedScaling, "unif_advectionSpeedScale");
+
     thermalterrainflux.setSimres(simresolution);
     thermalterrainflux.setPipeLen(controls.pipelen);
     thermalterrainflux.setTimestep(controls.timestep);
@@ -1330,7 +1503,7 @@ function main() {
       //==========================  we begin simulation from now ===========================================
 
     for(let i = 0;i<speed;i++) {
-        SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect,rains,evaporation,average,thermalterrainflux, thermalapply, maxslippageheight, renderer, gl, camera);
+        SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect, macCormack,rains,evaporation,average,thermalterrainflux, thermalapply, maxslippageheight, renderer, gl, camera);
         SimFramecnt++;
     }
 
