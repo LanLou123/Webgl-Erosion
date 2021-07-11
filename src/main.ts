@@ -89,7 +89,7 @@ const controls = {
     Ks : 0.025,
     Kd : 0.004,
     timestep : 0.1,
-    pipeAra :  0.8,
+    pipeAra :  1.0,
     EvaporationConstant : 0.001,
     RainDegree : 4.5,
     AdvectionSpeedScaling : 1.0,

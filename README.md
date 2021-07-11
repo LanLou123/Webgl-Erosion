@@ -37,6 +37,8 @@
 ### some screenshots
 - experiment with meander effects (not stable atm, need to find better parameter combo)
 ![](screenshot/meander.png)
+- velocity heatmap visulized at an alluvial plain (delta) formed at the end of a river (now easier to make with permanent water source)
+![](screenshot/)
 - before
 ![](screenshot/bf.PNG) 
 - after

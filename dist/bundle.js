@@ -54817,7 +54817,7 @@ const controls = {
     Ks: 0.025,
     Kd: 0.004,
     timestep: 0.1,
-    pipeAra: 0.8,
+    pipeAra: 1.0,
     EvaporationConstant: 0.001,
     RainDegree: 4.5,
     AdvectionSpeedScaling: 1.0,
@@ -65193,7 +65193,7 @@ module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampl
 /* 45 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:\r\n\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_timestep;\r\nuniform float u_PipeArea;\r\nuniform float unif_thermalErosionScale;\r\n\r\nlayout (location = 0) out vec4 writeMaxslippage;\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n//\r\n//      x\r\n//  w   c   y\r\n//      z\r\n//\r\n\r\n\r\nvoid main() {\r\n\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float div = 1.f/u_SimRes;\r\n  float _maxHeightDiff = 4.50;\r\n\r\n  vec4 terraintop = texture(readTerrain,curuv+vec2(0.f,div));\r\n  vec4 terrainright = texture(readTerrain,curuv+vec2(div,0.f));\r\n  vec4 terrainbottom = texture(readTerrain,curuv+vec2(0.f,-div));\r\n  vec4 terrainleft = texture(readTerrain,curuv+vec2(-div,0.f));\r\n  vec4 terraincur = texture(readTerrain,curuv);\r\n\r\n  float maxLocalDiff = _maxHeightDiff * 0.01;\r\n  float avgDiff = (terraintop.x + terrainright.x + terrainbottom.x + terrainleft.x) * 0.25 - terraincur.x;\r\n  avgDiff = 10.0 * max(abs(avgDiff) - maxLocalDiff,0.0);\r\n\r\n  writeMaxslippage = vec4(max(_maxHeightDiff - avgDiff,0.0),0.0,0.0,1.0);\r\n\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, B: , A:\r\n\r\n\r\nuniform float u_SimRes;\r\nuniform float u_PipeLen;\r\nuniform float u_timestep;\r\nuniform float u_PipeArea;\r\nuniform float unif_thermalErosionScale;\r\n\r\nlayout (location = 0) out vec4 writeMaxslippage;\r\n\r\nin vec2 fs_Pos;\r\n\r\n\r\n\r\n//\r\n//      x\r\n//  w   c   y\r\n//      z\r\n//\r\n\r\n\r\nvoid main() {\r\n\r\n  vec2 curuv = 0.5f*fs_Pos+0.5f;\r\n  float div = 1.f/u_SimRes;\r\n  float _maxHeightDiff = 6.50;\r\n\r\n  vec4 terraintop = texture(readTerrain,curuv+vec2(0.f,div));\r\n  vec4 terrainright = texture(readTerrain,curuv+vec2(div,0.f));\r\n  vec4 terrainbottom = texture(readTerrain,curuv+vec2(0.f,-div));\r\n  vec4 terrainleft = texture(readTerrain,curuv+vec2(-div,0.f));\r\n  vec4 terraincur = texture(readTerrain,curuv);\r\n\r\n  float maxLocalDiff = _maxHeightDiff * 0.01;\r\n  float avgDiff = (terraintop.x + terrainright.x + terrainbottom.x + terrainleft.x) * 0.25 - terraincur.x;\r\n  avgDiff = 10.0 * max(abs(avgDiff) - maxLocalDiff,0.0);\r\n\r\n  writeMaxslippage = vec4(max(_maxHeightDiff - avgDiff,0.0),0.0,0.0,1.0);\r\n\r\n}\r\n"
 
 /***/ }),
 /* 46 */
