@@ -85,11 +85,11 @@ const controlscomp = {
 const controls = {
     tesselations: 5,
     pipelen:  1.0,//
-    Kc : 0.3,
-    Ks : 0.04,
-    Kd : 0.006,
+    Kc : 0.25,
+    Ks : 0.040,
+    Kd : 0.005,
     timestep : 0.1,
-    pipeAra :  1.0,
+    pipeAra :  1,
     EvaporationConstant : 0.001,
     RainDegree : 4.5,
     AdvectionSpeedScaling : 1.0,

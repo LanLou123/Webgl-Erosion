@@ -245,7 +245,7 @@ void main()
     if(u_SedimentTrace == 0){
         sedimentTrace = 1.0 - pow(3.0, -sval*330.0);
         sedimentTrace *= pow(abs(nor.y), 1.0);
-        sedimentTrace = sval * 60.0;
+        sedimentTrace = sval * 30.0;
     }
     finalcol = mix(finalcol, vec3(214.f/255.f,214.f/255.f,96.f/255.f),clamp(0.9 * sedimentTrace, 0.0, 1.0));
 
@@ -259,14 +259,14 @@ void main()
         fcol = normal;
         debug = false;
     }else if(u_TerrainDebug == 1){
-        fcol = texture(sedimap,fs_Uv).xyz * 2.0;
+        fcol = texture(sedimap,fs_Uv).xyz * 1.0;
     }else if(u_TerrainDebug == 2){
-        fcol = abs(texture(velmap,fs_Uv).xyz/2.0);
+        fcol = abs(texture(velmap,fs_Uv).xyz/15.0);
     }else if(u_TerrainDebug == 9){
 
         //fcol = vec3(length(texture(velmap,fs_Uv).xyz)/5.0);
 
-        float velSize = length(texture(velmap,fs_Uv).xyz) / 3.0;
+        float velSize = length(texture(velmap,fs_Uv).xyz) / 5.0;
         velSize = 1.0 - exp(-velSize); // 1 - pow(e, -x)
         float midVelBlend = 0.5;
         float highVelBlend = 1.0;
@@ -286,6 +286,7 @@ void main()
         fcol = texture(hightmap,fs_Uv).xyz;
         fcol.xy /= 200.0;
         fcol.y *= 80.0;
+        //fcol = vec3(fcol.z);
     }else if(u_TerrainDebug == 4){
         fcol = texture(fluxmap,fs_Uv).xyz / 3.0;
         if(fcol == vec3(0.0)){
@@ -310,7 +311,7 @@ void main()
             float ssval = texture(sedimap, fs_Uv).x;
             ssval = max(min(pow(2.0 * ssval, 0.6), 1.0), 0.0);
             vec3 ss = vec3(0.8, 0.8, 0.8);
-            float small = 0.1, large = 0.2;
+            float small = 0.04, large = 0.1;
             if (ssval <=small){
                 ss = mix(ss, vec3(0.99, 0.99, 0.0), ssval/small);
 

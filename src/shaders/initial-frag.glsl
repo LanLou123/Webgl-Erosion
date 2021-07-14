@@ -174,7 +174,10 @@ void main() {
     //terrain_hight = test(uv) * 500.0;
   float rainfall = .0f;
 
-    //terrain_hight *= (uv.x + 1.0);
+//    if(uv.x > 0.5)
+//    terrain_hight = (40.0 * (uv.x - 0.5));
+//    else
+//    terrain_hight = 0.0;
 
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
   initial = vec4(terrain_hight,rainfall,0.0,1.f);

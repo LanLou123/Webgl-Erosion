@@ -42,22 +42,22 @@ void main() {
   vec4 bottoms = texture(readSedi,curuv+vec2(0.f,-div)) * sediImpact;
   vec4 lefts = texture(readSedi,curuv+vec2(-div,0.f)) * sediImpact;
 
-
+  float damping = 1.0;
   vec4 curTerrain = texture(readTerrain,curuv);
-  vec4 curFlux = texture(readFlux,curuv);
+  vec4 curFlux = texture(readFlux,curuv) * damping;
   vec4 curs = texture(readSedi,curuv) * sediImpact;
 
 
 
-  float Htopout = (curTerrain.y+curTerrain.x + curs.x)-(top.y+top.x + tops.x);
-  float Hrightout = (curTerrain.y+curTerrain.x+curs.x)-(right.y+right.x+rights.x);
-  float Hbottomout = (curTerrain.y+curTerrain.x+curs.x)-(bottom.x+bottom.y+bottoms.x);
-  float Hleftout = (curTerrain.y+curTerrain.x+curs.x)-(left.y+left.x+lefts.x);
+//  float Htopout = (curTerrain.y+curTerrain.x + curs.x)-(top.y+top.x + tops.x);
+//  float Hrightout = (curTerrain.y+curTerrain.x+curs.x)-(right.y+right.x+rights.x);
+//  float Hbottomout = (curTerrain.y+curTerrain.x+curs.x)-(bottom.x+bottom.y+bottoms.x);
+//  float Hleftout = (curTerrain.y+curTerrain.x+curs.x)-(left.y+left.x+lefts.x);
 
-//  float Htopout = (curTerrain.y+curTerrain.x )-(top.y+top.x );
-//  float Hrightout = (curTerrain.y+curTerrain.x)-(right.y+right.x);
-//  float Hbottomout = (curTerrain.y+curTerrain.x)-(bottom.x+bottom.y);
-//  float Hleftout = (curTerrain.y+curTerrain.x)-(left.y+left.x);
+  float Htopout = (curTerrain.y+curTerrain.x )-(top.y+top.x );
+  float Hrightout = (curTerrain.y+curTerrain.x)-(right.y+right.x);
+  float Hbottomout = (curTerrain.y+curTerrain.x)-(bottom.x+bottom.y);
+  float Hleftout = (curTerrain.y+curTerrain.x)-(left.y+left.x);
 //
 //  Htopout = max(0.0, Htopout);
 //  Hbottomout = max(0.0, Hbottomout);
@@ -71,9 +71,9 @@ void main() {
   float fleftout = max(0.f,curFlux.w+(u_timestep*g*u_PipeArea*Hleftout)/pipelen);
 
 
-  float damping = 1.0;
+
   //damping = 1.0;
-  float k = min(1.f,((curTerrain.y )*u_PipeLen*u_PipeLen)/(u_timestep*(ftopout+frightout+fbottomout+fleftout))) * damping;
+  float k = min(1.f,((curTerrain.y )*u_PipeLen*u_PipeLen)/(u_timestep*(ftopout+frightout+fbottomout+fleftout))) ;
   //k = 1.0;
   //rescale outflow readFlux so that outflow don't exceed current water volume
   ftopout *= k;

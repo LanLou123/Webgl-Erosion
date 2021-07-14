@@ -62,18 +62,18 @@ void main(){
 
 
 
-  float d1 = cur.y + curs.x;
-  //float d1 = cur.y;
+  //float d1 = cur.y + curs.x;
+  float d1 = cur.y;
   float d2 = max(d1 + deltavol,0.0);
   float da = (d1 + d2)/2.0f;
 
-  vec2 veloci = vec2(inputflux.w-outputflux.w+outputflux.y-inputflux.y,inputflux.z-outputflux.z+outputflux.x-inputflux.x)/2.0;
+  vec2 veloci = vec2(leftflux.y-outputflux.w+outputflux.y-rightflux.w,bottomflux.x-outputflux.z+outputflux.x-topflux.z)/2.0;
 
-
+  vec2 vv = veloci;
 
   //veloci *= 100000.0;
-    if(da <= 1e-4) {
-      veloci = vec2(0.0);
+    if(da <= 0.05) {
+      veloci = veloci/(0.05 * u_PipeLen);//vec2(0.0);
     }else{
       veloci = veloci/(da * u_PipeLen);
     }
@@ -83,10 +83,10 @@ void main(){
   //veloci += curvel.xy * 0.5;
 
 
-  if(curuv.x<=div) {deltavol = 0.f; veloci = vec2(0.0);}
-  if(curuv.x>=1.f - 2.0 *div) {deltavol = 0.f; veloci = vec2(0.0);}
-  if(curuv.y<=div) {deltavol = 0.f;veloci = vec2(0.0);}
-  if(curuv.y>=1.f - 2.0 * div) {deltavol = 0.f;veloci = vec2(0.0);}
+//  if(curuv.x<=div) {deltavol = 0.f; veloci = vec2(0.0);}
+//  if(curuv.x>=1.f - 2.0 *div) {deltavol = 0.f; veloci = vec2(0.0);}
+//  if(curuv.y<=div) {deltavol = 0.f;veloci = vec2(0.0);}
+//  if(curuv.y>=1.f - 2.0 * div) {deltavol = 0.f;veloci = vec2(0.0);}
 
 //  float absx = abs(veloci.x);
 //  float absy = abs(veloci.y);
@@ -102,6 +102,6 @@ void main(){
 
 
   writeVel = vec4(veloci,0.f,1.f);
-  writeTerrain = vec4(cur.x,max(cur.y+deltavol, 0.0),cur.z,cur.w);
+  writeTerrain = vec4(cur.x,max(cur.y+deltavol, 0.0),( deltavol) * 11.0,cur.w);
 
 }

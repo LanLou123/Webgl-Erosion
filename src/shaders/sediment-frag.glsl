@@ -110,19 +110,20 @@ void main() {
   float velo = length(texture(readVelocity,curuv).xy);
   velo = length(newVel.xy);
   float slope = max(0.001f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
-  float sedicap = Kc*slope*velo ;// * pow(curTerrain.y,0.2) ;
+  float volC = 1.0 - exp(-curTerrain.y* (100.0));
+  float sedicap = Kc*slope*velo;// * pow(curTerrain.y,0.2) ;
   //sedicap *= pow(2.0,curTerrain.y);
   //sedicap = min(curTerrain.y * 2.0, sedicap); // TO DO : will the volume of water affect sediment capacity
   float lmax = 0.0f;
-  float maxdepth = 0.8;
+  float maxdepth = 1.8;
   if(curTerrain.y > maxdepth){ // max river bed depth
     lmax = 0.0f;
   }else{
-    lmax = 1.0;//((maxdepth - curTerrain.y)/maxdepth);
+    lmax = (max(maxdepth - curTerrain.y,0.0)/maxdepth);
   }
 
 
-  //sedicap *= lmax;
+ //sedicap *= lmax;
 
 
   float cursedi = curSediment.x;

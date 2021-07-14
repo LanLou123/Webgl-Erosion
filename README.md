@@ -25,7 +25,7 @@
 ## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
 
 
-![](screenshot/ranges1.PNG)
+![](screenshot/mtnn.PNG)
 
 ![](screenshot/td1.png)
 
@@ -36,10 +36,8 @@
 
 
 ### some screenshots
-- experiment with meander effects (not stable atm, need to find better parameter combo)
-![](screenshot/meander.png)
-- velocity heatmap visulized at an alluvial plain (delta) formed at the end of a river (now easier to make with permanent water source)
-![](screenshot/delta.PNG)
+- permanent water
+![](screenshot/highplace.PNG)
 - before
 ![](screenshot/bf.PNG) 
 - after
