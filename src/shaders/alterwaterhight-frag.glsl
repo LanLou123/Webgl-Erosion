@@ -62,8 +62,8 @@ void main(){
 
 
 
-  //float d1 = cur.y + curs.x;
-  float d1 = cur.y;
+  float d1 = cur.y + curs.x;
+  //float d1 = cur.y;
   float d2 = max(d1 + deltavol,0.0);
   float da = (d1 + d2)/2.0f;
 
@@ -72,11 +72,18 @@ void main(){
   vec2 vv = veloci;
 
   //veloci *= 100000.0;
-    if(da <= 0.05) {
-      veloci = veloci/(0.05 * u_PipeLen);//vec2(0.0);
+    if(da <= 0.0005) {
+      veloci = veloci/(0.0005 * u_PipeLen);//vec2(0.0);
     }else{
       veloci = veloci/(da * u_PipeLen);
     }
+
+
+//  if(da <= 1e-5) {
+//    veloci = vec2(0.0);
+//  }else{
+//    veloci = veloci/(da * u_PipeLen);
+//  }
 
   float velImportance = 2.0;
   //veloci = (curvel.xy + veloci * velImportance) / (1.0 + velImportance);

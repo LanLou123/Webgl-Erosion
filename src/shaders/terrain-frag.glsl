@@ -259,7 +259,7 @@ void main()
         fcol = normal;
         debug = false;
     }else if(u_TerrainDebug == 1){
-        fcol = texture(sedimap,fs_Uv).xyz * 1.0;
+        fcol = texture(sedimap,fs_Uv).xyz * 2.0;
     }else if(u_TerrainDebug == 2){
         fcol = abs(texture(velmap,fs_Uv).xyz/15.0);
     }else if(u_TerrainDebug == 9){
@@ -309,7 +309,7 @@ void main()
 
         if(u_SedimentTrace == 0){
             float ssval = texture(sedimap, fs_Uv).x;
-            ssval = max(min(pow(2.0 * ssval, 0.6), 1.0), 0.0);
+            ssval = max(min(pow(3.0 * ssval, 0.6), 1.0), 0.0);
             vec3 ss = vec3(0.8, 0.8, 0.8);
             float small = 0.04, large = 0.1;
             if (ssval <=small){
