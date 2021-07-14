@@ -1,5 +1,5 @@
 ﻿## Terrain erosion sandbox in WebGl
-
+![](screenshot/mtnn.PNG)
 ## update 7/11/2021 : 
 - permanent water source is added, you can pressed ```R``` to place it, see controls for details 
 - added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
@@ -25,7 +25,6 @@
 ## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
 
 
-![](screenshot/mtnn.PNG)
 
 ![](screenshot/td1.png)
 
