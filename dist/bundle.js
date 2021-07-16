@@ -54858,7 +54858,7 @@ const controls = {
     lightPosZ: -1.0,
     showScattering: true,
     enableBilateralBlur: true,
-    enableMacCormackAdvection: true,
+    AdvectionMethod: 1,
 };
 // ================ geometries ============
 // =============================================================
@@ -55120,7 +55120,7 @@ function SimulatePerStep(renderer, gl, camera, shader, waterhight, sedi, advect,
     // 4---use velocity map, sediment map to derive new sediment map :
     // velocity map + sediment map -----> sediment map
     //////////////////////////////////////////////////////////////////
-    if (controls.enableMacCormackAdvection) {
+    if (controls.AdvectionMethod == 1) {
         //4.1  first subpass writing to the intermidiate sediment advection texture a
         {
             gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
@@ -55566,7 +55566,7 @@ function main() {
     erosionpara.add(controls, 'Kd', 0.0001, 0.1);
     //erosionpara.add(controls,'AdvectionSpeedScaling', 0.1, 1.0);
     erosionpara.add(controls, 'TerrainDebug', { noDebugView: 0, sediment: 1, velocity: 2, velocityHeatmap: 9, terrain: 3, flux: 4, terrainflux: 5, maxslippage: 6, flowMap: 7, spikeDiffusion: 8 });
-    erosionpara.add(controls, 'enableMacCormackAdvection');
+    erosionpara.add(controls, 'AdvectionMethod', { Semilagrangian: 0, MacCormack: 1 });
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
     thermalerosionpara.add(controls, 'talusAngleFallOffCoeff', 0.0, 1.0);
