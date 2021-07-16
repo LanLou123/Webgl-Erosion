@@ -1,7 +1,7 @@
 ﻿## Terrain erosion sandbox in WebGl
 ![](screenshot/mtnn.PNG)
 ## uptate 7/15/2021 : 
-- came up & updated a self&sediment aware method for velocity calculation, see description below for detail
+- came up with & updated a self&sediment aware method for velocity calculation, see description below for detail
 ## update 7/11/2021 : 
 - permanent water source is added, you can pressed ```R``` to place it, see controls for details 
 - added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
