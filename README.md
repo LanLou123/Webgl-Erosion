@@ -90,8 +90,8 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
       
       - Water surface and velocity update:
         - water height is basically the change of water volume, which can be calculated with ```deltaTimes*(fin-fout)/(cellsizeX*cellsizeY)``` 
-          as for the velocity, the paper also gives:![](img/veleq.JPG)
-	- (update 7/15/2021) : Self&sediment aware method for velocity calculation : 
+          as for the velocity, the paper also gives:![](img/veleq.JPG) 
+        - (update 7/15/2021) : Self&sediment aware method for velocity calculation : 
           - I found all that the methods in original papers for velocity filed update almost always doesn't take the volume of sediment (that's supposed to be carried inside water body) into consideration, 
           - and I feel that we need to consider conner cases like when water volume is relatively small, sediments that's suspended in river should participate in the velocity calculation from cell pressures that's also comming from the sediment height diff apart from water height diff, 
           - I used a emperical (a little bit of a guess as well) function to get the old volume of water used for velocity calculation ```VolOld = (waterCurrent + SedimentCurrent * VelContributionFactor)``` and ```VelContributionFactor = pow((length(CurVelocity.xy) * alpha + 1.0), -2.0)```
