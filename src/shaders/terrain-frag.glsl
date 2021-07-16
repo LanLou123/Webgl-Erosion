@@ -261,7 +261,7 @@ void main()
     }else if(u_TerrainDebug == 1){
         fcol = texture(sedimap,fs_Uv).xyz * 2.0;
     }else if(u_TerrainDebug == 2){
-        fcol = abs(texture(velmap,fs_Uv).xyz/15.0);
+        fcol = abs(texture(velmap,fs_Uv).xyz/5.0);
     }else if(u_TerrainDebug == 9){
 
         //fcol = vec3(length(texture(velmap,fs_Uv).xyz)/5.0);
@@ -309,17 +309,18 @@ void main()
 
         if(u_SedimentTrace == 0){
             float ssval = texture(sedimap, fs_Uv).x;
-            ssval = max(min(pow(3.0 * ssval, 0.6), 1.0), 0.0);
+            //ssval = max(min(pow(3.0 * ssval, 0.6), 1.0), 0.0);
+            ssval = 1.0 - exp(-ssval * 5.0);
             vec3 ss = vec3(0.8, 0.8, 0.8);
-            float small = 0.04, large = 0.1;
+            float small = 0.4, large = 0.7;
             if (ssval <=small){
-                ss = mix(ss, vec3(0.99, 0.99, 0.0), ssval/small);
+                ss = mix(ss, vec3(0.99, 0.99, 0.5), ssval/small);
 
             } else if (ssval > small && ssval <= large){
-                ss = mix(vec3(0.99, 0.99, 0.0), vec3(0.0, 0.5, 0.99), (ssval - small)/(large - small));
+                ss = mix(vec3(0.99, 0.99, 0.5), vec3(0.0, 0.5, 0.5), (ssval - small)/(large - small));
             }
             else if (ssval > large){
-                ss = mix(vec3(0.0, 0.5, 0.99), vec3(0.0, 0.0, 0.99), (ssval - large)/(1.0 - large));
+                ss = mix(vec3(0.0, 0.5, 0.5), vec3(0.0, 0.0, 0.99), (ssval - large)/(1.0 - large));
             }
             fcol = mix(fcol, max(ss * lamb, vec3(0.0)), ssval);
         }

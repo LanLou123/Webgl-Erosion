@@ -61,8 +61,13 @@ void main(){
 
 
 
+  //float volFactor =  max(1.0 - exp((length(curvel.xy) - 10.0) * 0.3),0.0);
 
-  float d1 = cur.y + curs.x;
+  float velFactor = pow((length(curvel.xy) * 0.2 + 1.0), -2.0);// emperical function for self aware velocity calculation
+
+
+  float d1 = cur.y + curs.x * velFactor;
+  float d11 = cur.y;
   //float d1 = cur.y;
   float d2 = max(d1 + deltavol,0.0);
   float da = (d1 + d2)/2.0f;
