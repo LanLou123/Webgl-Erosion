@@ -240,14 +240,8 @@ void main()
     //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));
 
 
-    // sediment trace, unstable for now
-    float sedimentTrace = 0.0;
-    if(u_SedimentTrace == 0){
-        sedimentTrace = 1.0 - pow(3.0, -sval*330.0);
-        sedimentTrace *= pow(abs(nor.y), 1.0);
-        sedimentTrace = sval * 30.0;
-    }
-    finalcol = mix(finalcol, vec3(214.f/255.f,214.f/255.f,96.f/255.f),clamp(0.9 * sedimentTrace, 0.0, 1.0));
+
+
 
     //finalcol = mix(finalcol, vec3(0.5,0.1,0.1),texture(sedimap,fs_Uv).x);
 
@@ -312,12 +306,13 @@ void main()
             //ssval = max(min(pow(3.0 * ssval, 0.6), 1.0), 0.0);
             ssval = 1.0 - exp(-ssval * 5.0);
             vec3 ss = vec3(0.8, 0.8, 0.8);
+            ss = fcol;
             float small = 0.4, large = 0.7;
             if (ssval <=small){
-                ss = mix(ss, vec3(0.99, 0.99, 0.5), ssval/small);
+                ss = mix(ss, fcol, ssval/small);
 
             } else if (ssval > small && ssval <= large){
-                ss = mix(vec3(0.99, 0.99, 0.5), vec3(0.0, 0.5, 0.5), (ssval - small)/(large - small));
+                ss = mix(fcol, vec3(0.0, 0.5, 0.5), (ssval - small)/(large - small));
             }
             else if (ssval > large){
                 ss = mix(vec3(0.0, 0.5, 0.5), vec3(0.0, 0.0, 0.99), (ssval - large)/(1.0 - large));
@@ -326,8 +321,17 @@ void main()
         }
 
 
+//        float sedimentTrace = 0.0;
+//        if(u_SedimentTrace == 0){
+//            sedimentTrace = 1.0 - exp( -sval*60.0);
+//            //sedimentTrace *= pow(abs(nor.y), 1.0);
+//        }
+//        fcol = mix(fcol, vec3(214.f/255.f,114.f/255.f,56.f/255.f),sedimentTrace);
+
         fcol *= shadowCol * hue;
     }
+
+
     vec3 tmpCol = fcol;
     fcol += addcol;
 

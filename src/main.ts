@@ -89,7 +89,7 @@ const controls = {
     Ks : 0.040,
     Kd : 0.005,
     timestep : 0.1,
-    pipeAra :  1,
+    pipeAra :  0.6,
     EvaporationConstant : 0.001,
     RainDegree : 4.5,
     AdvectionSpeedScaling : 1.0,
@@ -113,7 +113,7 @@ const controls = {
     SedimentTrace : 0, // 0 on, 1 off
     TerrainPlatte : 1, // 0 normal alphine mtn, 1 desert, 2 jungle
     SnowRange : 0,
-    ForestRange : 5,
+    ForestRange : 0,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 12,
     brushStrenth : 0.40,

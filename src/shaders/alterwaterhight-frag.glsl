@@ -66,7 +66,8 @@ void main(){
   float velFactor = pow((length(curvel.xy) * 0.2 + 1.0), -2.0);// emperical function for self aware velocity calculation
 
 
-  float d1 = cur.y + curs.x * velFactor;
+
+  float d1 = max(cur.y + curs.x * velFactor,0.0);
   float d11 = cur.y;
   //float d1 = cur.y;
   float d2 = max(d1 + deltavol,0.0);
@@ -77,18 +78,18 @@ void main(){
   vec2 vv = veloci;
 
   //veloci *= 100000.0;
-    if(da <= 0.0005) {
-      veloci = veloci/(0.0005 * u_PipeLen);//vec2(0.0);
-    }else{
-      veloci = veloci/(da * u_PipeLen);
-    }
+//    if(da <= 0.0005) {
+//      veloci = veloci/(0.0005 * u_PipeLen);//vec2(0.0);
+//    }else{
+//      veloci = veloci/(da * u_PipeLen);
+//    }
 
 
-//  if(da <= 1e-5) {
-//    veloci = vec2(0.0);
-//  }else{
-//    veloci = veloci/(da * u_PipeLen);
-//  }
+  if(da <= 1e-5) {
+    veloci = vec2(0.0);
+  }else{
+    veloci = veloci/(da * u_PipeLen);
+  }
 
   float velImportance = 2.0;
   //veloci = (curvel.xy + veloci * velImportance) / (1.0 + velImportance);
