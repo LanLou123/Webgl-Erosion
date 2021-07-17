@@ -130,7 +130,7 @@ void main() {
                   }else if(u_BrushType == 2 && u_BrushPressed == 1){
                         addwater =  amount * dens * 280.0;
                         //float aw = noise(vec3(curuv * 100.0, u_Time));
-                        float aw = fbm(curuv*1.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
+                        float aw = fbm(curuv*200.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
                         addwater *= aw;
                         addwater = u_BrushOperation == 0 ? addwater : -addwater;
                   }
@@ -151,7 +151,7 @@ void main() {
 
                         addwater =  amount * dens * 280.0;
                         //float aw = noise(vec3(curuv * 100.0, u_Time));
-                        float aw = fbm(curuv*1.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
+                        float aw = fbm(curuv*200.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
                         addwater *= aw;
 
 
