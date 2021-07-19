@@ -1,12 +1,6 @@
 ﻿## Terrain erosion sandbox in WebGl
 ![](screenshot/mtnn.PNG)
 ![](screenshot/mtn11.PNG)
-## uptate 7/15/2021 : 
-- came up with & updated a self&sediment aware method for velocity calculation, see description below for detail
-## update 7/11/2021 : 
-- permanent water source is added, you can pressed ```R``` to place it, see controls for details 
-- added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
-- added MacCormack advection scheme for sediment advection, resulting in less numerical diffusion (referencing : ShaderX7 Advanced Rendering Techniques - starting page 207), you can find and toggle it on/off under ```erosionParameters``` in gui
 
 ## controls : 
 
@@ -33,11 +27,20 @@
 
 ![](screenshot/vol.PNG)
 
-
+## update 7/18/2021 : 
+- I found lower sediment advection speed makes more realistic alluvial fans and meander effects, I already updated the parameters for that
+## uptate 7/15/2021 : 
+- came up with & updated a self&sediment aware method for velocity calculation, see description below for detail
+## update 7/11/2021 : 
+- permanent water source is added, you can pressed ```R``` to place it, see controls for details 
+- added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
+- added MacCormack advection scheme for sediment advection, resulting in less numerical diffusion (referencing : ShaderX7 Advanced Rendering Techniques - starting page 207), you can find and toggle it on/off under ```erosionParameters``` in gui
 
 
 
 ### some screenshots
+- more realistic alluvial fan & meander from smaller advection speed
+![](screenshot/delta1.PNG)
 - permanent water
 ![](screenshot/highplace.PNG)
 - before
@@ -51,11 +54,11 @@
 ![](screenshot/rivv.PNG)
 
 
-### beautiful sediments ^_^
+### beautiful looking sediments traces 
 ![](screenshot/sedi.gif)
 
 
-![](screenshot/topdown.PNG)
+
 
 
  
@@ -84,13 +87,7 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
       - Water surface and velocity update:
         - water height is basically the change of water volume, which can be calculated with ```deltaTimes*(fin-fout)/(cellsizeX*cellsizeY)``` 
           as for the velocity, the paper also gives:![](img/veleq.JPG) 
-        - (update 7/15/2021) : Self&sediment aware method for velocity calculation : 
-          - I found that all the methods used in original papers for velocity field update almost always don't take the volume of sediment (that's supposed to be carried inside water body) into consideration, 
-          - and I feel that we need to consider conner cases like when water volume is relatively small, sediments that's suspended in river should also participate in the velocity calculation - cell pressures that's also comming from the sediment height diff, apart from just water height diff, 
-          - I used a emperical (a little bit of a guess as well) function to get the old volume of water used for velocity calculation ```VolOld = (waterCurrent + SedimentCurrent * VelContributionFactor)``` and ```VelContributionFactor = pow((length(CurVelocity.xy) * alpha + 1.0), - beta)```
-          - the reason I call this method self ware is that: intuitively, sediment have bigger momentum than water, therefore while it's suspended, it shoudld have smaller average velocity compared to surrounding water as an approximation, and therefore, it applies less backpressure on adjacent cells since their transient mass is smaller in this context, this effect will be more distinctive when water velocity is bigger. I ended up choosing a mutated reciprocal function to describe this behavior.
-          - this method will result in much nicer flat regions, before if we just put sediment straight up as a addition to water volume, you will get very ugly and noise flat bottom.
-      
+       
    - ***Erosion and Deposition*** : 
       first thing in this step is to aquire the sediment capacity for current water volume, which is simply  ![](img/cap.JPG), which is multiplication of terrain slope, capacity constant ```Kc``` and length of the current velocity
       second thing is to compare the current sediment with the capacity, if sediment > capacity, deposite some amount to current cell (Kd)

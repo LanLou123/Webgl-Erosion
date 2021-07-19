@@ -86,8 +86,8 @@ const controls = {
     tesselations: 5,
     pipelen:  1.0,//
     Kc : 0.25,
-    Ks : 0.040,
-    Kd : 0.005,
+    Ks : 0.050,
+    Kd : 0.004,
     timestep : 0.1,
     pipeAra :  0.6,
     EvaporationConstant : 0.001,

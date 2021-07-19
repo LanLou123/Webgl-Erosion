@@ -304,7 +304,7 @@ void main()
         if(u_SedimentTrace == 0){
             float ssval = texture(sedimap, fs_Uv).x;
             //ssval = max(min(pow(3.0 * ssval, 0.6), 1.0), 0.0);
-            ssval = 1.0 - exp(-ssval * 5.0);
+            ssval = 1.0 - exp(-ssval * 7.0);
             vec3 ss = vec3(0.8, 0.8, 0.8);
             ss = fcol;
             float small = 0.4, large = 0.7;
