@@ -84,7 +84,7 @@ const controlscomp = {
 
 const controls = {
     tesselations: 5,
-    pipelen:  1.0,//
+    pipelen:  0.8,//
     Kc : 0.25,
     Ks : 0.050,
     Kd : 0.004,

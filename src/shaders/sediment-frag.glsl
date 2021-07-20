@@ -115,7 +115,7 @@ void main() {
   //sedicap *= pow(2.0,curTerrain.y);
   //sedicap = min(curTerrain.y * 2.0, sedicap); // TO DO : will the volume of water affect sediment capacity
   float lmax = 0.0f;
-  float maxdepth = 1.8;
+  float maxdepth = 5.8;
   if(curTerrain.y > maxdepth){ // max river bed depth
     lmax = 0.0f;
   }else{
