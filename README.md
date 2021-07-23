@@ -21,7 +21,7 @@
 
 ## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
 
-![](screenshot/valley.PNG)
+![](screenshot/valley1.PNG)
 
 ![](screenshot/td1.png)
 
@@ -165,9 +165,11 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
 
 
 ### Future Plans:
+- Rain based erosion
+- Image(height map) I/O 
+- muti-layered(rock/sand/etc) erosion
 - Depth upsampling/downsampling for better edge effect for volumetric rendering
 - Better GUI & Visulization
-- muti-layered(rock/sand/etc) erosion
 - Terrain features like instaced tree placements
 - postprocessing effects (ray marched cloud for example, since ray marched Mie scattering is done, cloud should be fairly simple to work based on it)
 - muti-tiled based simulation (webgl might not be the best choice here)
