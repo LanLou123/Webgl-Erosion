@@ -21,7 +21,7 @@
 
 ## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
 
-
+![](screenshot/valley.PNG)
 
 ![](screenshot/td1.png)
 
@@ -29,8 +29,6 @@
 
 ## update 7/18/2021 : 
 - I found lower sediment advection speed makes more realistic alluvial fans and meander effects, I already updated the parameters for that
-## uptate 7/15/2021 : 
-- came up with & updated a self&sediment aware method for velocity calculation, see description below for detail
 ## update 7/11/2021 : 
 - permanent water source is added, you can pressed ```R``` to place it, see controls for details 
 - added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
