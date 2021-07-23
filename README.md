@@ -42,9 +42,9 @@
 - permanent water
 ![](screenshot/highplace.PNG)
 - before
-![](screenshot/bf.PNG) 
+![](screenshot/terrace2.PNG) 
 - after
-![](screenshot/af.PNG)
+![](screenshot/terrace1.PNG)
 
 ![](screenshot/tr2.PNG)
 
