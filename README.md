@@ -1,5 +1,5 @@
 ﻿## Terrain erosion sandbox in WebGl
-![](screenshot/mtnn.PNG)
+![](screenshot/title.PNG)
 ![](screenshot/mtn11.PNG)
 
 ## controls : 
