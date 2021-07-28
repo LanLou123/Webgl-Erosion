@@ -54830,6 +54830,7 @@ const controls = {
     'Reset': Reset,
     'setTerrainRandom': setTerrainRandom,
     'Pause': Pause,
+    SimulationSpeed: 3,
     TerrainBaseMap: 0,
     TerrainBaseType: 0,
     TerrainBiomeType: 1,
@@ -55551,6 +55552,7 @@ function main() {
     simcontrols.add(controls, 'Start/Resume');
     simcontrols.add(controls, 'Pause');
     simcontrols.add(controls, 'Reset');
+    simcontrols.add(controls, 'SimulationSpeed', { fast: 3, medium: 2, slow: 1 });
     simcontrols.open();
     var terrainParameters = gui.addFolder('Terrain Parameters');
     terrainParameters.add(controls, 'TerrainScale', 0.00, 4.0);
@@ -55880,7 +55882,7 @@ function main() {
         camera.update();
         stats.begin();
         //==========================  we begin simulation from now ===========================================
-        for (let i = 0; i < speed; i++) {
+        for (let i = 0; i < controls.SimulationSpeed; i++) {
             SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect, macCormack, rains, evaporation, average, thermalterrainflux, thermalapply, maxslippageheight, renderer, gl, camera);
             SimFramecnt++;
         }
