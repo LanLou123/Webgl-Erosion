@@ -49,15 +49,16 @@ void main() {
 
 
 
-//  float Htopout = (curTerrain.y+curTerrain.x + curs.x)-(top.y+top.x + tops.x);
-//  float Hrightout = (curTerrain.y+curTerrain.x+curs.x)-(right.y+right.x+rights.x);
-//  float Hbottomout = (curTerrain.y+curTerrain.x+curs.x)-(bottom.x+bottom.y+bottoms.x);
-//  float Hleftout = (curTerrain.y+curTerrain.x+curs.x)-(left.y+left.x+lefts.x);
+  float sedimentWeight = 0.4;
+  float Htopout = (curTerrain.y+curTerrain.x + curs.x * sedimentWeight)-(top.y+top.x + tops.x* sedimentWeight);
+  float Hrightout = (curTerrain.y+curTerrain.x+curs.x * sedimentWeight)-(right.y+right.x+rights.x * sedimentWeight);
+  float Hbottomout = (curTerrain.y+curTerrain.x+curs.x * sedimentWeight)-(bottom.x+bottom.y+bottoms.x * sedimentWeight);
+  float Hleftout = (curTerrain.y+curTerrain.x+curs.x * sedimentWeight)-(left.y+left.x+lefts.x * sedimentWeight);
 
-  float Htopout = (curTerrain.y+curTerrain.x )-(top.y+top.x );
-  float Hrightout = (curTerrain.y+curTerrain.x)-(right.y+right.x);
-  float Hbottomout = (curTerrain.y+curTerrain.x)-(bottom.x+bottom.y);
-  float Hleftout = (curTerrain.y+curTerrain.x)-(left.y+left.x);
+//  float Htopout = (curTerrain.y+curTerrain.x )-(top.y+top.x );
+//  float Hrightout = (curTerrain.y+curTerrain.x)-(right.y+right.x);
+//  float Hbottomout = (curTerrain.y+curTerrain.x)-(bottom.x+bottom.y);
+//  float Hleftout = (curTerrain.y+curTerrain.x)-(left.y+left.x);
 //
 //  Htopout = max(0.0, Htopout);
 //  Hbottomout = max(0.0, Hbottomout);

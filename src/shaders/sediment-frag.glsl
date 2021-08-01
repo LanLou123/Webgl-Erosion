@@ -132,8 +132,8 @@ void main() {
 
   float water = curTerrain.y;
 
-  if(sedicap>cursedi){
-    float changesedi = (sedicap-cursedi)*Ks;
+  if(sedicap * 0.9>cursedi){
+    float changesedi = (sedicap * 0.9-cursedi)*Ks;
     //changesedi = min(changesedi, curTerrain.y);
 
       hight = hight - changesedi;
