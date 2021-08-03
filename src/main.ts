@@ -1108,7 +1108,7 @@ function main() {
     terrainParameters.add(controls,'TerrainScale', 0.00, 4.0);
     terrainParameters.add(controls,'TerrainHeight', 1.0, 5.0);
     terrainParameters.add(controls,'TerrainSphereMask',{ON : 0 ,OFF : 1});
-    terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2, voroni : 3});
+    terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2, voroni : 3, ridgeNoise : 4});
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationConstant', 0.0001, 0.08);

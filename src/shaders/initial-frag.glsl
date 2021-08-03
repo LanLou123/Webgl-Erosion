@@ -71,7 +71,7 @@ float noise2(vec2 st) {
 
 //smooth========================================================================
 
-#define OCTAVES 22
+#define OCTAVES 12
 
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -108,7 +108,7 @@ float fbm (in vec2 st) {
     for (int i = 0; i < OCTAVES; i++) {
         value += amplitude * noise(st);//iqnoise(st,1.f,1.f);
         st *= 2.0;
-        amplitude *= .53;
+        amplitude *= .48;
     }
     return value;
 }
@@ -138,6 +138,10 @@ float circle_mask(vec2 p){
     return max(0.5 - distance(p, vec2(0.5)), 0.0) ;
 }
 
+float ridgenoise(float p) {
+    return 0.8 * (0.3 - abs(0.3 - p));
+}
+
 //nice one 5.3f*uv+vec2(178.f,27.f);
 
 // 6.f*vec2(uv.x,uv.y)+vec2(121.f,41.f);
@@ -149,21 +153,24 @@ void main() {
 
 
     float c_mask = circle_mask(uv);
-  vec2 cpos = 1.5 * uv * u_TerrainScale;
-  cpos = cpos + vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6);
-  float terrain_hight = fbm(cpos*2.0)/1.0;
+    vec2 cpos = 1.5 * uv * u_TerrainScale;
+    cpos = cpos + vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6);
+    float terrain_hight = fbm(cpos*2.0)/1.0;
     float base_height = fbm(cpos*6.2)/1.0;
 
 
 
 
     terrain_hight = pow(terrain_hight,3.0)/1.0;
+    //terrain_hight = ridgenoise(terrain_hight);
     if(u_terrainBaseType == 2){
         terrain_hight = teR(terrain_hight / 1.2);
     }else if(u_terrainBaseType == 1){
         terrain_hight = domainwarp(cpos * 2.0)/1.0;
     }else if(u_terrainBaseType == 3){
         terrain_hight = voroni(cpos * 2.0)/3.0;
+    }else if(u_terrainBaseType == 4){
+        terrain_hight =  ridgenoise(pow(fbm(cpos*1.5),2.0));
     }
 
 
@@ -172,7 +179,7 @@ void main() {
         terrain_hight *= 2.0 * pow(c_mask, 1.0);
     }
     //terrain_hight = test(uv) * 500.0;
-  float rainfall = .0f;
+    float rainfall = .0f;
 
 //    if(uv.x > 0.5)
 //    terrain_hight = (40.0 * (uv.x - 0.5));
@@ -180,6 +187,6 @@ void main() {
 //    terrain_hight = 0.0;
 
   //if(uv.x>0.6||uv.x<0.5||uv.y>0.6||uv.y<0.5) rainfall = 0.f;
-  initial = vec4(terrain_hight,rainfall,0.0,1.f);
-  initial2= vec4(terrain_hight,rainfall,0.0,1.f);
+    initial = vec4(terrain_hight,rainfall,0.0,1.f);
+    initial2= vec4(terrain_hight,rainfall,0.0,1.f);
 }
