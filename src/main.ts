@@ -91,6 +91,7 @@ const controls = {
     timestep : 0.1,
     pipeAra :  0.6,
     EvaporationConstant : 0.001,
+    VelocityMultiplier : 1,
     RainDegree : 4.5,
     AdvectionSpeedScaling : 1.0,
     spawnposx : 0.5,
@@ -1119,6 +1120,7 @@ function main() {
     //erosionpara.add(controls,'AdvectionSpeedScaling', 0.1, 1.0);
     erosionpara.add(controls, 'TerrainDebug', {noDebugView : 0, sediment : 1, velocity : 2, velocityHeatmap : 9, terrain : 3, flux : 4, terrainflux : 5, maxslippage : 6, flowMap : 7, spikeDiffusion : 8});
     erosionpara.add(controls, 'AdvectionMethod', {Semilagrangian : 0, MacCormack : 1});
+    erosionpara.add(controls, 'VelocityMultiplier',1.0,5.0);
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
     thermalerosionpara.add(controls,'talusAngleFallOffCoeff',0.0, 1.0 );
@@ -1452,6 +1454,7 @@ function main() {
     waterhight.setSimres(simresolution);
     waterhight.setTimestep(controls.timestep);
     waterhight.setPipeArea(controls.pipeAra);
+    waterhight.setFloat(controls.VelocityMultiplier, 'u_VelMult');
 
     sediment.setSimres(simresolution);
     sediment.setPipeLen(controls.pipelen);

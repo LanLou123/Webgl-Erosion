@@ -37,8 +37,8 @@
 
 
 ### some screenshots
-- more realistic alluvial fan & meander from smaller advection speed
-![](screenshot/delta1.PNG)
+- results of larger velocity mutiplier coupled with different brush strength created more realistic larger scale mountain ranges : 
+![](screenshot/highvel.PNG)
 - permanent water
 ![](screenshot/highplace.PNG)
 - before

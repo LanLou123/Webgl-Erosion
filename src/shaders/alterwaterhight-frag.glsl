@@ -10,6 +10,7 @@ uniform float u_SimRes;
 uniform float u_PipeLen;
 uniform float u_timestep;
 uniform float u_PipeArea;
+uniform float u_VelMult;
 
 layout (location = 0) out vec4 writeTerrain;
 layout (location = 1) out vec4 writeVel;
@@ -114,7 +115,7 @@ void main(){
 //  }
 
 
-  writeVel = vec4(veloci,0.f,1.f);
+  writeVel = vec4(veloci * u_VelMult ,0.f,1.f);
   writeTerrain = vec4(cur.x,max(cur.y+deltavol, 0.0),( deltavol) * 11.0,cur.w);
 
 }
