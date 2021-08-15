@@ -16,8 +16,7 @@ layout (location = 0) out vec4 writeSediment;
 layout (location = 1) out vec4 writeVel;
 layout (location = 2) out vec4 writeSediBlend;
 
-// The fragment shader used to render the background of the scene
-// Modify this to make your background more interesting
+
 
 in vec2 fs_Pos;
 

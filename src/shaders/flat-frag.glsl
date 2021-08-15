@@ -5,8 +5,6 @@ uniform sampler2D hightmap;
 uniform sampler2D sceneDepth;
 uniform sampler2D shadowMap;
 
-// The fragment shader used to render the background of the scene
-// Modify this to make your background more interesting
 
 uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;

@@ -1,5 +1,5 @@
 ﻿## Terrain erosion sandbox in WebGl
-![](screenshot/mtn11.PNG)
+
 ![](screenshot/rnd11.PNG)
 
 ## controls : 
@@ -37,7 +37,7 @@
 
 
 ### some screenshots
-- results of larger velocity mutiplier coupled with different brush strength created more realistic larger scale mountain ranges : 
+
 ![](screenshot/highvel.PNG)
 - permanent water
 ![](screenshot/highplace.PNG)

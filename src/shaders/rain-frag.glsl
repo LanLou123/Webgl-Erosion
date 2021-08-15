@@ -116,6 +116,7 @@ void main() {
       float addterrain = 0.0;
       float addwater = 0.0;
       float amount = 0.0006 * u_BrushStrength;
+      // normal water brush
       if(u_BrushType != 0){
             vec3 ro = u_MouseWorldPos.xyz;
             vec3 rd = u_MouseWorldDir;
@@ -128,9 +129,23 @@ void main() {
                         addterrain =  amount * 1.0 * 280.0;
                         addterrain = u_BrushOperation == 0 ? addterrain : -addterrain;
                   }else if(u_BrushType == 2 && u_BrushPressed == 1){
+//                        float smallradius = 0.01 * u_BrushSize / 4.0f;
+//                        float rdx = random(vec2(30.0,cos(u_Time)));
+//                        float rdy = random(vec2(u_Time,10.0));
+//
+//                        float dis2center = distance(pointOnPlane, vec2(rdx,rdy));
+//                        float dis2small = distance(vec2(rdx,rdy), curuv);
+//                        if(dis2center < 0.01 * u_BrushSize && dis2small < smallradius){
+//                              addwater =  amount * dens * 280.0;
+//                              addwater *= 1.0;
+//                              addwater = u_BrushOperation == 0 ? addwater : -addwater;
+//                        }
+
+
                         addwater =  amount * dens * 280.0;
                         //float aw = noise(vec3(curuv * 100.0, u_Time));
-                        float aw = fbm(curuv*200.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
+                        float aw = fbm(curuv*100.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
+                        //aw = pow(aw, 8.0);
                         addwater *= aw;
                         addwater = u_BrushOperation == 0 ? addwater : -addwater;
                   }
@@ -138,7 +153,7 @@ void main() {
             }
 
       }
-
+      // permanent water source brush
       if(u_pBrushOn != 0){
             vec3 ro = u_MouseWorldPos.xyz;
             vec3 rd = u_MouseWorldDir;

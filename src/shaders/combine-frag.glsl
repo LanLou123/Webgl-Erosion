@@ -10,13 +10,7 @@ uniform float evapod;
 layout (location = 0) out vec4 result;
 
 
-// The fragment shader used to render the background of the scene
-// Modify this to make your background more interesting
-
 in vec2 fs_Pos;
-
-
-
 
 
 void main() {
