@@ -244,7 +244,7 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     //rayAttenuation = clamp(rayAttenuation, 0.0, 1.0);
 
     vec4 col = vec4(0.0);
-    vec3 fog_col = 1.0 *  vec3(0.6,0.6,0.6) * clamp(rayAttenuation,0.0,1.0);
+    vec3 fog_col = 2.0 *  vec3(0.6,0.6,0.6) * clamp(rayAttenuation,0.0,1.0);
     float fog_alpha = 1.0 * rayAttenuation;
     float scatter_alpha_acc_all = fog_alpha / float(SCATTER_MARCH_STEPS);
     float scatter_alpha_acc = scatter_alpha_acc_all*1.0/ 14.0;

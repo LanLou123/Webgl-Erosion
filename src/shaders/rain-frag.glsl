@@ -123,7 +123,7 @@ void main() {
             vec2 pointOnPlane = u_BrushPos;
             float pdis2fragment = distance(pointOnPlane, curuv);
             if (pdis2fragment < 0.01 * u_BrushSize){
-                  float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);
+                  float dens = (0.01 * u_BrushSize - pdis2fragment * 0.5) / (0.01 * u_BrushSize);
 
                   if(u_BrushType == 1 && u_BrushPressed == 1){
                         addterrain =  amount * 1.0 * 280.0;

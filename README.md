@@ -1,6 +1,6 @@
 ﻿## Terrain erosion sandbox in WebGl
 
-![](screenshot/rnd11.PNG)
+![](screenshot/nthumb.PNG)
 
 ## controls : 
 
@@ -21,24 +21,18 @@
 
 ## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
 
-![](screenshot/valley1.PNG)
+![](screenshot/cliff1.PNG)
 
 ![](screenshot/td1.png)
 
-![](screenshot/vol.PNG)
+![](screenshot/scatter1.PNG)
 
-## update 7/18/2021 : 
-- I found lower sediment advection speed makes more realistic alluvial fans and meander effects, I already updated the parameters for that
-## update 7/11/2021 : 
-- permanent water source is added, you can pressed ```R``` to place it, see controls for details 
-- added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
-- added MacCormack advection scheme for sediment advection, resulting in less numerical diffusion (referencing : ShaderX7 Advanced Rendering Techniques - starting page 207), you can find and toggle it on/off under ```erosionParameters``` in gui
+
 
 
 
 ### some screenshots
 
-![](screenshot/highvel.PNG)
 - permanent water
 ![](screenshot/highplace.PNG)
 - before
@@ -52,7 +46,7 @@
 ![](screenshot/rivv.PNG)
 
 
-### beautiful looking sediments traces 
+### sediments advection in action 
 ![](screenshot/sedi.gif)
 
 
@@ -162,9 +156,15 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - sidenote here : threeJS's orbitcontrol has a function call in it's onMouseDown callback named ```event.preventDefault()`` to disable further mouseMoveEvent callbacks so that only it's own member has access to mouse pos, this happened to make my mousecallback responsible for raycasting ineffective, need to remember comment out that preventdefault thingy when simmilar things happen in the future
 
 
-
+## update 7/18/2021 : 
+- I found lower sediment advection speed makes more realistic alluvial fans and meander effects, I already updated the parameters for that
+## update 7/11/2021 : 
+- permanent water source is added, you can pressed ```R``` to place it, see controls for details 
+- added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
+- added MacCormack advection scheme for sediment advection, resulting in less numerical diffusion (referencing : ShaderX7 Advanced Rendering Techniques - starting page 207), you can find and toggle it on/off under ```erosionParameters``` in gui
 
 ### Future Plans:
+- options for changing sim resolution
 - Rain based erosion
 - Image(height map) I/O 
 - muti-layered(rock/sand/etc) erosion

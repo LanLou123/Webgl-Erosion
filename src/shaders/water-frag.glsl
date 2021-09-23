@@ -69,6 +69,8 @@ void main()
     dpVal = clamp(dpVal, 0.0,4.0);
     //dpVal = pow(dpVal, 0.1);
 
+    dpVal = 1.0 - exp(-dpVal * 1.0);
+
 
     float fbias = 0.2;
     float fscale = 0.2;
@@ -101,6 +103,6 @@ void main()
 
 
 
-    out_Col = vec4(vec3(0.0,0.2,0.5) + R * reflectedSky + watercolorspec  , (.5 + spec) * u_WaterTransparency * dpVal);
+    out_Col = vec4(vec3(0.0,0.3,0.5) + R * reflectedSky + watercolorspec  , (1.8 + spec) * u_WaterTransparency * dpVal);
     col_reflect = vec4(1.0);
 }

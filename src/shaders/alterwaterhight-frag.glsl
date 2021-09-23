@@ -11,6 +11,7 @@ uniform float u_PipeLen;
 uniform float u_timestep;
 uniform float u_PipeArea;
 uniform float u_VelMult;
+uniform float u_Time;
 
 layout (location = 0) out vec4 writeTerrain;
 layout (location = 1) out vec4 writeVel;
@@ -19,6 +20,13 @@ layout (location = 1) out vec4 writeVel;
 
 in vec2 fs_Pos;
 #define PI 3.1415926
+
+
+float random (in vec2 st) {
+  return fract(sin(dot(st.xy,
+  vec2(12.9898,78.233)))*
+  43758.5453123);
+}
 
 void main(){
 
@@ -68,13 +76,19 @@ void main(){
 
   //float velFactor = pow((cur.y * 2.9 + 1.0), -2.0);
 
-  float d1 = max(cur.y + curs.x * 0.4,0.0);
+
+  vec2 randTime = vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6) + curuv * 10.0;
+  float rnd = random(randTime);
+
+  float d1 = max(cur.y + curs.x * 0.04,0.0);
   float d11 = cur.y;
   //float d1 = cur.y;
   float d2 = max(d1 + deltavol,0.0);
   float da = (d1 + d2)/2.0f;
 
   vec2 veloci = vec2(leftflux.y-outputflux.w+outputflux.y-rightflux.w,bottomflux.x-outputflux.z+outputflux.x-topflux.z)/2.0;
+
+  if(cur.y == 0.0 && deltavol == 0.0) veloci = vec2(0.0,0.0);
 
   vec2 vv = veloci;
 
@@ -114,7 +128,9 @@ void main(){
 //    veloci /= 20.0;
 //  }
 
-
+//  if(length(veloci) < 0.50 && length(veloci) != 0.0){
+//    veloci *= (0.50 / length(veloci));
+//  }
   writeVel = vec4(veloci * u_VelMult ,0.f,1.f);
   writeTerrain = vec4(cur.x,max(cur.y+deltavol, 0.0),( deltavol) * 11.0,cur.w);
 

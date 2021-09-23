@@ -59,7 +59,7 @@ void main() {
 
 
     vec4 useVel = curvel/u_SimRes;
-    useVel *= unif_advectMultiplier * 0.9;
+    useVel *= unif_advectMultiplier * 0.5;
 
 
 
