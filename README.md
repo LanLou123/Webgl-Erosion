@@ -28,6 +28,12 @@
 ![](screenshot/scatter1.PNG)
 
 
+## update 9/24/2021 : 
+- Added option to change simulation resolution
+## update 7/11/2021 : 
+- permanent water source is added, you can pressed ```R``` to place it, see controls for details 
+- added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
+- added MacCormack advection scheme for sediment advection, resulting in less numerical diffusion (referencing : ShaderX7 Advanced Rendering Techniques - starting page 207), you can find and toggle it on/off under ```erosionParameters``` in gui
 
 
 
@@ -157,12 +163,6 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - ray cast into the height map buffer to estimate collison location
    - sidenote here : threeJS's orbitcontrol has a function call in it's onMouseDown callback named ```event.preventDefault()`` to disable further mouseMoveEvent callbacks so that only it's own member has access to mouse pos, this happened to make my mousecallback responsible for raycasting ineffective, need to remember comment out that preventdefault thingy when simmilar things happen in the future
 
-## update 9/24/2021 : 
-- Added option to change simulation resolution
-## update 7/11/2021 : 
-- permanent water source is added, you can pressed ```R``` to place it, see controls for details 
-- added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
-- added MacCormack advection scheme for sediment advection, resulting in less numerical diffusion (referencing : ShaderX7 Advanced Rendering Techniques - starting page 207), you can find and toggle it on/off under ```erosionParameters``` in gui
 
 ### Future Plans:
 - options for changing sim resolution

@@ -110,7 +110,7 @@ void main() {
   float velo = length(texture(readVelocity,curuv).xy);
   velo = length(newVel.xy);
   float slopeMulti = 5.0 * pow(abs(slopeSin),4.0);
-  float slope = max(0.1f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
+  float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float volC = 1.0 - exp(-curTerrain.y* (100.0));
   float sedicap = Kc*pow(slope,1.0)*pow(velo,1.0);// * pow(curTerrain.y,0.2) ;
   //sedicap *= pow(2.0,curTerrain.y);
