@@ -35,7 +35,7 @@ void main() {
 
       // simple tone mapping
       float gamma = 0.7;
-      float exposure = 1.8;
+      float exposure = 1.5;
 
       vec3 mapped = vec3(1.0) - exp(-color.xyz * exposure);
 

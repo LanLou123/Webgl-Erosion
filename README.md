@@ -33,12 +33,14 @@
 
 ### some screenshots
 
+- delta (or at least a similar one) formed at the river mouth
+![](screenshot/delta.PNG)
 - permanent water
 ![](screenshot/highplace.PNG)
 - before
-![](screenshot/terrace2.PNG) 
+![](screenshot/af1.PNG) 
 - after
-![](screenshot/terrace1.PNG)
+![](screenshot/bf1.PNG)
 
 ![](screenshot/tr2.PNG)
 
@@ -155,9 +157,8 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
    - ray cast into the height map buffer to estimate collison location
    - sidenote here : threeJS's orbitcontrol has a function call in it's onMouseDown callback named ```event.preventDefault()`` to disable further mouseMoveEvent callbacks so that only it's own member has access to mouse pos, this happened to make my mousecallback responsible for raycasting ineffective, need to remember comment out that preventdefault thingy when simmilar things happen in the future
 
-
-## update 7/18/2021 : 
-- I found lower sediment advection speed makes more realistic alluvial fans and meander effects, I already updated the parameters for that
+## update 9/24/2021 : 
+- Added option to change simulation resolution
 ## update 7/11/2021 : 
 - permanent water source is added, you can pressed ```R``` to place it, see controls for details 
 - added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
