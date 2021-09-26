@@ -39,7 +39,7 @@
 
 ### some screenshots
 
-- delta (or at least a similar one) formed at the river mouth
+- alluvial fan (or at least a similar one) formed at the mountain exit
 ![](screenshot/delta.PNG)
 - permanent water
 ![](screenshot/highplace.PNG)

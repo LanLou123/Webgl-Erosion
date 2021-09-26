@@ -67,7 +67,7 @@ const controlscomp = {
     SnowRange : 0,
     ForestRange : 5,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
-    brushSize : 12,
+    brushSize : 6,
     brushStrenth : 1.2,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
@@ -118,8 +118,8 @@ const controls = {
     SnowRange : 0,
     ForestRange : 0,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
-    brushSize : 12,
-    brushStrenth : 0.40,
+    brushSize : 6,
+    brushStrenth : 0.30,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     pbrushOn : 0,
