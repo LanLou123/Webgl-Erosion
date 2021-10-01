@@ -25,6 +25,8 @@
 
 ![](screenshot/td1.png)
 
+![](screenshot/hills.PNG)
+
 ![](screenshot/scatter1.PNG)
 
 
@@ -39,6 +41,7 @@
 
 ### some screenshots
 
+![](screenshot/riv.PNG)
 - alluvial fan (or at least a similar one) formed at the mountain exit
 ![](screenshot/delta.PNG)
 - permanent water
@@ -50,8 +53,6 @@
 
 ![](screenshot/tr2.PNG)
 
-#### updated sediment trace
-![](screenshot/rivv.PNG)
 
 
 ### sediments advection in action 

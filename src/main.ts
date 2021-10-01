@@ -1171,7 +1171,7 @@ function main() {
     simcontrols.add(controls,'SimulationSpeed',{fast:3,medium : 2, slow : 1});
     simcontrols.open();
     var terrainParameters = gui.addFolder('Terrain Parameters');
-    terrainParameters.add(controls,'SimulationResolution',{256 : 256 , 512 : 512, 1024 : 1024} );
+    terrainParameters.add(controls,'SimulationResolution',{256 : 256 , 512 : 512, 1024 : 1024, 2048 : 2048} );
     terrainParameters.add(controls,'TerrainScale', 0.00, 4.0);
     terrainParameters.add(controls,'TerrainHeight', 1.0, 5.0);
     terrainParameters.add(controls,'TerrainSphereMask',{ON : 0 ,OFF : 1});
@@ -1532,7 +1532,8 @@ function main() {
     sediment.setKc(controls.Kc);
     sediment.setKs(controls.Ks);
     sediment.setKd(controls.Kd);
-    sediment.setTimestep(controls.timestep)
+    sediment.setTimestep(controls.timestep);
+    sediment.setTime(timer);
 
     sediadvect.setSimres(simres);
     sediadvect.setPipeLen(controls.pipelen);
@@ -1620,7 +1621,7 @@ function main() {
 
       let lightViewMat = mat4.create();
       let lightProjMat = mat4.create();
-      lightProjMat = mat4.ortho(lightProjMat,-0.6,0.6,-0.6,0.6,0,100);
+      lightProjMat = mat4.ortho(lightProjMat,-1.6,1.6,-1.6,1.6,0,100);
       lightViewMat = mat4.lookAt(lightViewMat, [controls.lightPosX,controls.lightPosY,controls.lightPosZ],[0,0,0],[0,1,0]);
 
       gl_context.uniformMatrix4fv(gl_context.getUniformLocation(shadowMapShader.prog,'u_proj'),false,lightProjMat);

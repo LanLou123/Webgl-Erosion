@@ -11,6 +11,7 @@ uniform float u_Ks;
 uniform float u_Kc;
 uniform float u_Kd;
 uniform float u_timestep;
+uniform float u_Time;
 
 layout (location = 0) out vec4 writeTerrain;
 layout (location = 1) out vec4 writeSediment;
@@ -23,6 +24,12 @@ layout (location = 3) out vec4 writeVelocity;
 
 in vec2 fs_Pos;
 
+
+float random (in vec2 st) {
+  return fract(sin(dot(st.xy,
+  vec2(12.9898,78.233)))*
+  43758.5453123);
+}
 
 vec3 calnor(vec2 uv){
   float eps = 1.f/u_SimRes;
@@ -88,6 +95,7 @@ void main() {
   vec4 curSediment = texture(readSediment,curuv);
   vec4 curTerrain = texture(readTerrain,curuv);
 
+
   //    t
   //
   // l  c--r
@@ -106,11 +114,10 @@ void main() {
 
 
 
-
-  float velo = length(texture(readVelocity,curuv).xy);
-  velo = length(newVel.xy);
+  //float velo = length(texture(readVelocity,curuv).xy);
+  float velo = length(newVel.xy);
   float slopeMulti = 5.0 * pow(abs(slopeSin),4.0);
-  float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
+  float slope = max(0.1f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float volC = 1.0 - exp(-curTerrain.y* (100.0));
   float sedicap = Kc*pow(slope,1.0)*pow(velo,1.0);// * pow(curTerrain.y,0.2) ;
   //sedicap *= pow(2.0,curTerrain.y);
