@@ -142,7 +142,7 @@ void main() {
 //                        }
 
 
-                        addwater =  amount * dens * 280.0;
+                        addwater =  amount * dens * 200.0;
                         //float aw = noise(vec3(curuv * 100.0, u_Time));
                         float aw = fbm(curuv*100.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
                         //aw = pow(aw, 8.0);

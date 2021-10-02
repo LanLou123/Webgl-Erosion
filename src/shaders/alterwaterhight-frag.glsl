@@ -106,7 +106,7 @@ void main(){
   // , it can make the sediment go entirely randomly and chaoticly when water happen to be very shallow, and I have been quite troubled by this issue for a while)
   //
   if(cur.y < 0.01){
-    //veloci *= (0.06 - cur.y)/0.06;
+    //veloci *= (0.01 - cur.y)/0.01;
     veloci = vec2(0.0);
   }
 
