@@ -20,7 +20,7 @@ layout (location = 1) out vec4 writeVel;
 
 in vec2 fs_Pos;
 #define PI 3.1415926
-
+#define SQRT2 1.414
 
 float random (in vec2 st) {
   return fract(sin(dot(st.xy,
@@ -64,73 +64,54 @@ void main(){
 
   float fout = ftopout+frightout+fbottomout+fleftout;
   float fin = topflux.z+rightflux.w+bottomflux.x+leftflux.y;
-  //fin = inputflux.x + inputflux.y + inputflux.z + inputflux.w;
+
 
   float deltavol = u_timestep*(fin-fout)/(u_PipeLen*u_PipeLen);
 
 
+  //float velFactor = pow((length(curvel.xy) * 0.2 + 1.0), -2.0);// emperical function for self aware velocity calculation
 
-  //float volFactor =  max(1.0 - exp((length(curvel.xy) - 10.0) * 0.3),0.0);
 
-  float velFactor = pow((length(curvel.xy) * 0.2 + 1.0), -2.0);// emperical function for self aware velocity calculation
-
-  //float velFactor = pow((cur.y * 2.9 + 1.0), -2.0);
 
 
   vec2 randTime = vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6) + curuv * 10.0;
   float rnd = random(randTime);
 
-  float d1 = max(cur.y + curs.x * 0.04,0.0);
+  float d1 = max(cur.y + curs.x * 0.0,0.0);
   float d11 = cur.y;
-  //float d1 = cur.y;
   float d2 = max(d1 + deltavol,0.0);
   float da = (d1 + d2)/2.0f;
-
   vec2 veloci = vec2(leftflux.y-outputflux.w+outputflux.y-rightflux.w,bottomflux.x-outputflux.z+outputflux.x-topflux.z)/2.0;
-
   if(cur.y == 0.0 && deltavol == 0.0) veloci = vec2(0.0,0.0);
 
-  vec2 vv = veloci;
 
-  //veloci *= 100000.0;
     if(da <= 0.0005) {
       veloci = vec2(0.0);
     }else{
       veloci = veloci/(da * u_PipeLen);
     }
 
-
-//  if(da <= 1e-5) {
-//    veloci = vec2(0.0);
-//  }else{
-//    veloci = veloci/(da * u_PipeLen);
-//  }
-
-  float velImportance = 2.0;
-  //veloci = (curvel.xy + veloci * velImportance) / (1.0 + velImportance);
-  //veloci += curvel.xy * 0.5;
+  // my attempts trying to mitigate axis aligning problem, none worked :(
+//    vec2 velnorm = normalize(veloci);
+//    float lvel = abs(velnorm.x) >= abs(velnorm.y) ? abs(velnorm.x) : abs(velnorm.y);
+//    float svel = abs(velnorm.x) < abs(velnorm.y) ? abs(velnorm.x) : abs(velnorm.y);
+//    float sl = sqrt(velnorm.x * velnorm.x + velnorm.y * velnorm.y);
 
 
-//  if(curuv.x<=div) {deltavol = 0.f; veloci = vec2(0.0);}
-//  if(curuv.x>=1.f - 2.0 *div) {deltavol = 0.f; veloci = vec2(0.0);}
-//  if(curuv.y<=div) {deltavol = 0.f;veloci = vec2(0.0);}
-//  if(curuv.y>=1.f - 2.0 * div) {deltavol = 0.f;veloci = vec2(0.0);}
 
-//  float absx = abs(veloci.x);
-//  float absy = abs(veloci.y);
-//  float maxxy = max(absx, absy);
-//  float minxy = min(absx, absy);
-//  float tantheta = minxy / maxxy;
-//  float scale = cos(45.0 * PI / 180.0 - atan(tantheta));
-//  float divtheta = (1.0/sqrt(2.0)) / scale;
-//  float divs = min(abs(veloci.x), abs(veloci.y))/max(abs(veloci.x), abs(veloci.y));
-//  if((divs) > 20.0){
-//    veloci /= 20.0;
-//  }
 
-//  if(length(veloci) < 0.50 && length(veloci) != 0.0){
-//    veloci *= (0.50 / length(veloci));
-//  }
+
+  // !!! very important !!! : disregard really small body of water as it will disrupt the sediment advection step (since advection is only dependent on velocity, small water body will
+  // be the numerical limitation for the lower threshold of simulation can handle, any value below it will be treated qually regardless of their own differences, and this is really bad
+  // , it can make the sediment go entirely randomly and chaoticly when water happen to be very shallow, and I have been quite troubled by this issue for a while)
+  //
+  if(cur.y < 0.01){
+    //veloci *= (0.06 - cur.y)/0.06;
+    veloci = vec2(0.0);
+  }
+
+
+
   writeVel = vec4(veloci * u_VelMult ,0.f,1.f);
   writeTerrain = vec4(cur.x,max(cur.y+deltavol, 0.0),( deltavol) * 11.0,cur.w);
 

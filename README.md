@@ -21,15 +21,14 @@
 
 ## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
 
-![](screenshot/cliff1.PNG)
+![](screenshot/slope.PNG)
 
 ![](screenshot/td1.png)
 
-![](screenshot/hills.PNG)
-
 ![](screenshot/scatter1.PNG)
 
-
+## update 10/1/2021 : 
+- Algorithm update/fix : now erosion detail will be more accurate as I've choosen to disregard small water body's contribution to sediment advection, it used to create noises in sediment result because when water volume goes below numerical limitation of the sim, velocity will be contributing the same to advection regardless of water size...
 ## update 9/24/2021 : 
 - Added option to change simulation resolution
 ## update 7/11/2021 : 
@@ -40,12 +39,12 @@
 
 
 ### some screenshots
-
+- permanent water in a river vally
 ![](screenshot/riv.PNG)
+- river vally dries up after some erosion
+![](screenshot/vally.PNG)
 - alluvial fan (or at least a similar one) formed at the mountain exit
 ![](screenshot/delta.PNG)
-- permanent water
-![](screenshot/highplace.PNG)
 - before
 ![](screenshot/af1.PNG) 
 - after

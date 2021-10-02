@@ -70,8 +70,7 @@ void main() {
   vec3 nor = calnor(curuv);
   float slopeSin;
   slopeSin = abs(sqrt(1.0 - nor.y*nor.y));
-  //slopeSin = acos(dot(nor, vec3(0.0,1.0,0.0)));
-  //slopeSin = abs(sin(acos(dot(nor, vec3(0.0, 1.0, 0.0)))));
+
 
 
   vec4 topvel = texture(readVelocity,curuv+vec2(0.f,div));
@@ -81,47 +80,23 @@ void main() {
   vec4 curvel = texture(readVelocity,curuv);
 
   float sumlen = length(topvel) + length(rightvel) + length(bottomvel) + length(leftvel);
-
-
-//  if(length(curvel) > (sumlen/4.0)){ // make sure velocity are not too large
-//      curvel *= (sumlen/4.0) / length(curvel);
-//  }
-
+  //velocity diffussion
   vec4 newVel = (topvel + rightvel + bottomvel + leftvel + alpha * curvel)/(4.0 + alpha);
 
-  //newVel = mix(newVel,curvel,slopeSin);
   //newVel = curvel;
 
   vec4 curSediment = texture(readSediment,curuv);
   vec4 curTerrain = texture(readTerrain,curuv);
 
 
-  //    t
-  //
-  // l  c--r
-  //    | /
-  //    b
-//  float nordis = div*1.f;
-//  vec4 nort = texture(readTerrain,curuv+vec2(0.f,nordis));
-//  vec4 norr = texture(readTerrain,curuv+vec2(nordis,0.f));
-//  vec4 norb = texture(readTerrain,curuv+vec2(0.f,-nordis));
-//  vec4 norl = texture(readTerrain,curuv+vec2(-nordis,0.f));
-//
-//  vec3 dx = vec3(1.f,(norr.x + right.x - curTerrain.x - curSediment.x),0.f);
-//  vec3 dy = vec3(1.f,(norr.x + right.x - norb.x - bottom.x),1.f);
-//
-//  vec3 nor = normalize(cross(dx,dy));
 
 
-
-  //float velo = length(texture(readVelocity,curuv).xy);
   float velo = length(newVel.xy);
   float slopeMulti = 5.0 * pow(abs(slopeSin),4.0);
   float slope = max(0.1f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float volC = 1.0 - exp(-curTerrain.y* (100.0));
   float sedicap = Kc*pow(slope,1.0)*pow(velo,1.0);// * pow(curTerrain.y,0.2) ;
-  //sedicap *= pow(2.0,curTerrain.y);
-  //sedicap = min(curTerrain.y * 2.0, sedicap); // TO DO : will the volume of water affect sediment capacity
+
   float lmax = 0.0f;
   float maxdepth = 5.8;
   if(curTerrain.y > maxdepth){ // max river bed depth
@@ -129,9 +104,6 @@ void main() {
   }else{
     lmax = (max(maxdepth - curTerrain.y,0.0)/maxdepth);
   }
-
-
- //sedicap *= lmax;
 
 
   float cursedi = curSediment.x;

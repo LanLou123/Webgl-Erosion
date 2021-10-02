@@ -259,8 +259,8 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     float dither = iib(gl_FragCoord.xy);
     vec3 pos = ro + rd * stepSize * dither;
    //pos = ro;
-
-    for(int i = 1;i<SCATTER_MARCH_STEPS; ++i){
+    int i = 1;
+    for(i = 1;i<SCATTER_MARCH_STEPS; ++i){
 
         float heightAtten = 1.0 * exp(-pos.y);
         col += heightAtten * vec4(scatter_col_acc,scatter_alpha_acc);

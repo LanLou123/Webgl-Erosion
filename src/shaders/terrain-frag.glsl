@@ -227,23 +227,11 @@ void main()
 
 
 
-
     if(abs(nor.y)<0.75){
         finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.75,u_SnowRange));
     }
 
-   // finalcol = obsidian;
 
-    //finalcol = mix(finalcol, sand, clamp( pow( sval, 3.0) * 8.0, 0.0, 4.0) );
-    //finalcol = mix(finalcol,pow( sval, 1.0) * 100.0 * vec3(1.0,1.0,1.0),pow( sval,1.0) * 100.0 );
-
-    //finalcol = vec3(clamp(sval*100.0, 0.0, 1.0));
-
-
-
-
-
-    //finalcol = mix(finalcol, vec3(0.5,0.1,0.1),texture(sedimap,fs_Uv).x);
 
     vec3 normal = lamb*(finalcol) + ambientCol;
     vec3 fcol = normal;
@@ -327,9 +315,11 @@ void main()
 //            //sedimentTrace *= pow(abs(nor.y), 1.0);
 //        }
 //        fcol = mix(fcol, vec3(214.f/255.f,114.f/255.f,56.f/255.f),sedimentTrace);
-
+        //fcol += lamb * clamp(sval * vec3(0.5,0.2,0.0) * 550.0, vec3(0.0), vec3(1.0));
         fcol *= shadowCol * hue;
     }
+
+
 
 
     vec3 tmpCol = fcol;

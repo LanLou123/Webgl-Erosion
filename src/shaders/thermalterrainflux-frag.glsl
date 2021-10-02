@@ -68,44 +68,6 @@ void main() {
   }
 
 
-
-//  vec4 hightDiff = vec4(0.0);
-//  hightDiff.x = terraincur.x - terraintop.x;
-//  hightDiff.y = terraincur.x - terrainright.x;
-//  hightDiff.z = terraincur.x - terrainbottom.x;
-//  hightDiff.w = terraincur.x - terrainleft.x;
-//  hightDiff = max(vec4(0.0),hightDiff);
-//
-//  float maxHightDiff = max(max(hightDiff.x, hightDiff.y),max(hightDiff.z,hightDiff.w));
-//
-//  float volume2Move = u_PipeArea * maxHightDiff * 0.5 * thermalRate * hardness;
-//  vec4 tanAngle = hightDiff / u_PipeLen;
-//
-//  float threshold = hardness * talusAngleFallOffCoeff + talusAngleTangentBias;
-//
-//  vec4 k = vec4(0.0);
-//
-//  if(tanAngle.x > threshold){
-//    k.x = hightDiff.x;
-//  }  if(tanAngle.y > threshold){
-//    k.y = hightDiff.y;
-//  }  if(tanAngle.z > threshold){
-//    k.z = hightDiff.z;
-//  }  if(tanAngle.w > threshold){
-//    k.w = hightDiff.w;
-//  }
-//  float sumflux = k.x + k.y + k.z + k.w;
-//  vec4 outputflux = vec4(0.0);
-//  if(sumflux > 0.0){
-//    outputflux = volume2Move * k / sumflux;
-//  }
-//  if(curuv.x<=0.f) outputflux.x = 0.f;
-//  if(curuv.x>=1.f) outputflux.y = 0.f;
-//  if(curuv.y<=0.f) outputflux.z = 0.f;
-//  if(curuv.y>=1.f) outputflux.w = 0.f;
-
-
-
   vec4 outputflux = newFlow;
   writeFlux = outputflux;
 
