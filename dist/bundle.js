@@ -54939,6 +54939,9 @@ function Render2Texture(renderer, gl_context, camera, shader, cur_texture) {
     gl_context.renderbufferStorage(gl_context.RENDERBUFFER, gl_context.DEPTH_COMPONENT16, simres, simres);
     gl_context.bindFramebuffer(gl_context.FRAMEBUFFER, frame_buffer);
     gl_context.framebufferTexture2D(gl_context.FRAMEBUFFER, gl_context.COLOR_ATTACHMENT0, gl_context.TEXTURE_2D, cur_texture, 0);
+    gl_context.framebufferTexture2D(gl_context.FRAMEBUFFER, gl_context.COLOR_ATTACHMENT1, gl_context.TEXTURE_2D, null, 0);
+    gl_context.framebufferTexture2D(gl_context.FRAMEBUFFER, gl_context.COLOR_ATTACHMENT2, gl_context.TEXTURE_2D, null, 0);
+    gl_context.framebufferTexture2D(gl_context.FRAMEBUFFER, gl_context.COLOR_ATTACHMENT3, gl_context.TEXTURE_2D, null, 0);
     gl_context.framebufferRenderbuffer(gl_context.FRAMEBUFFER, gl_context.DEPTH_ATTACHMENT, gl_context.RENDERBUFFER, render_buffer);
     gl_context.drawBuffers([gl_context.COLOR_ATTACHMENT0]);
     let status = gl_context.checkFramebufferStatus(gl_context.FRAMEBUFFER);
@@ -55507,11 +55510,9 @@ function resizeTextures4Simulation(gl_context) {
     LE_recreate_texture(simres, simres, gl_context.LINEAR, sediment_advect_a);
     LE_recreate_texture(simres, simres, gl_context.LINEAR, sediment_advect_b);
     // recreate all framebuffer/renderbuffer related to simulation
-    gl_context.bindFramebuffer(gl_context.FRAMEBUFFER, frame_buffer);
     gl_context.bindRenderbuffer(gl_context.RENDERBUFFER, render_buffer);
     gl_context.renderbufferStorage(gl_context.RENDERBUFFER, gl_context.DEPTH_COMPONENT16, simres, simres);
     gl_context.bindTexture(gl_context.TEXTURE_2D, null);
-    gl_context.bindFramebuffer(gl_context.FRAMEBUFFER, null);
     gl_context.bindRenderbuffer(gl_context.RENDERBUFFER, null);
     // recreate CPU read texture buffer for simulation & User interaction
     HightMapCpuBuf = new Float32Array(simres * simres * 4);
