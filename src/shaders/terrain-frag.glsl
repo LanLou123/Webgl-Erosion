@@ -325,6 +325,10 @@ void main()
     vec3 tmpCol = fcol;
     fcol += addcol;
 
+//    float groundfog = 1.0 - min(yval / 200.0,1.0);
+//    groundfog = (1.0 - exp(-groundfog * 0.4));
+//    fcol = mix(fcol, vec3(0.8,0.8,0.8), groundfog);
+
 
 
 

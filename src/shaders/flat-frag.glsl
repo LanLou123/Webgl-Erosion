@@ -209,7 +209,7 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 // my ray march
 
 
-vec4 Screen2Clip(vec3 pos){
+vec4 Wrld2Screen(vec3 pos){
     vec4 clipSpacePos =  u_ViewProj * vec4(pos,1.0);
     clipSpacePos = clipSpacePos/ clipSpacePos.w;
     clipSpacePos.x = (clipSpacePos.x + 1.0) / 2.0;
@@ -236,7 +236,7 @@ vec4 scatter_m(vec3 ro, vec3 rd){
     float rayAttenuation = 1.0 * linearSceneDepthVal;
 
 
-    float stepSize = ((linearSceneDepthVal + 0.1) / float(SCATTER_MARCH_STEPS)) ;
+    float stepSize = ((linearSceneDepthVal + 0.01) / float(SCATTER_MARCH_STEPS)) ;
     if(sceneDepthValue.x == 0.0){
         stepSize = 0.2;
         rayAttenuation = 1.0;
@@ -268,9 +268,9 @@ vec4 scatter_m(vec3 ro, vec3 rd){
 
         pos += rd * stepSize;
 
-        vec4 clipSpacePos =  Screen2Clip(pos);
-        vec3 clipSpaceRdVec = Screen2Clip(rd * stepSize).xyz;
-        float clipSpaceStepSize = length(clipSpaceRdVec);
+        vec4 clipSpacePos =  Wrld2Screen(pos);
+//        vec3 clipSpaceRdVec = Wrld2Screen(rd * stepSize).xyz;
+//        float clipSpaceStepSize = length(clipSpaceRdVec);
 
         vec4 lightSpacePos = Screen2Light(pos);
         float texsize = 1.0/4096.0f;
