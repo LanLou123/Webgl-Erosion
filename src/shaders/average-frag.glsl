@@ -59,7 +59,7 @@ void main() {
     float cur_h = cur.x;
     float col = 0.0;
     float curWeight = 8.0;
-    float diagonalWeight = 1.0;
+    float diagonalWeight = 0.707;
 
     //eight dir average
     if(((abs(r_d) > threathhold && abs(l_d) > threathhold)&& r_d*l_d > 0.0)||

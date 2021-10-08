@@ -4,8 +4,8 @@
 
 ## controls : 
 
-- press keyboard ```C``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
-- press keyboard ```R``` to place permanent water source. (note : 1 . press ```R``` again to remove permanent water source, 2 . after it's placed you can see a red circle marking the location, 3 . the size and strength of permanent water is equal to the brush size and strength the moment permanent water source is placed)
+- press keyboard ```c``` to do terrain editions with brush, editions include : add/subtract for water and hight map for now, you can also adjust size of brush
+- press keyboard ```r``` to place permanent water source. (note : 1 . press ```r``` again to remove permanent water source, 2 . after it's placed you can see a red circle marking the location, 3 . the size and strength of permanent water is equal to the brush size and strength the moment permanent water source is placed)
 - press button ```Start/Resume``` to the right top corner to start or resume the erosion sim
 - press button ```Pause``` to pause the simulation
 - press button ```Reset``` to reset simulation and start with a new randomly generated base terrain
@@ -21,7 +21,7 @@
 
 ## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
 
-![](screenshot/slope.PNG)
+![](screenshot/ex1.PNG)
 
 ![](screenshot/td1.png)
 
@@ -32,7 +32,7 @@
 ## update 9/24/2021 : 
 - Added option to change simulation resolution
 ## update 7/11/2021 : 
-- permanent water source is added, you can pressed ```R``` to place it, see controls for details 
+- permanent water source is added, you can pressed ```r``` to place it, see controls for details 
 - added heatmeap for velocity magnitude in debug view, mapping color goes from blue to green then to red as the velocity size increases
 - added MacCormack advection scheme for sediment advection, resulting in less numerical diffusion (referencing : ShaderX7 Advanced Rendering Techniques - starting page 207), you can find and toggle it on/off under ```erosionParameters``` in gui
 
@@ -165,15 +165,15 @@ location of the sources is fixed, for rain fall, all pixel have to be increment 
 
 
 ### Future Plans:
-- options for changing sim resolution
 - Rain based erosion
 - Image(height map) I/O 
 - muti-layered(rock/sand/etc) erosion
-- Depth upsampling/downsampling for better edge effect for volumetric rendering
+- PBR 
+- adaptive simulation utilizing quadtree(or just tiles) for sim optimization
+- Depth upsampling/downsampling for volumetric rendering optimization
 - Better GUI & Visulization
 - Terrain features like instaced tree placements
-- postprocessing effects (ray marched cloud for example, since ray marched Mie scattering is done, cloud should be fairly simple to work based on it)
-- muti-tiled based simulation (webgl might not be the best choice here)
+- other postprocessing effects (ray marched cloud for example, since ray marched Mie scattering is done, cloud should be fairly simple to work based on it)
 - Biomes
 - Eventual goal : Erosion based games, "FROM DUST" would be a good example
 

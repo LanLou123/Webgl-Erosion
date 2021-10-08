@@ -101,7 +101,7 @@ const controls = {
     posPerm : vec2.fromValues(0.0,0.0),
     'Load Scene': loadScene, // A function pointer, essentially
     'Start/Resume' :StartGeneration,
-    'Reset' : Reset,
+    'ResetTerrain' : Reset,
     'setTerrainRandom':setTerrainRandom,
     'Pause' : Pause,
     SimulationSpeed : 3,
@@ -110,7 +110,7 @@ const controls = {
     TerrainBiomeType : 1,
     TerrainScale : 3.2,
     TerrainHeight : 2.0,
-    TerrainSphereMask : 1,//0 on, 1 off
+    TerrainMask : 0,//0 off, 1 sphere
     TerrainDebug : 0,
     WaterTransparency : 0.50,
     SedimentTrace : 0, // 0 on, 1 off
@@ -118,8 +118,8 @@ const controls = {
     SnowRange : 0,
     ForestRange : 0,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
-    brushSize : 6,
-    brushStrenth : 0.30,
+    brushSize : 4,
+    brushStrenth : 0.40,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     pbrushOn : 0,
@@ -1169,15 +1169,15 @@ function main() {
     var simcontrols = gui.addFolder('Simulation Controls');
     simcontrols.add(controls,'Start/Resume');
     simcontrols.add(controls,'Pause');
-    simcontrols.add(controls,'Reset');
     simcontrols.add(controls,'SimulationSpeed',{fast:3,medium : 2, slow : 1});
     simcontrols.open();
     var terrainParameters = gui.addFolder('Terrain Parameters');
     terrainParameters.add(controls,'SimulationResolution',{256 : 256 , 512 : 512, 1024 : 1024, 2048 : 2048} );
-    terrainParameters.add(controls,'TerrainScale', 0.00, 4.0);
+    terrainParameters.add(controls,'TerrainScale', 0.1, 4.0);
     terrainParameters.add(controls,'TerrainHeight', 1.0, 5.0);
-    terrainParameters.add(controls,'TerrainSphereMask',{ON : 0 ,OFF : 1});
+    terrainParameters.add(controls,'TerrainMask',{OFF : 0 ,Sphere : 1, slope : 2});
     terrainParameters.add(controls,'TerrainBaseType', {ordinaryFBM : 0, domainWarp : 1, terrace : 2, voroni : 3, ridgeNoise : 4});
+    terrainParameters.add(controls,'ResetTerrain');
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
     erosionpara.add(controls, 'EvaporationConstant', 0.0001, 0.08);
@@ -1450,7 +1450,7 @@ function main() {
     noiseterrain.setTime(timer);
     noiseterrain.setTerrainHeight(controls.TerrainHeight);
     noiseterrain.setTerrainScale(controls.TerrainScale);
-    noiseterrain.setInt(controls.TerrainSphereMask,"u_TerrainSphereMask");
+    noiseterrain.setInt(controls.TerrainMask,"u_TerrainMask");
     gl_context.uniform1i(gl_context.getUniformLocation(noiseterrain.prog,"u_terrainBaseType"),controls.TerrainBaseType);
 
 

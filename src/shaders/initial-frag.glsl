@@ -7,7 +7,7 @@ uniform float u_Time;
 uniform float u_TerrainScale;
 uniform float u_TerrainHeight;
 uniform int u_terrainBaseType;
-uniform int u_TerrainSphereMask;
+uniform int u_TerrainMask;
 
 layout (location = 0) out vec4 initial;
 layout (location = 1) out vec4 initial2;
@@ -176,8 +176,10 @@ void main() {
 
 
     terrain_hight *= u_TerrainHeight*120.0;
-    if(u_TerrainSphereMask == 0){
+    if(u_TerrainMask == 1){
         terrain_hight *= 2.0 * pow(c_mask, 1.0);
+    }else if(u_TerrainMask == 2){
+        terrain_hight *= (uv.x + uv.y) * 1.0;
     }
     //terrain_hight = test(uv) * 500.0;
     float rainfall = .0f;

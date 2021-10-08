@@ -151,7 +151,7 @@ void main()
         vec3 rd = u_MouseWorldDir;
         vec2 pointOnPlane = u_BrushPos;
         float pdis2fragment = distance(pointOnPlane, fs_Uv);
-        if (pdis2fragment < 0.01 * u_BrushSize){
+        if (pdis2fragment < 0.01 * u_BrushSize && pdis2fragment >= u_BrushSize * 0.01 - 0.003){
             float dens = (0.01 * u_BrushSize - pdis2fragment) / (0.01 * u_BrushSize);
 
             if(u_BrushType == 1){
@@ -159,7 +159,7 @@ void main()
             }else if(u_BrushType == 2){
                 addcol = watercol * 0.8;
             }
-            addcol *= dens;
+            addcol *= 1.0;
         }
 
     }
@@ -204,28 +204,29 @@ void main()
     float sval = texture(sediBlend, fs_Uv).x;
 
     vec3 finalcol = vec3(0);
-    float upper = 600.0;
+
+    float lowH = 0.0;
+    float midH = 300.0;
+    float highH = 600.0;
+
     if(u_TerrainPlatte == 1){
         forestcol = mtncolor;
     }else if(u_TerrainPlatte == 2){
-        upper = 2000.0;
+        highH = 2000.0;
     }
 
-    if(yval<=100.0){
+    if(yval<=midH){
         finalcol = forestcol;
-    }else if(yval>100.0&&yval<=150.0){
-        finalcol = mix(forestcol,forestcol,(yval-100.0)/50.0);
-    }else if(yval>150.0){
-        if(yval<upper ){
-            finalcol = mix(forestcol, mtncolor, clamp(1.0 / pow(abs(nor.y),u_ForestRange) * (yval-150.0)/(upper - 150.0), 0.0, 1.0));
-        }
-        else if((yval > upper)){
+    }else if(yval>midH&&yval<=highH){
+        finalcol = mix(forestcol,mtncolor,(yval-midH)/(highH-midH));
+    }else if(yval>highH){
+
             finalcol = mtncolor;
-        }
+
 
     }
 
-
+    finalcol =  mix(mtncolor, finalcol, clamp( pow(abs(nor.y), u_ForestRange), 0.0, 1.0));
 
     if(abs(nor.y)<0.75){
         finalcol = mix(dirtcol,finalcol,pow(abs(nor.y)/0.75,u_SnowRange));
@@ -286,9 +287,15 @@ void main()
 
 
     fcol = clamp(fcol, vec3(0.0), vec3(1.0));
+    // realistic color
+//    vec3 lightSedimentCol = vec3(0.9,0.9,0.6);
+//    vec3 mediumSedimentCol = vec3(0.6, 0.6, 0.5);
+//    vec3 deepSedimentCol = vec3(0.4, 0.2, 0.0);
+    // vibrant color
+    vec3 lightSedimentCol = vec3(0.0,0.5,0.3);
+    vec3 mediumSedimentCol = vec3(0.0, 0.5, 0.5);
+    vec3 deepSedimentCol = vec3(0.0, 0.0, 0.99);
     if(!debug){
-
-
         if(u_SedimentTrace == 0){
             float ssval = texture(sedimap, fs_Uv).x;
             //ssval = max(min(pow(3.0 * ssval, 0.6), 1.0), 0.0);
@@ -297,13 +304,13 @@ void main()
             ss = fcol;
             float small = 0.4, large = 0.7;
             if (ssval <=small){
-                ss = mix(ss, fcol, ssval/small);
+                ss = mix(ss, lightSedimentCol, ssval/small);
 
             } else if (ssval > small && ssval <= large){
-                ss = mix(fcol, vec3(0.0, 0.5, 0.5), (ssval - small)/(large - small));
+                ss = mix(lightSedimentCol, mediumSedimentCol, (ssval - small)/(large - small));
             }
             else if (ssval > large){
-                ss = mix(vec3(0.0, 0.5, 0.5), vec3(0.0, 0.0, 0.99), (ssval - large)/(1.0 - large));
+                ss = mix(mediumSedimentCol, deepSedimentCol, (ssval - large)/(1.0 - large));
             }
             fcol = mix(fcol, max(ss * lamb, vec3(0.0)), ssval);
         }

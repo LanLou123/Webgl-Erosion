@@ -24,6 +24,8 @@ void main() {
 
       vec4 color = vec4((1.0 - scatter.w) * geometry.xyz + (scatter.w)* scatter.xyz,1.0);
 
+
+
       float scatteralpha = clamp(scatter.x, 0.0, 1.0);
 
       if(s_depth.x == 0.0){
@@ -34,7 +36,7 @@ void main() {
 
 
       // simple tone mapping
-      float gamma = 0.7;
+      float gamma = 0.8;
       float exposure = 1.5;
 
       vec3 mapped = vec3(1.0) - exp(-color.xyz * exposure);

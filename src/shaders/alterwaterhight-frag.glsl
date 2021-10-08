@@ -74,8 +74,8 @@ void main(){
 
 
 
-  vec2 randTime = vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6) + curuv * 10.0;
-  float rnd = random(randTime);
+//  vec2 randTime = vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6) + curuv * 10.0;
+//  float rnd = random(randTime);
 
   float d1 = max(cur.y + curs.x * 0.0,0.0);
   float d11 = cur.y;

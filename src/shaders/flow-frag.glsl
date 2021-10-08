@@ -42,7 +42,7 @@ void main() {
   vec4 bottoms = texture(readSedi,curuv+vec2(0.f,-div)) * sediImpact;
   vec4 lefts = texture(readSedi,curuv+vec2(-div,0.f)) * sediImpact;
 
-  float damping = 0.9999;
+  float damping = 0.999;
   vec4 curTerrain = texture(readTerrain,curuv);
   vec4 curFlux = texture(readFlux,curuv) * damping;
   vec4 curs = texture(readSedi,curuv) * sediImpact;
