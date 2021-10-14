@@ -37,28 +37,16 @@ void main() {
   vec4 bottom = texture(readTerrain,curuv+vec2(0.f,-div));
   vec4 left = texture(readTerrain,curuv+vec2(-div,0.f));
 
-  vec4 tops = texture(readSedi,curuv+vec2(0.f,div)) * sediImpact;
-  vec4 rights = texture(readSedi,curuv+vec2(div,0.f)) * sediImpact;
-  vec4 bottoms = texture(readSedi,curuv+vec2(0.f,-div)) * sediImpact;
-  vec4 lefts = texture(readSedi,curuv+vec2(-div,0.f)) * sediImpact;
+
 
   float damping = 0.999;
   vec4 curTerrain = texture(readTerrain,curuv);
   vec4 curFlux = texture(readFlux,curuv) * damping;
-  vec4 curs = texture(readSedi,curuv) * sediImpact;
 
-
-
-  float sedimentWeight = 0.4;
-  float Htopout = (curTerrain.y+curTerrain.x + curs.x * sedimentWeight)-(top.y+top.x + tops.x* sedimentWeight);
-  float Hrightout = (curTerrain.y+curTerrain.x+curs.x * sedimentWeight)-(right.y+right.x+rights.x * sedimentWeight);
-  float Hbottomout = (curTerrain.y+curTerrain.x+curs.x * sedimentWeight)-(bottom.x+bottom.y+bottoms.x * sedimentWeight);
-  float Hleftout = (curTerrain.y+curTerrain.x+curs.x * sedimentWeight)-(left.y+left.x+lefts.x * sedimentWeight);
-
-//  float Htopout = (curTerrain.y+curTerrain.x )-(top.y+top.x );
-//  float Hrightout = (curTerrain.y+curTerrain.x)-(right.y+right.x);
-//  float Hbottomout = (curTerrain.y+curTerrain.x)-(bottom.x+bottom.y);
-//  float Hleftout = (curTerrain.y+curTerrain.x)-(left.y+left.x);
+  float Htopout = (curTerrain.y+curTerrain.x )-(top.y+top.x );
+  float Hrightout = (curTerrain.y+curTerrain.x)-(right.y+right.x);
+  float Hbottomout = (curTerrain.y+curTerrain.x)-(bottom.x+bottom.y);
+  float Hleftout = (curTerrain.y+curTerrain.x)-(left.y+left.x);
 //
 //  Htopout = max(0.0, Htopout);
 //  Hbottomout = max(0.0, Hbottomout);

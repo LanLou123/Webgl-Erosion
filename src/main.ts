@@ -23,7 +23,8 @@ const shadowMapResolution = 4096;
 const enableBilateralBlur = false;
 var gl_context : WebGL2RenderingContext;
 
-let speed = 3;
+
+    let speed = 3;
 let SimFramecnt = 0;
 let TerrainGeometryDirty = true;
 let PauseGeneration = false;
@@ -91,7 +92,10 @@ const controls = {
     Kd : 0.013,
     timestep : 0.05,
     pipeAra :  0.6,
-    EvaporationConstant : 0.003,
+    RainErosion : false, //
+    RainErosionStrength : 1.0,
+    RainErosionDropSize : 1.0,
+    EvaporationConstant : 0.005,
     VelocityMultiplier : 1,
     RainDegree : 4.5,
     AdvectionSpeedScaling : 1.0,
@@ -1003,25 +1007,25 @@ function LE_create_screen_texture(w : number, h : number, samplingType : number)
 function resizeTextures4Simulation(gl_context:WebGL2RenderingContext){
 
 
-
+    let simulationTextureSampler = gl_context.LINEAR;
     // reacreate all textures related to simulation
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, read_terrain_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, write_terrain_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, read_flux_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, write_flux_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, read_terrain_flux_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, write_terrain_flux_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, read_maxslippage_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, write_maxslippage_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, read_vel_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, write_vel_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, read_sediment_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, write_sediment_tex);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, terrain_nor);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, read_sediment_blend);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, write_sediment_blend);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, sediment_advect_a);
-    LE_recreate_texture(simres,simres,gl_context.LINEAR, sediment_advect_b);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, read_terrain_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, write_terrain_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, read_flux_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, write_flux_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, read_terrain_flux_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, write_terrain_flux_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, read_maxslippage_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, write_maxslippage_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, read_vel_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, write_vel_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, read_sediment_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, write_sediment_tex);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, terrain_nor);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, read_sediment_blend);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, write_sediment_blend);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, sediment_advect_a);
+    LE_recreate_texture(simres,simres,simulationTextureSampler, sediment_advect_b);
 
     // recreate all framebuffer/renderbuffer related to simulation
 
@@ -1038,33 +1042,33 @@ function resizeTextures4Simulation(gl_context:WebGL2RenderingContext){
 
 function setupFramebufferandtextures(gl_context:WebGL2RenderingContext) {
 
-
+    let simulationTextureSampler = gl_context.LINEAR;
     //Noise generated data from GPU texture, include population density, water distribution, terrain elevation...
-    read_terrain_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
-    write_terrain_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
+    read_terrain_tex = LE_create_texture(simres,simres,simulationTextureSampler);
+    write_terrain_tex = LE_create_texture(simres,simres,simulationTextureSampler);
 
-    read_flux_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
-    write_flux_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
+    read_flux_tex = LE_create_texture(simres,simres,simulationTextureSampler);
+    write_flux_tex = LE_create_texture(simres,simres,simulationTextureSampler);
 
-    read_terrain_flux_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
-    write_terrain_flux_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
+    read_terrain_flux_tex = LE_create_texture(simres,simres,simulationTextureSampler);
+    write_terrain_flux_tex = LE_create_texture(simres,simres,simulationTextureSampler);
 
-    read_maxslippage_tex =LE_create_texture(simres,simres,gl_context.LINEAR);
-    write_maxslippage_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
+    read_maxslippage_tex =LE_create_texture(simres,simres,simulationTextureSampler);
+    write_maxslippage_tex = LE_create_texture(simres,simres,simulationTextureSampler);
 
-    read_vel_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
-    write_vel_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
+    read_vel_tex = LE_create_texture(simres,simres,simulationTextureSampler);
+    write_vel_tex = LE_create_texture(simres,simres,simulationTextureSampler);
 
-    read_sediment_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
-    write_sediment_tex = LE_create_texture(simres,simres,gl_context.LINEAR);
+    read_sediment_tex = LE_create_texture(simres,simres,simulationTextureSampler);
+    write_sediment_tex = LE_create_texture(simres,simres,simulationTextureSampler);
 
-    terrain_nor = LE_create_texture(simres,simres,gl_context.LINEAR);
+    terrain_nor = LE_create_texture(simres,simres,simulationTextureSampler);
 
-    read_sediment_blend = LE_create_texture(simres,simres,gl_context.LINEAR);
-    write_sediment_blend = LE_create_texture(simres,simres,gl_context.LINEAR);
+    read_sediment_blend = LE_create_texture(simres,simres,simulationTextureSampler);
+    write_sediment_blend = LE_create_texture(simres,simres,simulationTextureSampler);
 
-    sediment_advect_a = LE_create_texture(simres,simres,gl_context.LINEAR);
-    sediment_advect_b = LE_create_texture(simres,simres,gl_context.LINEAR);
+    sediment_advect_a = LE_create_texture(simres,simres,simulationTextureSampler);
+    sediment_advect_b = LE_create_texture(simres,simres,simulationTextureSampler);
 
     shadowMap_tex = LE_create_screen_texture(shadowMapResolution, shadowMapResolution,gl_context.LINEAR);
     scene_depth_tex = LE_create_screen_texture(window.innerWidth,window.innerHeight,gl_context.LINEAR);
@@ -1180,8 +1184,12 @@ function main() {
     terrainParameters.add(controls,'ResetTerrain');
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
+    var RainErosionPara = erosionpara.addFolder('Rain Erosion Parameters');
+    RainErosionPara.add(controls,'RainErosion');
+    RainErosionPara.add(controls, 'RainErosionStrength', 0.1,3.0);
+    RainErosionPara.add(controls,'RainErosionDropSize', 0.1, 3.0);
+    RainErosionPara.close();
     erosionpara.add(controls, 'EvaporationConstant', 0.0001, 0.08);
-    //erosionpara.add(controls,'RainDegree', 0.1,5.0);
     erosionpara.add(controls,'Kc', 0.01,0.5);
     erosionpara.add(controls,'Ks', 0.001,0.2);
     erosionpara.add(controls,'Kd', 0.0001,0.1);
@@ -1516,6 +1524,9 @@ function main() {
     rains.setSpawnPos(vec2.fromValues(controls.spawnposx, controls.spawnposy));
     rains.setVec2(controls.posPerm,'u_permanentPos');
     rains.setTime(timer);
+    gl_context.uniform1i(gl_context.getUniformLocation(rains.prog,"u_RainErosion"),controls.RainErosion ? 1 : 0);
+    rains.setFloat(controls.RainErosionStrength,'u_RainErosionStrength');
+    rains.setFloat(controls.RainErosionDropSize,'u_RainErosionDropSize');
 
     flow.setPipeLen(controls.pipelen);
     flow.setSimres(simres);

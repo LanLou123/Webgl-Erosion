@@ -70,6 +70,12 @@ void main() {
         col = 1.0;
     }
 
+//    //four diagnal dirs
+//    if(((abs(tr_d) > threathhold && abs(bl_d) > threathhold) && tr_d * bl_d > 0.0)||
+//    ((abs(tl_d) > threathhold && abs(br_d) > threathhold) && tl_d * br_d > 0.0)){
+//        cur_h = (cur.x * curWeight + topright.x * diagonalWeight + topleft.x * diagonalWeight + bottomleft.x * diagonalWeight + bottomright.x * diagonalWeight)/(4.0 * ( diagonalWeight) + curWeight);
+//        col = 1.0;
+//    }
     //four dir average
 //    if(((pow(abs(r_d),1.0) > threathhold || pow(abs(l_d),1.0) > threathhold)&& r_d*l_d > 0.0)||
 //    ((pow(abs(t_d),1.0) > threathhold || pow(abs(b_d),1.0) > threathhold) && t_d * b_d > 0.0)){

@@ -109,6 +109,12 @@ float fbm (in vec2 st) {
 
 void main()
 {
+
+    vec3 sundir = unif_LightPos;
+    sundir = normalize(sundir);
+    float angle = dot(sundir,vec3(0.0,1.0,0.0));
+    vec3 hue = mix(vec3(255.0,255.0,255.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
+
     float shadowVal = 1.0f;
     vec3 shadowCol = vec3(1.0);
     vec3 ambientCol = vec3(0.01);
@@ -180,17 +186,11 @@ void main()
     }
 
 
-    vec3 sundir = unif_LightPos;
 
-    sundir = normalize(sundir);
 
 
     vec3 slopesin = texture(normap,fs_Uv).xyz;
     vec3 nor = -calnor(fs_Uv);
-
-    float angle = dot(sundir,vec3(0.0,1.0,0.0));
-    vec3 hue = mix(vec3(255.0,255.0,250.0)/256.0, vec3(255.0,120.0,20.0)/256.0, 1.0 - angle);
-
 
 
 
@@ -198,9 +198,9 @@ void main()
 
 
     //lamb =1.f;
-
-    float yval = texture(hightmap,fs_Uv).x * 4.0;
-    float wval = texture(hightmap,fs_Uv).y;
+    vec4 fH = texture(hightmap,fs_Uv);
+    float yval = fH.x * 4.0;
+    float wval = fH.y;
     float sval = texture(sediBlend, fs_Uv).x;
 
     vec3 finalcol = vec3(0);
@@ -324,6 +324,7 @@ void main()
 //        fcol = mix(fcol, vec3(214.f/255.f,114.f/255.f,56.f/255.f),sedimentTrace);
         //fcol += lamb * clamp(sval * vec3(0.5,0.2,0.0) * 550.0, vec3(0.0), vec3(1.0));
         fcol *= shadowCol * hue;
+
     }
 
 

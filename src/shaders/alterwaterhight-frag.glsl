@@ -77,7 +77,7 @@ void main(){
 //  vec2 randTime = vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6) + curuv * 10.0;
 //  float rnd = random(randTime);
 
-  float d1 = max(cur.y + curs.x * 0.0,0.0);
+  float d1 = max(cur.y ,0.0);
   float d11 = cur.y;
   float d2 = max(d1 + deltavol,0.0);
   float da = (d1 + d2)/2.0f;
@@ -109,10 +109,14 @@ void main(){
     //veloci *= (0.01 - cur.y)/0.01;
     veloci = vec2(0.0);
   }
+  else{
+    //veloci *= (1.0 - exp(65.0 * (-cur.y + 0.01)));
+  }
+
 
 
 
   writeVel = vec4(veloci * u_VelMult ,0.f,1.f);
-  writeTerrain = vec4(cur.x,max(cur.y+deltavol, 0.0),( deltavol) * 11.0,cur.w);
+  writeTerrain = vec4(cur.x,max(cur.y+deltavol, 0.0),0.0,1.0);
 
 }

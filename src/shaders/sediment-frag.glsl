@@ -61,12 +61,6 @@ void main() {
   float Kd = u_Kd;
   float alpha = 5.0;
 
-
-  vec4 top = texture(readSediment,curuv+vec2(0.f,div));
-  vec4 right = texture(readSediment,curuv+vec2(div,0.f));
-  vec4 bottom = texture(readSediment,curuv+vec2(0.f,-div));
-  vec4 left = texture(readSediment,curuv+vec2(-div,0.f));
-
   vec3 nor = calnor(curuv);
   float slopeSin;
   slopeSin = abs(sqrt(1.0 - nor.y*nor.y));
@@ -83,7 +77,7 @@ void main() {
   //velocity diffussion
   vec4 newVel = (topvel + rightvel + bottomvel + leftvel + alpha * curvel)/(4.0 + alpha);
 
-  //newVel = curvel;
+  newVel = curvel;
 
   vec4 curSediment = texture(readSediment,curuv);
   vec4 curTerrain = texture(readTerrain,curuv);
@@ -93,17 +87,17 @@ void main() {
 
   float velo = length(newVel.xy);
   float slopeMulti = 5.0 * pow(abs(slopeSin),4.0);
-  float slope = max(0.01f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
+  float slope = max(0.1f, abs(slopeSin)) ;//max(0.05f,sqrt(1.f- nor.y * nor.y));
   float volC = 1.0 - exp(-curTerrain.y* (100.0));
   float sedicap = Kc*pow(slope,1.0)*pow(velo,1.0);// * pow(curTerrain.y,0.2) ;
 
-  float lmax = 0.0f;
-  float maxdepth = 5.8;
-  if(curTerrain.y > maxdepth){ // max river bed depth
-    lmax = 0.0f;
-  }else{
-    lmax = (max(maxdepth - curTerrain.y,0.0)/maxdepth);
-  }
+//  float lmax = 0.0f;
+//  float maxdepth = 5.8;
+//  if(curTerrain.y > maxdepth){ // max river bed depth
+//    lmax = 0.0f;
+//  }else{
+//    lmax = (max(maxdepth - curTerrain.y,0.0)/maxdepth);
+//  }
 
 
   float cursedi = curSediment.x;

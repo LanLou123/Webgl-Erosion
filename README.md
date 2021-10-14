@@ -27,6 +27,8 @@
 
 ![](screenshot/scatter1.PNG)
 
+## Note : MacOS currently unsupported, Recommended GPU is GTX 1060 and above
+
 ## update 10/1/2021 : 
 - Algorithm update/fix : now erosion detail will be more accurate as I've choosen to disregard small water body's contribution to sediment advection, it used to create noises in sediment result because when water volume goes below numerical limitation of the sim, velocity will be contributing the same to advection regardless of water size...
 ## update 9/24/2021 : 
@@ -39,16 +41,16 @@
 
 
 ### some screenshots
+- Rain based Erosion : 
+![](screenshot/rain.PNG)
+![](screenshot/rain1.PNG)
 - permanent water in a river vally
 ![](screenshot/riv.PNG)
 - river vally dries up after some erosion
 ![](screenshot/vally.PNG)
 - alluvial fan (or at least a similar one) formed at the mountain exit
 ![](screenshot/delta.PNG)
-- before
-![](screenshot/af1.PNG) 
-- after
-![](screenshot/bf1.PNG)
+
 
 ![](screenshot/tr2.PNG)
 
