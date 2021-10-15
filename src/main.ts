@@ -35,56 +35,10 @@ let simres : number = simresolution;
 
 
 
-// aux control buffer (for backup)
+//  (for backup)
 const controlscomp = {
 
 
-    tesselations: 5,
-    pipelen:  1.0,//
-    Kc : 0.8,
-    Ks : 0.025,
-    Kd : 0.013,
-    timestep : 0.1,
-    pipeAra :  0.8,
-    EvaporationConstant : 0.0116,
-    RainDegree : 4.5,
-    spawnposx : 0.5,
-    spawnposy : 0.5,
-    'Load Scene': loadScene, // A function pointer, essentially
-    'Start/Resume' :StartGeneration,
-    'Reset' : Reset,
-    'setTerrainRandom':setTerrainRandom,
-    'Pause' : Pause,
-    TerrainBaseMap : 0,
-    TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace
-    TerrainBiomeType : 1,
-    TerrainScale : 10.0,
-    TerrainHeight : 2.0,
-    TerrainSphereMask : 0,//0 on, 1 off
-    TerrainDebug : 0,
-    WaterTransparency : 0.90,
-    SedimentTrace : 0, // 0 on, 1 off
-    TerrainPlatte : 0, // 0 normal alphine mtn, 1 desert, 2 jungle
-    SnowRange : 0,
-    ForestRange : 5,
-    brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
-    brushSize : 6,
-    brushStrenth : 1.2,
-    brushOperation : 0, // 0 : add, 1 : subtract
-    brushPressed : 0, // 0 : not pressed, 1 : pressed
-    talusAngleFallOffCoeff : 0.9,
-    talusAngleTangentBias : 0.0,
-    thermalRate : 0.5,
-    thermalErosionScale : 1.0,
-    lightPosX : 0.4,
-    lightPosY : 0.2,
-    lightPosZ : -1.0,
-    showScattering : true,
-
-};
-
-
-const controls = {
     tesselations: 5,
     pipelen:  0.8,//
     Kc : 0.10,
@@ -95,6 +49,65 @@ const controls = {
     RainErosion : false, //
     RainErosionStrength : 1.0,
     RainErosionDropSize : 1.0,
+    EvaporationConstant : 0.005,
+    VelocityMultiplier : 1,
+    RainDegree : 4.5,
+    AdvectionSpeedScaling : 1.0,
+    spawnposx : 0.5,
+    spawnposy : 0.5,
+    posTemp : vec2.fromValues(0.0,0.0),
+    posPerm : vec2.fromValues(0.0,0.0),
+    'Load Scene': loadScene, // A function pointer, essentially
+    'Start/Resume' :StartGeneration,
+    'ResetTerrain' : Reset,
+    'setTerrainRandom':setTerrainRandom,
+    'Pause' : Pause,
+    SimulationSpeed : 3,
+    TerrainBaseMap : 0,
+    TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace, 3 voroni
+    TerrainBiomeType : 1,
+    TerrainScale : 3.2,
+    TerrainHeight : 2.0,
+    TerrainMask : 0,//0 off, 1 sphere
+    TerrainDebug : 0,
+    WaterTransparency : 0.50,
+    SedimentTrace : 0, // 0 on, 1 off
+    TerrainPlatte : 1, // 0 normal alphine mtn, 1 desert, 2 jungle
+    SnowRange : 0,
+    ForestRange : 0,
+    brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
+    brushSize : 4,
+    brushStrenth : 0.40,
+    brushOperation : 0, // 0 : add, 1 : subtract
+    brushPressed : 0, // 0 : not pressed, 1 : pressed
+    pbrushOn : 0,
+    pbrushData : vec2.fromValues(5.0, 0.4), // size & strength
+    talusAngleFallOffCoeff : 0.9,
+    talusAngleTangentBias : 0.0,
+    thermalRate : 0.5,
+    thermalErosionScale : 1.0,
+    lightPosX : 0.4,
+    lightPosY : 0.2,
+    lightPosZ : -1.0,
+    showScattering : true,
+    enableBilateralBlur : true,
+    AdvectionMethod : 1,
+    SimulationResolution : simres,
+
+};
+
+
+const controls = {
+    tesselations: 5,
+    pipelen:  0.8,//
+    Kc : 0.06,
+    Ks : 0.043,
+    Kd : 0.013,
+    timestep : 0.05,
+    pipeAra :  0.6,
+    RainErosion : false, //
+    RainErosionStrength : 0.7,
+    RainErosionDropSize : 2.2,
     EvaporationConstant : 0.005,
     VelocityMultiplier : 1,
     RainDegree : 4.5,
