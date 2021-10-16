@@ -100,14 +100,14 @@ const controlscomp = {
 const controls = {
     tesselations: 5,
     pipelen:  0.8,//
-    Kc : 0.06,
-    Ks : 0.043,
+    Kc : 0.1,
+    Ks : 0.02,
     Kd : 0.013,
     timestep : 0.05,
     pipeAra :  0.6,
     RainErosion : false, //
-    RainErosionStrength : 0.7,
-    RainErosionDropSize : 2.2,
+    RainErosionStrength : 1.0,
+    RainErosionDropSize : 2.0,
     EvaporationConstant : 0.005,
     VelocityMultiplier : 1,
     RainDegree : 4.5,

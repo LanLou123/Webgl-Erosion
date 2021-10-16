@@ -244,7 +244,7 @@ void main()
     }else if(u_TerrainDebug == 1){
         fcol = texture(sedimap,fs_Uv).xyz * 2.0;
     }else if(u_TerrainDebug == 2){
-        fcol = abs(texture(velmap,fs_Uv).xyz/5.0);
+        fcol = abs(texture(velmap,fs_Uv).xyz/20.0);
     }else if(u_TerrainDebug == 9){
 
         //fcol = vec3(length(texture(velmap,fs_Uv).xyz)/5.0);

@@ -61,8 +61,9 @@ void main() {
 
 
 
+  float waterOut = u_timestep*(ftopout+frightout+fbottomout+fleftout);
   //damping = 1.0;
-  float k = min(1.f,((curTerrain.y )*u_PipeLen*u_PipeLen)/(u_timestep*(ftopout+frightout+fbottomout+fleftout))) ;
+  float k = min(1.f,((curTerrain.y )*u_PipeLen*u_PipeLen)/waterOut) ;
 
   //k = 1.0;
   //rescale outflow readFlux so that outflow don't exceed current water volume
@@ -77,7 +78,7 @@ void main() {
   if(curuv.y<=div) ftopout = 0.f;
   if(curuv.y>=1.f - 2.0 * div) fbottomout = 0.f;
 
-  if(curuv.x<=div || (curuv.x>=1.f - 2.0 * div) ||(curuv.y<=div) ||(curuv.y>=1.f - 2.0 * div)  ){
+  if(curuv.x<=div || (curuv.x>=1.f - 2.0 * div) ||(curuv.y<=div) ||(curuv.y>=1.f - 2.0 * div) ){
     ftopout = 0.0;
     frightout = 0.0;
     fbottomout = 0.0;

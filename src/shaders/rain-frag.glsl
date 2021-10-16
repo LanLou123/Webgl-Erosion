@@ -119,6 +119,7 @@ void main() {
       float addterrain = 0.0;
       float addwater = 0.0;
       float amount = 0.0006 * u_BrushStrength;
+      float aw = fbm(curuv*100.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
       // normal water brush
       if(u_BrushType != 0){
             vec3 ro = u_MouseWorldPos.xyz;
@@ -137,7 +138,7 @@ void main() {
 
                         addwater =  amount * dens * 200.0;
                         //float aw = noise(vec3(curuv * 100.0, u_Time));
-                        float aw = fbm(curuv*100.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
+
                         //aw = pow(aw, 8.0);
                         addwater *= aw;
                         addwater = u_BrushOperation == 0 ? addwater : -addwater;
@@ -159,7 +160,7 @@ void main() {
 
             float dis2small = distance(vec2(rdx, rdy), curuv);
             if (dis2small < smallradius){
-                  addwater +=  0.06 * u_RainErosionStrength;
+                  addwater +=  0.06 * u_RainErosionStrength * aw;
             }
       }
 

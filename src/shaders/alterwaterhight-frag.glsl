@@ -77,19 +77,20 @@ void main(){
 //  vec2 randTime = vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6) + curuv * 10.0;
 //  float rnd = random(randTime);
 
-  float d1 = max(cur.y ,0.0);
+  float d1 = cur.y;
   float d11 = cur.y;
-  float d2 = max(d1 + deltavol,0.0);
+  float d2 = d1 + deltavol;
   float da = (d1 + d2)/2.0f;
   vec2 veloci = vec2(leftflux.y-outputflux.w+outputflux.y-rightflux.w,bottomflux.x-outputflux.z+outputflux.x-topflux.z)/2.0;
-  if(cur.y == 0.0 && deltavol == 0.0) veloci = vec2(0.0,0.0);
 
 
-    if(da <= 0.0005) {
-      veloci = vec2(0.0);
-    }else{
+
+//    if(da <= 0.0005) {
+//      veloci = vec2(0.0);
+//    }else
+  if(da > 0.0)
       veloci = veloci/(da * u_PipeLen);
-    }
+    //}
 
   // my attempts trying to mitigate axis aligning problem, none worked :(
 //    vec2 velnorm = normalize(veloci);
