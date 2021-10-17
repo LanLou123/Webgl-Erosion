@@ -105,7 +105,7 @@ const controls = {
     Kd : 0.013,
     timestep : 0.05,
     pipeAra :  0.6,
-    ErosionMode : 0, // 0 river erosion, 1 : mountain erosion
+    ErosionMode : 0, // 0 river erosion, 1 : mountain erosion, 2 : polygonal mode
     RainErosion : false, //
     RainErosionStrength : 1.0,
     RainErosionDropSize : 2.0,
@@ -1198,7 +1198,7 @@ function main() {
     terrainParameters.add(controls,'ResetTerrain');
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
-    erosionpara.add(controls, 'ErosionMode', {RiverMode : 0, MountainMode : 1});
+    erosionpara.add(controls, 'ErosionMode', {RiverMode : 0, MountainMode : 1, PolygonalMode : 2});
     var RainErosionPara = erosionpara.addFolder('Rain Erosion Parameters');
     RainErosionPara.add(controls,'RainErosion');
     RainErosionPara.add(controls, 'RainErosionStrength', 0.1,3.0);

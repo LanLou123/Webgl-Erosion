@@ -58,18 +58,22 @@ void main() {
     float bl_d = cur.x - bottomleft.x;
     float tl_d = cur.x - topleft.x;
 
+
+
+    float avg_hdiff = t_d + r_d + b_d + l_d + (tr_d + br_d + bl_d + tl_d) * diagonalWeight;
+    avg_hdiff/=(4.0 * (1.0 + diagonalWeight));
+    avg_hdiff = abs(avg_hdiff);
+
+    float avg_hdiff_4 = t_d + r_d + b_d + l_d;
+    avg_hdiff_4/=4.0;
+    avg_hdiff_4 = abs(avg_hdiff_4);
     // for mountain erosion mode, will create flatter plains and sharper ridges, but will lose detail in flatter regeion
     if(unif_ErosionMode == 1){
-        float avg_hdiff = t_d + r_d + b_d + l_d + (tr_d + br_d + bl_d + tl_d) * diagonalWeight;
-        avg_hdiff/=(4.0 * (1.0 + diagonalWeight));
-        avg_hdiff = abs(avg_hdiff);
-
-        float avg_hdiff_4 = t_d + r_d + b_d + l_d;
-        avg_hdiff_4/=4.0;
-        avg_hdiff_4 = abs(avg_hdiff_4);
-
-        //threathhold = pow(avg_hdiff,1.0);
         threathhold = avg_hdiff / 2.0;
+    }
+    // for polygonal looking terrain
+    else if(unif_ErosionMode == 2){
+        threathhold = pow(avg_hdiff,3.0);
     }
     float cur_h = cur.x;
     float col = 0.0;
