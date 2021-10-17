@@ -21,7 +21,7 @@
 
 ## [**Demo Video showing sandbox feature**](https://youtu.be/Qly5emyyR_s)
 
-![](screenshot/ex1.PNG)
+![](screenshot/cliff2.PNG)
 
 ![](screenshot/td1.png)
 
