@@ -41,9 +41,11 @@
 
 
 ### some screenshots
-- Rain based Erosion : 
-![](screenshot/rain.PNG)
-![](screenshot/rain1.PNG)
+- Rain based Erosion with mountian mode : 
+#### before:
+![](screenshot/bf1.PNG)
+#### after:
+![](screenshot/af1.PNG)
 - permanent water in a river vally
 ![](screenshot/riv.PNG)
 - river vally dries up after some erosion
