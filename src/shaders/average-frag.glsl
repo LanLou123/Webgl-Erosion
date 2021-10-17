@@ -11,6 +11,7 @@ layout (location = 0) out vec4 writeTerrain;
 layout (location = 1) out vec4 writeAvg;
 
 uniform float u_SimRes;
+uniform int unif_ErosionMode;
 in vec2 fs_Pos;
 
 vec3 calnor(vec2 uv){
@@ -28,6 +29,7 @@ vec3 calnor(vec2 uv){
 
 void main() {
 
+    float diagonalWeight = 0.707;
     float threathhold = 0.1f;
     float div = 1.0/u_SimRes;
     vec2 curuv = 0.5f*fs_Pos+0.5f;
@@ -56,10 +58,23 @@ void main() {
     float bl_d = cur.x - bottomleft.x;
     float tl_d = cur.x - topleft.x;
 
+    // for mountain erosion mode, will create flatter plains and sharper ridges, but will lose detail in flatter regeion
+    if(unif_ErosionMode == 1){
+        float avg_hdiff = t_d + r_d + b_d + l_d + (tr_d + br_d + bl_d + tl_d) * diagonalWeight;
+        avg_hdiff/=(4.0 * (1.0 + diagonalWeight));
+        avg_hdiff = abs(avg_hdiff);
+
+        float avg_hdiff_4 = t_d + r_d + b_d + l_d;
+        avg_hdiff_4/=4.0;
+        avg_hdiff_4 = abs(avg_hdiff_4);
+
+        //threathhold = pow(avg_hdiff,1.0);
+        threathhold = avg_hdiff / 2.0;
+    }
     float cur_h = cur.x;
     float col = 0.0;
     float curWeight = 8.0;
-    float diagonalWeight = 0.707;
+
 
     //eight dir average
     if(((abs(r_d) > threathhold && abs(l_d) > threathhold)&& r_d*l_d > 0.0)||
@@ -92,10 +107,12 @@ void main() {
 //        col = 1.0;
 //    }
 
-//    if((abs(r_d) > threathhold) && (abs(l_d) > threathhold) && (abs(b_d) > threathhold) && (abs(t_d) > threathhold) && ((l_d > 0.0 && b_d > 0.0&& t_d > 0.0 && r_d > 0.0) || (l_d < 0.0 && b_d < 0.0&& t_d < 0.0 && r_d < 0.0))){
-//                cur_h = (cur.x * curWeight + top.x + right.x + bottom.x + left.x )/(4.0+curWeight);
-//                col = 1.0;
-//    }
+
+    threathhold = 0.1;
+    if((abs(r_d) > threathhold) && (abs(l_d) > threathhold) && (abs(b_d) > threathhold) && (abs(t_d) > threathhold) && ((l_d > 0.0 && b_d > 0.0&& t_d > 0.0 && r_d > 0.0) || (l_d < 0.0 && b_d < 0.0&& t_d < 0.0 && r_d < 0.0))){
+                cur_h = (cur.x * curWeight + top.x + right.x + bottom.x + left.x )/(4.0+curWeight);
+                col = 1.0;
+    }
 
     writeTerrain = vec4(cur_h,cur.y,cur.z,cur.w);
     writeAvg = vec4(vec3(col), 1.0);

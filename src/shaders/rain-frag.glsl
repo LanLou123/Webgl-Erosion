@@ -160,7 +160,7 @@ void main() {
 
             float dis2small = distance(vec2(rdx, rdy), curuv);
             if (dis2small < smallradius){
-                  addwater +=  0.06 * u_RainErosionStrength * aw;
+                  addwater +=  0.06 * u_RainErosionStrength;
             }
       }
 

@@ -35,7 +35,7 @@ void main() {
   float hardness = 1.0;
   float talusAngleFallOffCoeff = unif_talusAngleFallOffCoeff;
   float talusAngleTangentBias = unif_talusAngleTangentBias;
-  float _maxHeightDiff = 3.0;
+
 
   vec4 terraintop = texture(readTerrain,curuv+vec2(0.f,div));
   vec4 terrainright = texture(readTerrain,curuv+vec2(div,0.f));
