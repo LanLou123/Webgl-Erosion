@@ -39,7 +39,7 @@ void main() {
 
   float vol = inputflux.x + inputflux.y + inputflux.z + inputflux.w - outputflux.x - outputflux.y - outputflux.z - outputflux.w;
 
-  float tdelta = min(10.0, u_timestep * thermalErosionScale) * vol;
+  float tdelta = min(50.0, u_timestep * thermalErosionScale) * vol;
 
   vec4 curTerrain = texture(readTerrain, curuv);
 

@@ -61,7 +61,6 @@ const controlscomp = {
     'Start/Resume' :StartGeneration,
     'ResetTerrain' : Reset,
     'setTerrainRandom':setTerrainRandom,
-    'Pause' : Pause,
     SimulationSpeed : 3,
     TerrainBaseMap : 0,
     TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace, 3 voroni
@@ -82,8 +81,6 @@ const controlscomp = {
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     pbrushOn : 0,
     pbrushData : vec2.fromValues(5.0, 0.4), // size & strength
-    talusAngleFallOffCoeff : 0.9,
-    talusAngleTangentBias : 0.0,
     thermalRate : 0.5,
     thermalErosionScale : 1.0,
     lightPosX : 0.4,
@@ -118,10 +115,9 @@ const controls = {
     posTemp : vec2.fromValues(0.0,0.0),
     posPerm : vec2.fromValues(0.0,0.0),
     'Load Scene': loadScene, // A function pointer, essentially
-    'Start/Resume' :StartGeneration,
+    'Pause/Resume' :StartGeneration,
     'ResetTerrain' : Reset,
     'setTerrainRandom':setTerrainRandom,
-    'Pause' : Pause,
     SimulationSpeed : 3,
     TerrainBaseMap : 0,
     TerrainBaseType : 0,//0 ordinary fbm, 1 domain warping, 2 terrace, 3 voroni
@@ -131,7 +127,8 @@ const controls = {
     TerrainMask : 0,//0 off, 1 sphere
     TerrainDebug : 0,
     WaterTransparency : 0.50,
-    SedimentTrace : 0, // 0 on, 1 off
+    SedimentTrace : true, // 0 on, 1 off
+    ShowFlowTrace : true,
     TerrainPlatte : 1, // 0 normal alphine mtn, 1 desert, 2 jungle
     SnowRange : 0,
     ForestRange : 0,
@@ -142,8 +139,7 @@ const controls = {
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     pbrushOn : 0,
     pbrushData : vec2.fromValues(5.0, 0.4), // size & strength
-    talusAngleFallOffCoeff : 0.9,
-    talusAngleTangentBias : 0.0,
+    thermalTalusAngleScale : 8.0,
     thermalRate : 0.5,
     thermalErosionScale : 1.0,
     lightPosX : 0.4,
@@ -223,11 +219,9 @@ function loadScene() {
 }
 
 function StartGeneration(){
-    PauseGeneration = false;
+    PauseGeneration = !PauseGeneration;
 }
-function Pause(){
-    PauseGeneration = true;
-}
+
 
 function Reset(){
     SimFramecnt = 0;
@@ -1185,8 +1179,7 @@ function main() {
   // Add controls to the gui
   const gui = new DAT.GUI();
     var simcontrols = gui.addFolder('Simulation Controls');
-    simcontrols.add(controls,'Start/Resume');
-    simcontrols.add(controls,'Pause');
+    simcontrols.add(controls,'Pause/Resume');
     simcontrols.add(controls,'SimulationSpeed',{fast:3,medium : 2, slow : 1});
     simcontrols.open();
     var terrainParameters = gui.addFolder('Terrain Parameters');
@@ -1214,10 +1207,8 @@ function main() {
     erosionpara.add(controls, 'VelocityMultiplier',1.0,5.0);
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
-    thermalerosionpara.add(controls,'talusAngleFallOffCoeff',0.0, 1.0 );
-    thermalerosionpara.add(controls,'talusAngleTangentBias',0.0, 0.01 );
-    thermalerosionpara.add(controls,'thermalRate',0.0, 1.0 );
-    thermalerosionpara.add(controls,'thermalErosionScale',0.0, 10.0 );
+    thermalerosionpara.add(controls, 'thermalTalusAngleScale', 2.0, 10.0);
+    thermalerosionpara.add(controls,'thermalErosionScale',0.0, 5.0 );
     //thermalerosionpara.open();
     var terraineditor = gui.addFolder('Terrain Editor');
     terraineditor.add(controls,'brushType',{NoBrush : 0, TerrainBrush : 1, WaterBrush : 2});
@@ -1230,7 +1221,8 @@ function main() {
     renderingpara.add(controls, 'TerrainPlatte', {AlpineMtn : 0, Desert : 1, Jungle : 2});
     renderingpara.add(controls, 'SnowRange', 0.0, 100.0);
     renderingpara.add(controls, 'ForestRange', 0.0, 50.0);
-    renderingpara.add(controls,'SedimentTrace',{ON : 0, OFF : 1});
+    renderingpara.add(controls,'ShowFlowTrace');
+    renderingpara.add(controls,'SedimentTrace');
     renderingpara.add(controls,'showScattering');
     renderingpara.add(controls,'enableBilateralBlur');
     var renderingparalightpos = renderingpara.addFolder('sunPos/Dir');
@@ -1518,7 +1510,8 @@ function main() {
     lambert.setFloat(controls.SnowRange, "u_SnowRange");
     lambert.setFloat(controls.ForestRange, "u_ForestRange");
     lambert.setInt(controls.TerrainPlatte, "u_TerrainPlatte");
-    lambert.setInt(controls.SedimentTrace,"u_SedimentTrace");
+    lambert.setInt(controls.ShowFlowTrace ? 0 : 1,"u_FlowTrace");
+    lambert.setInt(controls.SedimentTrace ? 0 : 1,"u_SedimentTrace");
     lambert.setVec2(controls.posPerm,'u_permanentPos');
     lambert.setInt(controls.pbrushOn, "u_pBrushOn");
     lambert.setVec2(controls.pbrushData,"u_PBrushData");
@@ -1585,8 +1578,6 @@ function main() {
     thermalterrainflux.setPipeLen(controls.pipelen);
     thermalterrainflux.setTimestep(controls.timestep);
     thermalterrainflux.setPipeArea(controls.pipeAra);
-    gl_context.uniform1f(gl_context.getUniformLocation(thermalterrainflux.prog,"unif_talusAngleFallOffCoeff"),controls.talusAngleFallOffCoeff);
-    gl_context.uniform1f(gl_context.getUniformLocation(thermalterrainflux.prog,"unif_talusAngleTangentBias"),controls.talusAngleTangentBias);
     gl_context.uniform1f(gl_context.getUniformLocation(thermalterrainflux.prog,"unif_thermalRate"),controls.thermalRate);
 
     thermalapply.setSimres(simres);
@@ -1599,6 +1590,7 @@ function main() {
     maxslippageheight.setPipeLen(controls.pipelen);
     maxslippageheight.setTimestep(controls.timestep);
     maxslippageheight.setPipeArea(controls.pipeAra);
+    maxslippageheight.setFloat(controls.thermalTalusAngleScale, "unif_TalusScale");
 
     average.setSimres(simres);
     average.setInt(controls.ErosionMode,'unif_ErosionMode');

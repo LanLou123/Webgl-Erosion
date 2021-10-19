@@ -108,7 +108,7 @@ float fbm (in vec2 st) {
     for (int i = 0; i < OCTAVES; i++) {
         value += amplitude * noise(st);//iqnoise(st,1.f,1.f);
         st *= 2.0;
-        amplitude *= .5;
+        amplitude *= .45;
     }
     return value;
 }
@@ -156,7 +156,7 @@ void main() {
     vec2 cpos = 1.5 * uv * u_TerrainScale;
     cpos = cpos + vec2(1.f*sin(u_Time / 3.0) + 2.1,1.0 * cos(u_Time/17.0)+3.6);
 
-    float terrain_hight = fbm(cpos*2.0)/1.0;
+    float terrain_hight = fbm(cpos*2.0)*1.1;
     float base_height = fbm(cpos*6.2)/1.0;
 
 

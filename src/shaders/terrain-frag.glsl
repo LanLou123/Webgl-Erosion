@@ -46,6 +46,7 @@ uniform vec3 unif_LightPos;
 uniform vec2 u_permanentPos;
 uniform int u_pBrushOn;
 uniform vec2 u_PBrushData;
+uniform int u_FlowTrace;
 
 
 uniform mat4 u_sproj;
@@ -287,6 +288,10 @@ void main()
 
 
     fcol = clamp(fcol, vec3(0.0), vec3(1.0));
+
+
+
+
     // realistic color
 //    vec3 lightSedimentCol = vec3(0.9,0.9,0.6);
 //    vec3 mediumSedimentCol = vec3(0.6, 0.6, 0.5);
@@ -296,6 +301,17 @@ void main()
     vec3 mediumSedimentCol = vec3(0.0, 0.5, 0.5);
     vec3 deepSedimentCol = vec3(0.0, 0.0, 0.99);
     if(!debug){
+
+        // flow traces : showing flow map in the final render
+        if(u_FlowTrace == 0){
+            float sedimentTrace = 0.0;
+            sedimentTrace = 1.0 - exp( -sval*30.0);
+            fcol = mix(fcol, vec3(240.f/255.f,230.f/255.f,140.f/255.f),sedimentTrace * 1.50);
+            //sedimentTrace *= pow(abs(nor.y), 1.0);
+        }
+        //fcol += lamb * clamp(sval * vec3(0.5,0.2,0.0) * 550.0, vec3(0.0), vec3(1.0));
+
+        // sediment traces : showing movement of sediments on the terrain
         if(u_SedimentTrace == 0){
             float ssval = texture(sedimap, fs_Uv).x;
             //ssval = max(min(pow(3.0 * ssval, 0.6), 1.0), 0.0);
@@ -316,13 +332,9 @@ void main()
         }
 
 
-//        float sedimentTrace = 0.0;
-//        if(u_SedimentTrace == 0){
-//            sedimentTrace = 1.0 - exp( -sval*60.0);
-//            //sedimentTrace *= pow(abs(nor.y), 1.0);
-//        }
-//        fcol = mix(fcol, vec3(214.f/255.f,114.f/255.f,56.f/255.f),sedimentTrace);
-        //fcol += lamb * clamp(sval * vec3(0.5,0.2,0.0) * 550.0, vec3(0.0), vec3(1.0));
+
+
+
         fcol *= shadowCol * hue;
 
     }

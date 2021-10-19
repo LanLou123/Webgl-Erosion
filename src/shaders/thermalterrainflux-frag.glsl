@@ -9,8 +9,7 @@ uniform float u_PipeLen;
 uniform float u_timestep;
 uniform float u_PipeArea;
 
-uniform float unif_talusAngleFallOffCoeff;
-uniform float unif_talusAngleTangentBias;
+
 uniform float unif_thermalRate;
 
 
@@ -33,8 +32,7 @@ void main() {
   float div = 1.0 / u_SimRes;
   float thermalRate = unif_thermalRate;
   float hardness = 1.0;
-  float talusAngleFallOffCoeff = unif_talusAngleFallOffCoeff;
-  float talusAngleTangentBias = unif_talusAngleTangentBias;
+
 
 
   vec4 terraintop = texture(readTerrain,curuv+vec2(0.f,div));

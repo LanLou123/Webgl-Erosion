@@ -9,6 +9,7 @@ uniform float u_PipeLen;
 uniform float u_timestep;
 uniform float u_PipeArea;
 uniform float unif_thermalErosionScale;
+uniform float unif_TalusScale;
 
 layout (location = 0) out vec4 writeMaxslippage;
 
@@ -27,7 +28,7 @@ void main() {
 
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float div = 1.f/u_SimRes;
-  float _maxHeightDiff = 5.0;
+  float _maxHeightDiff = unif_TalusScale;
 
   vec4 terraintop = texture(readTerrain,curuv+vec2(0.f,div));
   vec4 terrainright = texture(readTerrain,curuv+vec2(div,0.f));
