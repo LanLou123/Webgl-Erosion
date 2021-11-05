@@ -24,7 +24,7 @@ const enableBilateralBlur = false;
 var gl_context : WebGL2RenderingContext;
 
 
-    let speed = 3;
+let speed = 3;
 let SimFramecnt = 0;
 let TerrainGeometryDirty = true;
 let PauseGeneration = false;
@@ -128,13 +128,13 @@ const controls = {
     TerrainDebug : 0,
     WaterTransparency : 0.50,
     SedimentTrace : true, // 0 on, 1 off
-    ShowFlowTrace : true,
+    ShowFlowTrace : false,
     TerrainPlatte : 1, // 0 normal alphine mtn, 1 desert, 2 jungle
     SnowRange : 0,
     ForestRange : 0,
     brushType : 2, // 0 : no brush, 1 : terrain, 2 : water
     brushSize : 4,
-    brushStrenth : 0.40,
+    brushStrenth : 0.25,
     brushOperation : 0, // 0 : add, 1 : subtract
     brushPressed : 0, // 0 : not pressed, 1 : pressed
     pbrushOn : 0,
@@ -1207,7 +1207,7 @@ function main() {
     erosionpara.add(controls, 'VelocityMultiplier',1.0,5.0);
     erosionpara.open();
     var thermalerosionpara = gui.addFolder("Thermal Erosion Parameters");
-    thermalerosionpara.add(controls, 'thermalTalusAngleScale', 2.0, 10.0);
+    thermalerosionpara.add(controls, 'thermalTalusAngleScale', 1.0, 10.0);
     thermalerosionpara.add(controls,'thermalErosionScale',0.0, 5.0 );
     //thermalerosionpara.open();
     var terraineditor = gui.addFolder('Terrain Editor');

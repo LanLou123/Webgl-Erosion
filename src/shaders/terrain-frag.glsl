@@ -108,6 +108,11 @@ float fbm (in vec2 st) {
 }
 
 
+float computeTerrainAO(){
+    vec4 HC = texture(hightmap,fs_Uv);
+    return 1.0;
+}
+
 void main()
 {
 
@@ -305,8 +310,8 @@ void main()
         // flow traces : showing flow map in the final render
         if(u_FlowTrace == 0){
             float sedimentTrace = 0.0;
-            sedimentTrace = 1.0 - exp( -sval*30.0);
-            fcol = mix(fcol, vec3(240.f/255.f,230.f/255.f,140.f/255.f),sedimentTrace * 1.50);
+            sedimentTrace = 1.0 - exp( -sval*100.0);
+            fcol = mix(fcol, vec3(240.f/255.f,230.f/255.f,140.f/255.f) * lamb + ambientCol,sedimentTrace * 1.50);
             //sedimentTrace *= pow(abs(nor.y), 1.0);
         }
         //fcol += lamb * clamp(sval * vec3(0.5,0.2,0.0) * 550.0, vec3(0.0), vec3(1.0));

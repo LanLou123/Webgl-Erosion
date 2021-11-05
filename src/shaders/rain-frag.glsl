@@ -119,7 +119,7 @@ void main() {
       float addterrain = 0.0;
       float addwater = 0.0;
       float amount = 0.0006 * u_BrushStrength;
-      float aw = fbm(curuv*100.0 + vec2(sin(u_Time * 5.0), cos(u_Time*15.0)));
+      float aw = fbm(curuv*10.0 + vec2(sin(u_Time * 35.0), cos(u_Time*115.0)));
       // normal water brush
       if(u_BrushType != 0){
             vec3 ro = u_MouseWorldPos.xyz;
@@ -153,7 +153,7 @@ void main() {
       }
 
       // rain erosion
-      if(u_RainErosion == 1 && mod(u_Time, 1.0) == 0.0 ){
+      if(u_RainErosion == 1 && mod(u_Time, 5.0) == 1.0 ){
             float smallradius = 0.025  * u_RainErosionDropSize;
             float rdx = random(vec2(30.0, cos(u_Time)));
             float rdy = random(vec2(u_Time, 10.0));
@@ -162,7 +162,11 @@ void main() {
             if (dis2small < smallradius){
                   addwater +=  0.06 * u_RainErosionStrength;
             }
+
       }
+
+//                  if(mod(u_Time, 10.0) == 1.0)
+//                  addwater += 0.006 * aw;
 
 
       // permanent water source brush
