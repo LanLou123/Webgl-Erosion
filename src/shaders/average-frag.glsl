@@ -33,7 +33,7 @@ void main() {
 
     float diagonalWeight = 0.707;
     float threathhold = 0.1f;
-    if(unif_rainMode == 1) threathhold = 10.0;
+    if(unif_rainMode == 1) threathhold = 5.0;
     float div = 1.0/u_SimRes;
     vec2 curuv = 0.5f*fs_Pos+0.5f;
     vec4 cur = texture(readTerrain,curuv);

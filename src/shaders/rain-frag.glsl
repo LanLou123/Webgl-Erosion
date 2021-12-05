@@ -166,6 +166,8 @@ void main() {
                   addwater +=  0.06 * u_RainErosionStrength;
             }
 
+
+
       }
 
 //                  if(mod(u_Time, 10.0) == 1.0)
@@ -191,6 +193,7 @@ void main() {
 
 
             }
+
       }
 
 
