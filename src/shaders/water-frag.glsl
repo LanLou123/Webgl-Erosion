@@ -91,7 +91,6 @@ void main()
 
     //lamb =1.f;
 
-    float yval = texture(hightmap,fs_Uv).x * 4.0;
     float wval = texture(hightmap,fs_Uv).y;
     wval /= 1.0;
 
@@ -103,6 +102,6 @@ void main()
 
 
 
-    out_Col = vec4(vec3(0.0,0.3,0.5) + R * reflectedSky + watercolorspec  , (1.8 + spec) * u_WaterTransparency * dpVal);
+    out_Col = vec4(vec3(0.0,0.3,0.5) + R * reflectedSky + watercolorspec  , min((1.8 + spec) * u_WaterTransparency * dpVal,1.0));
     col_reflect = vec4(1.0);
 }

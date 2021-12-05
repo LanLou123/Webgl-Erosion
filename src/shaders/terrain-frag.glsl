@@ -139,7 +139,6 @@ void main()
     shadowVal/=9.0;
     shadowCol/=9.0;
     float shadowColorVal = texture(shadowMap, fs_Uv.xy).x;
-    float sceneDepthVal = texture(sceneDepth,shadowMapLoc.xy).x;
 
     vec3 forestcol = vec3(63.0/255.0,155.0/255.0,7.0/255.0)*0.6;
     vec3 mtncolor = vec3(0.99,0.99,0.99);
@@ -310,7 +309,7 @@ void main()
         // flow traces : showing flow map in the final render
         if(u_FlowTrace == 0){
             float sedimentTrace = 0.0;
-            sedimentTrace = 1.0 - exp( -sval*100.0);
+            sedimentTrace = 1.0 - exp( -sval*300.0);
             fcol = mix(fcol, vec3(240.f/255.f,230.f/255.f,140.f/255.f) * lamb + ambientCol,sedimentTrace * 1.50);
             //sedimentTrace *= pow(abs(nor.y), 1.0);
         }

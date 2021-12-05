@@ -108,7 +108,7 @@ float fbm (in vec2 st) {
     for (int i = 0; i < OCTAVES; i++) {
         value += amplitude * noise(st);//iqnoise(st,1.f,1.f);
         st *= 2.0;
-        amplitude *= .45;
+        amplitude *= .47;
     }
     return value;
 }

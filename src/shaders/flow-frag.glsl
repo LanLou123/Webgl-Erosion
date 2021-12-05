@@ -5,6 +5,7 @@ uniform sampler2D readTerrain;//water and hight map R: hight map, G: water map, 
 uniform sampler2D readFlux;
 uniform sampler2D readSedi;
 
+
 uniform float u_SimRes;
 uniform float u_PipeLen;
 uniform float u_timestep;
@@ -12,18 +13,29 @@ uniform float u_PipeArea;
 
 layout (location = 0) out vec4 writeFlux;
 
+
 in vec2 fs_Pos;
 
+#define useMullerPath false
 
 
+// normal centered grid vec4(x, y, z, w)
 //
 //      x
 //  w   c   y
 //      z
 //
+// staggered grid vec4(r,t,0,1);
+//     t.()
+//     c         r.()
+
 
 
 void main() {
+
+
+
+
 
   vec2 curuv = 0.5f*fs_Pos+0.5f;
   float div = 1.f/u_SimRes;
@@ -39,7 +51,7 @@ void main() {
 
 
 
-  float damping = 0.999;
+  float damping = 1.0;
   vec4 curTerrain = texture(readTerrain,curuv);
   vec4 curFlux = texture(readFlux,curuv) * damping;
 
@@ -54,12 +66,15 @@ void main() {
 //  Hleftout = max(0.0, Hleftout);
 
   //out flow readFlux
+//  float ftopout = max(0.f,(u_timestep*g*u_PipeArea*Htopout)/pipelen);
+//  float frightout = max(0.f,(u_timestep*g*u_PipeArea*Hrightout)/pipelen);
+//  float fbottomout = max(0.f,(u_timestep*g*u_PipeArea*Hbottomout)/pipelen);
+//  float fleftout = max(0.f,(u_timestep*g*u_PipeArea*Hleftout)/pipelen);
+
   float ftopout = max(0.f,curFlux.x+(u_timestep*g*u_PipeArea*Htopout)/pipelen);
   float frightout = max(0.f,curFlux.y+(u_timestep*g*u_PipeArea*Hrightout)/pipelen);
   float fbottomout = max(0.f,curFlux.z+(u_timestep*g*u_PipeArea*Hbottomout)/pipelen);
   float fleftout = max(0.f,curFlux.w+(u_timestep*g*u_PipeArea*Hleftout)/pipelen);
-
-
 
   float waterOut = u_timestep*(ftopout+frightout+fbottomout+fleftout);
   //damping = 1.0;
@@ -91,9 +106,10 @@ void main() {
 //
 //  veloci *= max(0.01,divs / 1.0);
 
-
-
-
   writeFlux = vec4(ftopout,frightout,fbottomout,fleftout);
+
+
+  // for muller path
+
 
 }

@@ -24,25 +24,57 @@ layout (location = 3) out vec4 writeVelocity;
 
 in vec2 fs_Pos;
 
+#define OCTAVES 10
 
 float random (in vec2 st) {
   return fract(sin(dot(st.xy,
   vec2(12.9898,78.233)))*
   43758.5453123);
 }
+float noise (in vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
 
+  // Four corners in 2D of a tile
+  float a = random(i);
+  float b = random(i + vec2(1.0, 0.0));
+  float c = random(i + vec2(0.0, 1.0));
+  float d = random(i + vec2(1.0, 1.0));
+
+  vec2 u = f * f * (3.0 - 2.0 * f);
+
+  return mix(a, b, u.x) +
+  (c - a)* u.y * (1.0 - u.x) +
+  (d - b) * u.x * u.y;
+}
+
+
+float fbm (in vec2 st) {
+  // Initial values
+  float value = 0.0;
+  float amplitude = .5;
+  float frequency = 0.;
+  //
+  // Loop of octaves
+  for (int i = 0; i < OCTAVES; i++) {
+    value += amplitude * noise(st);//iqnoise(st,1.f,1.f);
+    st *= 2.0;
+    amplitude *= .47;
+  }
+  return value;
+}
 vec3 calnor(vec2 uv){
   float eps = 1.f/u_SimRes;
-  vec4 cur = texture(readTerrain,uv);
+//  vec4 cur = texture(readTerrain,uv);
   vec4 r = texture(readTerrain,uv+vec2(eps,0.f));
   vec4 t = texture(readTerrain,uv+vec2(0.f,eps));
   vec4 b = texture(readTerrain,uv+vec2(0.f,-eps));
   vec4 l = texture(readTerrain,uv+vec2(-eps,0.f));
 
-  vec4 rs = texture(readSediment,uv+vec2(eps,0.f));
-  vec4 ts = texture(readSediment,uv+vec2(0.f,eps));
-  vec4 bs = texture(readSediment,uv+vec2(0.f,-eps));
-  vec4 ls = texture(readSediment,uv+vec2(-eps,0.f));
+//  vec4 rs = texture(readSediment,uv+vec2(eps,0.f));
+//  vec4 ts = texture(readSediment,uv+vec2(0.f,eps));
+//  vec4 bs = texture(readSediment,uv+vec2(0.f,-eps));
+//  vec4 ls = texture(readSediment,uv+vec2(-eps,0.f));
 
 
   //vec3 nor = vec3(l.x + l.y  - r.x - r.y , 2.0, t.x + t.y - b.x - b.y );
@@ -100,14 +132,18 @@ void main() {
 //  }
 //  sedicap *= (1.0 - exp(-1.0 * lmax));
 
+
+
+
   float cursedi = curSediment.x;
   float hight = curTerrain.x;
   float outsedi = curSediment.x;
 
   float water = curTerrain.y;
 
+
   if(sedicap >cursedi){
-    float changesedi = (sedicap -cursedi)*Ks;
+    float changesedi = (sedicap -cursedi)*(Ks);
     //changesedi = min(changesedi, curTerrain.y);
 
       hight = hight - changesedi;

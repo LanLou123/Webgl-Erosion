@@ -8,6 +8,7 @@ import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
 import {gl, setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
+import {stat} from "fs";
 var mouseChange = require('mouse-change');
 
 
@@ -281,6 +282,7 @@ function SimulatePerStep(renderer:OpenGLRenderer,
                          camera:Camera,
                          shader:ShaderProgram,
                          waterhight:ShaderProgram,
+                         veladvect : ShaderProgram,
                          sedi:ShaderProgram,
                          advect:ShaderProgram,
                          macCormack : ShaderProgram,
@@ -462,10 +464,54 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     read_vel_tex = write_vel_tex;
     write_vel_tex = tmp;
 
-    //-----swap flux ping and pong and velocity ping pong
+    //-----swap terrain ping and pong and velocity ping pong
 
 
-
+    // //////////////////////////////////////////////////////////////////
+    // // experimental pass : self advection of velocity (potentially flux) to bring about momentum
+    // // ideally :
+    // // velocity map + (flux optional) ----> velocity map + (flux optional)
+    // //////////////////////////////////////////////////////////////////
+    //
+    //
+    // gl_context.bindFramebuffer(gl_context.FRAMEBUFFER, frame_buffer);
+    // gl_context.framebufferTexture2D(gl_context.FRAMEBUFFER,gl_context.COLOR_ATTACHMENT0,gl_context.TEXTURE_2D,write_vel_tex,0);
+    // gl_context.framebufferTexture2D(gl_context.FRAMEBUFFER,gl_context.COLOR_ATTACHMENT1,gl_context.TEXTURE_2D,null,0);
+    // gl_context.framebufferTexture2D(gl_context.FRAMEBUFFER,gl_context.COLOR_ATTACHMENT2,gl_context.TEXTURE_2D,null,0);
+    // gl_context.framebufferTexture2D(gl_context.FRAMEBUFFER,gl_context.COLOR_ATTACHMENT3,gl_context.TEXTURE_2D,null,0);
+    // gl_context.framebufferRenderbuffer(gl_context.FRAMEBUFFER,gl_context.DEPTH_ATTACHMENT,gl_context.RENDERBUFFER,render_buffer);
+    //
+    // gl_context.drawBuffers([gl_context.COLOR_ATTACHMENT0]);
+    //
+    // status = gl_context.checkFramebufferStatus(gl_context.FRAMEBUFFER);
+    // if(status !== gl_context.checkFramebufferStatus(gl_context.FRAMEBUFFER)){
+    //     console.log("frame buffer status" + status.toString());
+    // }
+    //
+    // gl_context.bindTexture(gl_context.TEXTURE_2D, null);
+    // gl_context.bindFramebuffer(gl_context.FRAMEBUFFER, null);
+    // gl_context.bindRenderbuffer(gl_context.RENDERBUFFER, null);
+    //
+    // gl_context.viewport(0, 0, simres, simres);
+    // gl_context.bindFramebuffer(gl_context.FRAMEBUFFER, frame_buffer);
+    //
+    // renderer.clear();
+    // veladvect.use();
+    //
+    // gl_context.activeTexture(gl_context.TEXTURE0);
+    // gl_context.bindTexture(gl_context.TEXTURE_2D,read_vel_tex);
+    // gl_context.uniform1i(gl_context.getUniformLocation(veladvect.prog,"readVel"),0);
+    //
+    // renderer.render(camera,veladvect,[square]);
+    // gl_context.bindFramebuffer(gl_context.FRAMEBUFFER,null);
+    //
+    // //-----swap velocity ping pong
+    //
+    // tmp = read_vel_tex;
+    // read_vel_tex = write_vel_tex;
+    // write_vel_tex = tmp;
+    //
+    // //-----swap velocity ping pong
 
     //////////////////////////////////////////////////////////////////
     //3---use velocity map, sediment map and hight map to derive sediment map and new hight map and velocity map :
@@ -527,6 +573,8 @@ function SimulatePerStep(renderer:OpenGLRenderer,
     write_vel_tex = tmp;
 
     //----------swap terrain and sediment map---------
+
+
 
     //////////////////////////////////////////////////////////////////
     // semi-lagrangian advection for sediment transportation
@@ -1114,6 +1162,7 @@ function setupFramebufferandtextures(gl_context:WebGL2RenderingContext) {
 function SimulationStep(curstep:number,
                         flow:ShaderProgram,
                         waterhight : ShaderProgram,
+                        veladvect : ShaderProgram,
                         sediment : ShaderProgram,
                         advect:ShaderProgram,
                         macCormack : ShaderProgram,
@@ -1128,7 +1177,7 @@ function SimulationStep(curstep:number,
     if(PauseGeneration) return true;
     else{
         SimulatePerStep(renderer,
-            gl_context,camera,flow,waterhight,sediment,advect, macCormack,rains,evapo,average,thermalterrainflux,thermalapply, maxslippageheight);
+            gl_context,camera,flow,waterhight,veladvect,sediment,advect, macCormack,rains,evapo,average,thermalterrainflux,thermalapply, maxslippageheight);
     }
     return false;
 }
@@ -1378,6 +1427,11 @@ function main() {
         new Shader(gl_context.FRAGMENT_SHADER, require('./shaders/bilateralBlur-frag.glsl')),
     ]);
 
+    const veladvect = new ShaderProgram([
+        new Shader(gl_context.VERTEX_SHADER, require('./shaders/quad-vert.glsl')),
+        new Shader(gl_context.FRAGMENT_SHADER, require('./shaders/veladvect-frag.glsl')),
+        ]
+    );
 
 
     let timer = 0;
@@ -1564,7 +1618,12 @@ function main() {
     sediadvect.setTimestep(controls.timestep);
     sediadvect.setFloat(controls.AdvectionSpeedScaling, "unif_advectionSpeedScale");
 
-
+    veladvect.setSimres(simres);
+    veladvect.setPipeLen(controls.pipelen);
+    veladvect.setKc(controls.Kc);
+    veladvect.setKs(controls.Ks);
+    veladvect.setKd(controls.Kd);
+    veladvect.setTimestep(controls.timestep);
 
     macCormack.setSimres(simres);
     macCormack.setPipeLen(controls.pipelen);
@@ -1591,9 +1650,19 @@ function main() {
     maxslippageheight.setTimestep(controls.timestep);
     maxslippageheight.setPipeArea(controls.pipeAra);
     maxslippageheight.setFloat(controls.thermalTalusAngleScale, "unif_TalusScale");
+      if(controls.RainErosion){
+          maxslippageheight.setInt(1, 'unif_rainMode');
+      }else{
+          maxslippageheight.setInt(0,'unif_rainMode');
+      }
 
     average.setSimres(simres);
     average.setInt(controls.ErosionMode,'unif_ErosionMode');
+    if(controls.RainErosion){
+        average.setInt(1, 'unif_rainMode');
+    }else{
+        average.setInt(0,'unif_rainMode');
+    }
 
     camera.update();
     stats.begin();
@@ -1601,7 +1670,7 @@ function main() {
       //==========================  we begin simulation from now ===========================================
 
     for(let i = 0;i<controls.SimulationSpeed;i++) {
-        SimulationStep(SimFramecnt, flow, waterhight, sediment, sediadvect, macCormack,rains,evaporation,average,thermalterrainflux, thermalapply, maxslippageheight, renderer, gl_context, camera);
+        SimulationStep(SimFramecnt, flow, waterhight, veladvect,sediment, sediadvect, macCormack,rains,evaporation,average,thermalterrainflux, thermalapply, maxslippageheight, renderer, gl_context, camera);
         SimFramecnt++;
     }
 
