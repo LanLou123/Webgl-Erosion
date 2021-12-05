@@ -41,7 +41,7 @@
 
 
 ### some screenshots
-- New rain based Erosion examples (I lowered the threshold for talus angle) : 
+- some New rain based Erosion examples (I lowered the threshold for talus angle), but it looks too axis aligned, need to  : 
 
 ![](screenshot/rains2.PNG)
 ![](screenshot/rains.PNG)
