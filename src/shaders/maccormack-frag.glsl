@@ -53,13 +53,13 @@ void main() {
 
 
 
-    vec4 useVel = curvel/u_SimRes;
-    useVel *= unif_advectionSpeedScale;
-
-
-
-    vec2 oldloc = vec2(curuv.x-useVel.x*velscale*u_timestep,curuv.y-useVel.y*velscale*u_timestep);
-    float oldsedi = texture(sedi, oldloc).x;
+//    vec4 useVel = curvel/u_SimRes;
+//    useVel *= unif_advectionSpeedScale;
+//
+//
+//
+//    vec2 oldloc = vec2(curuv.x-useVel.x*velscale*u_timestep,curuv.y-useVel.y*velscale*u_timestep);
+//    float oldsedi = texture(sedi, oldloc).x;
 
 
 
