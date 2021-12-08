@@ -105,9 +105,9 @@ const controls = {
     pipeAra :  0.6,
     ErosionMode : 0, // 0 river erosion, 1 : mountain erosion, 2 : polygonal mode
     RainErosion : false, //
-    RainErosionStrength : 1.0,
+    RainErosionStrength : 0.2,
     RainErosionDropSize : 2.0,
-    EvaporationConstant : 0.005,
+    EvaporationConstant : 0.003,
     VelocityMultiplier : 1,
     RainDegree : 4.5,
     AdvectionSpeedScaling : 1.0,
