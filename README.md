@@ -28,7 +28,8 @@
 ![](screenshot/scatter1.PNG)
 
 ## Note : MacOS currently unsupported, Recommended GPU is GTX 1060 and above
-
+## update 12/8/2021 : 
+- Algorithm update/fix : added basic(semi-lagrangian) advection for velocity field generation, you can change magnitude of it under "Erosion Parameters" -> "VelocityAdvectionMag", this means that momentum is possible for water, we can have larger/better scale meandering/delta effects
 ## update 10/1/2021 : 
 - Algorithm update/fix : now erosion detail will be more accurate as I've choosen to disregard small water body's contribution to sediment advection, it used to create noises in sediment result because when water volume goes below numerical limitation of the sim, velocity will be contributing the same to advection regardless of water size...
 ## update 9/24/2021 : 
@@ -44,7 +45,9 @@
 - flow map and results after adding velocity advection, this will make sure water have momentum transfered from previous frame, making it more persistent and easier to form ravine/valley  
 ![](screenshot/velocityadvection.PNG)
 ![](screenshot/velocityadvection1.PNG)
-
+- velocity advection also enables better delta/flood plain : 
+![](screenshot/delta0.PNG)
+![](screenshot/delta1.PNG)
 
 - permanent water in a river vally
 ![](screenshot/riv.PNG)
