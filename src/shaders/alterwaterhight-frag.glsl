@@ -12,6 +12,7 @@ uniform float u_timestep;
 uniform float u_PipeArea;
 uniform float u_VelMult;
 uniform float u_Time;
+uniform float u_VelAdvMag;
 
 layout (location = 0) out vec4 writeTerrain;
 layout (location = 1) out vec4 writeVel;
@@ -105,14 +106,14 @@ void main(){
 
 
   //veclocity advection
-  //  vec4 useVel = curvel/u_SimRes;
-  //  useVel *= 0.99;
-  //
-  //
-  //  vec2 oldloc = vec2(curuv.x-useVel.x*u_timestep,curuv.y-useVel.y*u_timestep);
-  //  vec2 oldvel = texture(readVel, oldloc).xy;
-  //
-  //  veloci += oldvel * (1.0 - exp(- cur.y * 20.0));
+    vec4 useVel = curvel/u_SimRes;
+    useVel *= 0.5;
+
+
+    vec2 oldloc = vec2(curuv.x-useVel.x*u_timestep,curuv.y-useVel.y*u_timestep);
+    vec2 oldvel = texture(readVel, oldloc).xy;
+
+    veloci += oldvel * u_VelAdvMag;//(1.0 - exp(- cur.y * 20.0));
 
   // !!! very important !!! : disregard really small body of water as it will disrupt the sediment advection step (since advection is only dependent on velocity, small water body will
   // be the numerical limitation for the lower threshold of simulation can handle, any value below it will be treated qually regardless of their own differences, and this is really bad

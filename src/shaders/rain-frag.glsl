@@ -157,13 +157,14 @@ void main() {
             float smallradius = 0.025  * u_RainErosionDropSize;
             float rdx = random(vec2(30.0, cos(u_Time)));
             float rdy = random(vec2(u_Time, 10.0));
+            float rdr = random(vec2(20.0,u_Time * 10.0));
 
             float str = 1.0;
             if(mod(u_Time, 20.0) == 1.0) str = 9.0;
 
             float dis2small = distance(vec2(rdx, rdy), curuv);
-            if (dis2small < smallradius){
-                  addwater +=  0.06 * u_RainErosionStrength;
+            if (dis2small < smallradius ){
+                  addwater +=  0.06 * u_RainErosionStrength* (1.0 + 5.0 * rdr);
             }
 
 

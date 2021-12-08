@@ -149,6 +149,7 @@ const controls = {
     showScattering : true,
     enableBilateralBlur : true,
     AdvectionMethod : 1,
+    VelocityAdvectionMag : 0.2,
     SimulationResolution : simres,
 };
 
@@ -1240,12 +1241,13 @@ function main() {
     terrainParameters.add(controls,'ResetTerrain');
     terrainParameters.open();
     var erosionpara = gui.addFolder('Erosion Parameters');
-    erosionpara.add(controls, 'ErosionMode', {RiverMode : 0, MountainMode : 1, PolygonalMode : 2});
     var RainErosionPara = erosionpara.addFolder('Rain Erosion Parameters');
     RainErosionPara.add(controls,'RainErosion');
     RainErosionPara.add(controls, 'RainErosionStrength', 0.1,3.0);
     RainErosionPara.add(controls,'RainErosionDropSize', 0.1, 3.0);
     RainErosionPara.close();
+    erosionpara.add(controls, 'ErosionMode', {RiverMode : 0, MountainMode : 1, PolygonalMode : 2});
+    erosionpara.add(controls, 'VelocityAdvectionMag', 0.0, 0.5);
     erosionpara.add(controls, 'EvaporationConstant', 0.0001, 0.08);
     erosionpara.add(controls,'Kc', 0.01,0.5);
     erosionpara.add(controls,'Ks', 0.001,0.2);
@@ -1600,6 +1602,7 @@ function main() {
     waterhight.setTimestep(controls.timestep);
     waterhight.setPipeArea(controls.pipeAra);
     waterhight.setFloat(controls.VelocityMultiplier, 'u_VelMult');
+    waterhight.setFloat(controls.VelocityAdvectionMag, 'u_VelAdvMag');
     waterhight.setTime(timer);
 
     sediment.setSimres(simres);

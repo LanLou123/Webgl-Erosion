@@ -41,10 +41,10 @@
 
 
 ### some screenshots
-- some rain based Erosion examples (with lower talusAngle value, 2), but it looks too axis aligned, need to find better ways: 
+- flow map and results after adding velocity advection, this will make sure water have momentum transfered from previous frame, making it more persistent and easier to form ravine/valley  
+![](screenshot/velocityadvection.PNG)
+![](screenshot/velocityadvection1.PNG)
 
-![](screenshot/rains2.PNG)
-![](screenshot/rains.PNG)
 
 - permanent water in a river vally
 ![](screenshot/riv.PNG)
@@ -79,6 +79,10 @@
 - other postprocessing effects (ray marched cloud for example, since ray marched Mie scattering is done, cloud should be fairly simple to work based on it)
 - Biomes
 - Eventual goal : Erosion based games, "FROM DUST" would be a good example
+
+### limitations are there however for grid based method
+- mass conservation of sediment is not guranteed 
+
 
 ### Reference
 - [Fast Hydraulic Erosion Simulation and Visualization on GPU](http://www-ljk.imag.fr/Publications/Basilic/com.lmc.publi.PUBLI_Inproceedings@117681e94b6_fff75c/FastErosion_PG07.pdf)
