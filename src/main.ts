@@ -98,9 +98,9 @@ const controlscomp = {
 const controls = {
     tesselations: 5,
     pipelen:  0.8,//
-    Kc : 0.1,
-    Ks : 0.02,
-    Kd : 0.013,
+    Kc : 0.06,
+    Ks : 0.036,
+    Kd : 0.006,
     timestep : 0.05,
     pipeAra :  0.6,
     ErosionMode : 0, // 0 river erosion, 1 : mountain erosion, 2 : polygonal mode
